@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "PickUpItem.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,14 +72,31 @@ void APrototype2Character::BeginPlay()
 //////////////////////////////////////////////////////////////////////////
 // Input
 
+void APrototype2Character::ChargeAttack(const FInputActionValue& Value)
+{
+}
+
+void APrototype2Character::ReleaseAttack()
+{
+}
+
+void APrototype2Character::Interact()
+{
+	if (HeldItem)
+	{
+		HeldItem->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+
+	}
+}
+
 void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		////Jumping
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APrototype2Character::Move);
@@ -88,8 +106,13 @@ void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* Play
 
 		// UI
 		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &APrototype2Character::OpenIngameMenu);
-	}
 
+		// Charge Attack
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Ongoing, this, &APrototype2Character::ChargeAttack);
+
+		// Interact
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APrototype2Character::Interact);
+	}
 }
 
 void APrototype2Character::Move(const FInputActionValue& Value)
