@@ -7,7 +7,6 @@
 #include "InputActionValue.h"
 #include "Prototype2Character.generated.h"
 
-
 UCLASS(config=Game)
 class APrototype2Character : public ACharacter
 {
@@ -48,7 +47,6 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
 
 protected:
 	// APawn interface
