@@ -6,15 +6,15 @@
 #include "Components/TextBlock.h"
 #include "GameFramework/GameMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "Prototype2/Prototype2GameMode.h"
+#include "Prototype2/Gamestates/Prototype2Gamestate.h"
 
 void UWidget_PlayerHUD::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	if (auto* gameMode = Cast<APrototype2GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+	if (auto* gameState = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
 	{
-		GameModeRef = gameMode;
+		GameStateRef = gameState;
 	}
 }
 
@@ -22,10 +22,10 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (GameModeRef)
+	if (GameStateRef)
 	{
-		Minutes->SetText(FText::FromString(FString::FromInt(GameModeRef->Minutes)));
-		Seconds->SetText(FText::FromString(FString::FromInt(GameModeRef->Seconds)));
+		Minutes->SetText(FText::FromString(FString::FromInt(GameStateRef->Minutes)));
+		Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->Seconds)));
 	}
 }
 
