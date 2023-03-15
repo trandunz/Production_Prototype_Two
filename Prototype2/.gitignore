@@ -76,3 +76,5 @@ DerivedDataCache/*
 .idea/*
 
 Plugins/Developer/RiderLink/*
+
+Prototype2/.vsconfig
