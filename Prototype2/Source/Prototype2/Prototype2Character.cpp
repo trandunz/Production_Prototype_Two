@@ -19,7 +19,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Widgets/Widget_InteractionPanel.h"
 #include "Widgets/Widget_IngameMenu.h"
+#include "Blueprint/UserWidget.h"
 #include "Widgets/Widget_PlayerHUD.h"
+
 
 
 APrototype2Character::APrototype2Character()
@@ -68,6 +70,20 @@ void APrototype2Character::BeginPlay()
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+
+	if (PlayerHudPrefab)
+	{
+		if (Controller)
+		{
+			if (auto* playerController = Cast<APrototype2PlayerController>(Controller))
+			{
+				PlayerHUDRef = CreateWidget<UWidget_PlayerHUD>(playerController, PlayerHudPrefab);
+
+				if (PlayerHUDRef)
+					PlayerHUDRef->AddToViewport();
+			}
 		}
 	}
 }
@@ -225,13 +241,7 @@ void APrototype2Character::OpenIngameMenu()
 {
 	if (auto* playercontroller = Cast<APrototype2PlayerController>(Controller))
 	{
-		if (playercontroller->PlayerHUDRef->IngameMenu->GetVisibility() == ESlateVisibility::Hidden)
-		{
-			playercontroller->PlayerHUDRef->IngameMenu->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			playercontroller->PlayerHUDRef->IngameMenu->SetVisibility(ESlateVisibility::Hidden);
-		}
+		if (PlayerHUDRef)
+			PlayerHUDRef->EnableDisableMenu();
 	}
 }
