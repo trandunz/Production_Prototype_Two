@@ -24,8 +24,8 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 	if (GameStateRef)
 	{
-		Minutes->SetText(FText::FromString(FString::FromInt(GameStateRef->Minutes)));
-		Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->Seconds)));
+		Minutes->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthMinutes)));
+		Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
 	}
 }
 
