@@ -47,7 +47,8 @@ void APrototype2Gamestate::CountdownMatchTimer()
 		{
 			// End of timer
 			GetWorldTimerManager().PauseTimer(MatchTimerHandle);
-			GetWorld()->ServerTravel("Level_MainMenu");
+			if (HasAuthority())
+				GetWorld()->ServerTravel("Level_MainMenu");
 		}
 		else
 		{
