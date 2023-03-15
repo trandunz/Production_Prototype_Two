@@ -12,15 +12,40 @@ UCLASS(config=Game)
 class APrototype2Character : public ACharacter
 {
 	GENERATED_BODY()
+public:
+	APrototype2Character();	
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
-
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
+	// UI
+	//UPROPERTY(EditAnywhere) TSubclassOf<UWidget_IngameMenu> WidgetIngameMenu;
+	//UWidget_IngameMenu* WidgetIngameMenuInstance;
 	
+	void OpenIngameMenu();
+	
+protected:
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	virtual void BeginPlay();
+
+	virtual void Tick(float DeltaSeconds) override;
+	
+	/** Called for movement input */
+	void Move(const FInputActionValue& Value);
+
+	/** Called for looking input */
+	void Look(const FInputActionValue& Value);
+
+	/* Called for Attack input */
+	void ChargeAttack();
+
+	/* Release Attack */
+	void ReleaseAttack();
+
+	/* Pickup/Plant/Sell */
+	void Interact();
+
+	void CheckForInteractables();	
+
+private: 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* DefaultMappingContext;
@@ -53,6 +78,9 @@ class APrototype2Character : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* DropAction;
 
+	UPROPERTY(EditAnywhere)
+	float InteractRadius = 500.0f;
+protected:
 	/* Weapon Held */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class AWeapon* Weapon;
@@ -60,45 +88,17 @@ class APrototype2Character : public ACharacter
 	/* Currently held item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class APickUpItem* HeldItem;
-
-public:
-	APrototype2Character();
 	
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
 
-protected:
-	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FollowCamera;
 
-	/** Called for looking input */
-	void Look(const FInputActionValue& Value);
-
-	/* Called for Attack input */
-	void ChargeAttack(const FInputActionValue& Value);
-
-	/* Release Attack */
-	void ReleaseAttack();
-
-	/* Pickup/Plant/Sell */
-	void Interact();
-	
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	// To add mapping context
-	virtual void BeginPlay();
-
-
-
-public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-	// UI
-	//UPROPERTY(EditAnywhere) TSubclassOf<UWidget_IngameMenu> WidgetIngameMenu;
-	//UWidget_IngameMenu* WidgetIngameMenuInstance;
-	
-	void OpenIngameMenu();
+private:
+	class IInteractInterface* ClosestInteractableItem;
+	bool bIsChargingAttack;
+	float AttackChargeAmount;
 };
