@@ -6,5 +6,29 @@
 
 void UWidget_IngameMenu::ReturnToMenu()
 {
-	UGameplayStatics::OpenLevel((UObject*)GetGameInstance(), FName(TEXT("Level_MainMenu")));
+	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Level_MainMenu")));
+}
+
+void UWidget_IngameMenu::EnableDisableMenu()
+{
+	if (GetVisibility() == ESlateVisibility::Hidden)
+	{
+		SetVisibility(ESlateVisibility::Visible);
+
+		if (auto* controller = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+		{
+			controller->SetInputMode(FInputModeUIOnly{});
+			controller->bShowMouseCursor = true;
+		}
+	}
+	else
+	{
+		if (auto* controller = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+		{
+			controller->bShowMouseCursor = false;
+			controller->SetInputMode(FInputModeGameOnly{});
+		}
+
+		SetVisibility(ESlateVisibility::Hidden);
+	}
 }
