@@ -2,17 +2,12 @@
 
 
 #include "Widget_PlayerHUD.h"
-
 #include "Widget_IngameMenu.h"
+#include "GameFramework/GameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "Prototype2/Prototype2GameMode.h"
 
 void UWidget_PlayerHUD::EnableDisableMenu()
 {
-	if (IngameMenu->GetVisibility() == ESlateVisibility::Hidden)
-	{
-		IngameMenu->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		IngameMenu->SetVisibility(ESlateVisibility::Hidden);
-	}
+	IngameMenu->EnableDisableMenu();
 }
