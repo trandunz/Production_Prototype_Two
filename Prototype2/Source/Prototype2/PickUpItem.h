@@ -35,8 +35,4 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	UItemComponent* ItemComponent;
-
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* mesh;
-
 };

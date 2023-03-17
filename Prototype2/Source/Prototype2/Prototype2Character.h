@@ -98,7 +98,7 @@ private: // Private variables
 
 	/* Interact radius for checking closest item */
 	UPROPERTY(EditAnywhere)
-	float InteractRadius = 100.0f;
+	float InteractRadius = 200.0f;
 
 	/* Maximum amount of Attack Charge */
 	UPROPERTY(EditAnywhere)

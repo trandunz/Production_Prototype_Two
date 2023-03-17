@@ -7,6 +7,7 @@
 #include "ItemComponent.generated.h"
 
 
+class APrototype2Character;
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROTOTYPE2_API UItemComponent : public UActorComponent
 {
@@ -25,6 +26,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
+	void Interact(APrototype2Character* player, APickUpItem* itemPickedUp);
+	
 public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
