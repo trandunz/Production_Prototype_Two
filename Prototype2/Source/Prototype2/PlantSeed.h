@@ -23,4 +23,6 @@ private:
 	APlantSeed();
 	UPROPERTY(EditAnywhere)
 	APlant* plantToGrow = nullptr;
+
+	
 };

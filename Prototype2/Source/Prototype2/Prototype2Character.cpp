@@ -200,14 +200,15 @@ void APrototype2Character::Interact()
 			{
 				// Attach to socket
 				HeldItem->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("HeldItemSocket"));
+
+				if (PickupMontage)
+				{
+					// Animation
+					GetMesh()->GetAnimInstance()->Montage_Play(PickupMontage);
+				}
 			}
 		}
 
-			if (PickupMontage)
-			{
-				// Animation
-				GetMesh()->GetAnimInstance()->Montage_Play(PickupMontage);
-			}
 	}
 }
 
