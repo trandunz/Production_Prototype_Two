@@ -209,6 +209,17 @@ void APrototype2Character::Interact()
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("No Items Found"));
+			if (HeldItem)
+			{
+				// Attach to socket
+				HeldItem->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("HeldItemSocket"));
+
+				if (PickupMontage)
+				{
+					// Animation
+					PlayNetworkMontage(PickupMontage);
+				}
+			}
 		}
 
 	}
@@ -340,6 +351,23 @@ void APrototype2Character::OpenIngameMenu()
 		if (PlayerHUDRef)
 			PlayerHUDRef->EnableDisableMenu();
 	}
+}
+
+void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(_montage);
+	Server_PlayNetworkMontage(_montage);
+}
+
+void APrototype2Character::Server_PlayNetworkMontage_Implementation(UAnimMontage* _montage)
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(_montage);
+	Multi_PlayNetworkMontage(_montage);
+}
+
+void APrototype2Character::Multi_PlayNetworkMontage_Implementation(UAnimMontage* _montage)
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(_montage);
 }
 
 void APrototype2Character::Server_AddHUD_Implementation()

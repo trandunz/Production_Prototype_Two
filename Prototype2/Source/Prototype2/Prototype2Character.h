@@ -47,7 +47,15 @@ protected: // Protected Functions
 	
 	/* UI */
 	void OpenIngameMenu();
-
+	
+	void PlayNetworkMontage(UAnimMontage* _montage);
+	UFUNCTION(Server, Reliable)
+	void Server_PlayNetworkMontage(UAnimMontage* _montage);
+	void Server_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_PlayNetworkMontage(UAnimMontage* _montage);
+	void Multi_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
+	
 	UFUNCTION(Server, Reliable)
 	void Server_AddHUD();
 	void Server_AddHUD_Implementation();
