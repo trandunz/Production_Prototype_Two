@@ -32,7 +32,7 @@ void AFarmPlot::Tick(float DeltaTime)
 
 void AFarmPlot::Interact(APrototype2Character* player)
 {
-	if (auto* seed = Cast<AWeaponSeed>(player->HeldItem))
+	if (auto* weaponSeed = Cast<AWeaponSeed>(player->HeldItem))
 	{
 		
 	}
