@@ -16,6 +16,7 @@ ASellBin::ASellBin()
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 
+	InterfaceType = EInterfaceType::SellBin;
 }
 
 // Called when the game starts or when spawned

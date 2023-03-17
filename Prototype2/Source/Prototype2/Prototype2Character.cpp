@@ -184,11 +184,14 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 
 void APrototype2Character::Interact()
 {
+	// If player is holding nothing, and there is something to pickup in range
 	if(ClosestInteractableItem && !HeldItem)
 	{
 		// Call the InteractInterface interact function
 		ClosestInteractableItem->Interact(this);
-		if (PickupMontage)
+		
+		if (PickupMontage &&
+			ClosestInteractableItem->InterfaceType != EInterfaceType::SellBin)
 		{
 			// Animation
 			PlayNetworkMontage(PickupMontage);
@@ -196,18 +199,23 @@ void APrototype2Character::Interact()
 	}
 	else if (HeldItem)
 	{
+		// If Sell Bin close, sell - which destroys HeldItem
 		if (ClosestInteractableItem)
 		{
-			ClosestInteractableItem->Interact(this);
+			if (ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin)
+			{
+				// Sell to item bin
+				ClosestInteractableItem->Interact(this);
+			}			
 		}
 
-		if (HeldItem)
+		// If item wasn't sold, drop it
+		if(HeldItem)
 		{
+			// Drop into world
 			HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 			HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
 			HeldItem->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		
-			// HeldItem->EnablePhysics // Needs the ItemComponent stuff
 			HeldItem = nullptr;
 		}
 	}
