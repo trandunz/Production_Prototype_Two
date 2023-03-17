@@ -8,6 +8,7 @@
 
 
 class APrototype2Character;
+class APickUpItem;
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROTOTYPE2_API UItemComponent : public UActorComponent
 {
