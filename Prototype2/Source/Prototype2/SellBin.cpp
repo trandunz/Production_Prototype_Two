@@ -39,7 +39,7 @@ void ASellBin::Interact(APrototype2Character* player)
 		if (auto* plant = Cast<APlant>(player->HeldItem))
 		{
 			Cast<APrototype2PlayerState>(player->GetPlayerState())->Coins += plant->ItemComponent->CropValue;
-			Destroy(player->HeldItem);
+			player->HeldItem->Destroy();
 			player->HeldItem = nullptr;
 		}
 	}
