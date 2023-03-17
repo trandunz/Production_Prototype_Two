@@ -51,7 +51,7 @@ void UItemComponent::Interact(APrototype2Character* player, APickUpItem* itemPic
 	player->HeldItem = itemPickedUp;
 	
 	// Attach to socket
-	itemPickedUp->AttachToComponent(player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"))
+	itemPickedUp->AttachToComponent(player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
 	
 	// Assign Players HeldItem
 	player->HeldItem = itemPickedUp;
