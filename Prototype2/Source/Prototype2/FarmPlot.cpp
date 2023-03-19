@@ -30,8 +30,3 @@ void AFarmPlot::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-void AFarmPlot::Interact(APrototype2Character* player)
-{
-}
-
