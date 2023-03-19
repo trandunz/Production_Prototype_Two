@@ -211,7 +211,12 @@ void APrototype2Character::Interact()
 			{
 				// Sell to item bin
 				ClosestInteractableItem->Interact(this);
-			}			
+			}
+			if(ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
+			{
+				// Plant Seed
+				ClosestInteractableItem->Interact(this);
+			}
 		}
 
 		// If item wasn't sold, drop it

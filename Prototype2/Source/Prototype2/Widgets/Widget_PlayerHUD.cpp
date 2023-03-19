@@ -5,6 +5,7 @@
 
 #include "Widget_EndgameMenu.h"
 #include "Widget_IngameMenu.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/GameMode.h"
 #include "GameFramework/PlayerState.h"
@@ -35,7 +36,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		//if (!GetOwningPlayerPawn()->HasAuthority())
 		//	UE_LOG(LogTemp, Warning, TEXT("Players Array Size = %s"), *FString::FromInt(GameStateRef->PlayerArray.Num()));
 		
-		for (int i = 0; i < GameStateRef->PlayerArray.Num(); i++)
+		for (int i = 0; i < GameStateRef->Server_Players.Num(); i++)
 		{
 			if (auto player = GameStateRef->Server_Players[i])
 			{
@@ -100,5 +101,46 @@ void UWidget_PlayerHUD::EnableEndgameMenu()
 	IngameMenu->DisableMenu();
 	EndgameMenu->EnableEndgameMenu();
 }
+
+void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
+{
+	if (_pickup != None)
+	{
+		if (PickupImage->GetVisibility() == ESlateVisibility::Hidden)
+		{
+			PickupImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	
+	switch(_pickup)
+	{
+	case None:
+		{
+			PickupImage->SetVisibility(ESlateVisibility::Hidden);
+			break;
+		}
+	case Carrot:
+		{
+			PickupImage->SetBrushFromTexture(CarrotTexture);
+			break;
+		}
+	case Cabbage:
+		{
+			PickupImage->SetBrushFromTexture(CabbageTexture);
+			break;
+		}
+	case Mandrake:
+		{
+			PickupImage->SetBrushFromTexture(MandrakeTexture);
+			break;
+		}
+	default:
+		{
+			
+		}
+	}
+	
+}
+
 
 
