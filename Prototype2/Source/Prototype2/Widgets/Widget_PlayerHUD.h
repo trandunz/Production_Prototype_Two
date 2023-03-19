@@ -20,6 +20,9 @@ public:
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UWidget_IngameMenu* IngameMenu;
 
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UWidget_EndgameMenu* EndgameMenu;
+
 	// Timer
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Minutes;
@@ -46,4 +49,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void EnableDisableMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void EnableEndgameMenu();
 };

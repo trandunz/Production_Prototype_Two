@@ -79,3 +79,14 @@ void UWidget_EndgameMenu::UpdateWinnerText()
 
 	
 }
+
+void UWidget_EndgameMenu::EnableEndgameMenu()
+{
+	SetVisibility(ESlateVisibility::Visible);
+	
+	if (auto* controller = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+	{
+		controller->SetInputMode(FInputModeUIOnly{});
+		controller->bShowMouseCursor = true;
+	}
+}
