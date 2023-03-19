@@ -35,6 +35,11 @@ void ASellBin::Tick(float DeltaTime)
 
 void ASellBin::Interact(APrototype2Character* player)
 {
+	Server_SellCrop(player);
+}
+
+void ASellBin::Server_SellCrop_Implementation(APrototype2Character* player)
+{
 	if (player->HeldItem)
 	{
 		if (auto* plant = Cast<APlant>(player->HeldItem))
