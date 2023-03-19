@@ -12,6 +12,7 @@
 #include "InteractInterface.h"
 #include "PickUpItem.h"
 #include "Prototype2PlayerController.h"
+#include "Weapon.h"
 #include "Components/SphereComponent.h"
 #include "DynamicMesh/ColliderMesh.h"
 #include "Kismet/GameplayStatics.h"
@@ -113,7 +114,11 @@ void APrototype2Character::Tick(float DeltaSeconds)
 void APrototype2Character::ChargeAttack()
 {
 	bIsChargingAttack = true;
-	
+
+	if (Weapon)
+	{
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHeldSocket"));
+	}
 	// todo: Set animation to raise hand/hands
 }
 
@@ -184,6 +189,12 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 				}
 			}
 		}
+	}
+
+	// Animation
+	if(AttackMontage)
+	{
+		PlayNetworkMontage(AttackMontage);
 	}
 }
 
