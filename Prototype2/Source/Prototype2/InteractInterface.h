@@ -11,6 +11,7 @@ UENUM()
 enum class EInterfaceType : uint8
 {
 	SellBin     UMETA(DisplayName = "SellShop"),
+	GrowSpot     UMETA(DisplayName = "SellShop"),
 	Default      UMETA(DisplayName = "Default"),
 };
 

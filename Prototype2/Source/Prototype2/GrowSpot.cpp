@@ -21,7 +21,8 @@ AGrowSpot::AGrowSpot()
 void AGrowSpot::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	InterfaceType = EInterfaceType::GrowSpot;
 }
 
 // Called every frame
