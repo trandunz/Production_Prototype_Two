@@ -35,7 +35,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		//if (!GetOwningPlayerPawn()->HasAuthority())
 		//	UE_LOG(LogTemp, Warning, TEXT("Players Array Size = %s"), *FString::FromInt(GameStateRef->PlayerArray.Num()));
 		
-		for (int i = 0; i < GameStateRef->PlayerArray.Num(); i++)
+		for (int i = 0; i < GameStateRef->Server_Players.Num(); i++)
 		{
 			if (auto player = GameStateRef->Server_Players[i])
 			{
