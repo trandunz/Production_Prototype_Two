@@ -58,6 +58,11 @@ void AGrowSpot::Interact(APrototype2Character* player)
 			{
 				auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
 				SetPlant(Cast<APlant>(newPlant), seed->growtime);
+				plant->SetActorEnableCollision(false);
+				//disable physics
+				plant->DisableComponentsSimulatePhysics();
+				plant->SetActorLocation(this->GetActorLocation());
+				plant->SetActorRotation(FRotator(0, 0, 0));
 			}
 		}
 	}
@@ -68,6 +73,9 @@ void AGrowSpot::Interact(APrototype2Character* player)
 			player->HeldItem = plant;
 			plant = nullptr;
 			plantGrown = false;
+			plant->isGrown = true;
+			plant->SetActorEnableCollision(true);
+			//enable physics
 		}
 	}
 	//else if (weapon)
