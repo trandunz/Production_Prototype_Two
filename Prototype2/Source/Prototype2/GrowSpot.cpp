@@ -4,6 +4,7 @@
 #include "GrowSpot.h"
 #include "Plant.h"
 #include "Prototype2Character.h"
+#include "Prototype2PlayerState.h"
 #include "Seed.h"
 #include "WeaponSeed.h"
 
@@ -26,6 +27,21 @@ void AGrowSpot::BeginPlay()
 	ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
 }
 
+void AGrowSpot::Multi_Plant_Implementation()
+{
+	if (plant)
+	{
+		if (plant->ItemComponent)
+		{
+			if (plant->ItemComponent->Mesh)
+			{
+				plant->ItemComponent->Mesh->SetSimulatePhysics(false);
+				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
+		}
+	}
+}
+
 // Called every frame
 void AGrowSpot::Tick(float DeltaTime)
 {
@@ -40,46 +56,51 @@ void AGrowSpot::Tick(float DeltaTime)
 			growingPlant = false;
 		}
 	}
-
 }
 
 void AGrowSpot::Interact(APrototype2Character* player)
 {
-	if (auto* weaponSeed = Cast<AWeaponSeed>(player->HeldItem))
+	if (auto* playerState = player->GetPlayerState<APrototype2PlayerState>())
 	{
-		if (!plant && !weapon)
+		if (playerState->Player_ID == Player_ID)
 		{
-			//SetWeapon(weaponSeed->weaponToGrow, weaponSeed->growtime);
-		}
-	}
-	else if (auto* seed = Cast<ASeed>(player->HeldItem))
-	{
-		if (!plant && !weapon)
-		{
-			if (seed->plantToGrow)
+			if (auto* weaponSeed = Cast<AWeaponSeed>(player->HeldItem))
 			{
-				auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
-				SetPlant(Cast<APlant>(newPlant), seed->growtime);
-				plant->ItemComponent->Mesh->SetSimulatePhysics(false);
-				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-				plant->SetActorLocation(this->GetActorLocation());
-				plant->SetActorRotation(FRotator(0, 0, 0));
-				player->HeldItem->Destroy();
+				if (!plant && !weapon)
+				{
+					//SetWeapon(weaponSeed->weaponToGrow, weaponSeed->growtime);
+				}
+			}
+			else if (auto* seed = Cast<ASeed>(player->HeldItem))
+			{
+				if (!plant && !weapon)
+				{
+					if (seed->plantToGrow)
+					{
+						auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
+						SetPlant(Cast<APlant>(newPlant), seed->growtime);
+						plant->SetActorLocation(GetActorLocation());
+						Multi_Plant();
+						if (seed)
+							seed->Destroy();
+					}
+				}
+			}
+			else if (plant)
+			{
+				if (plantGrown)
+				{
+					player->HeldItem = plant;
+					player->Server_PickupItem(plant->ItemComponent, plant);
+					plant->isGrown = true;
+					plant = nullptr;
+					plantGrown = false;
+					//enable physics
+				}
 			}
 		}
 	}
-	else if (plant)
-	{
-		if (plantGrown)
-		{
-			player->HeldItem = plant;
-			player->Server_PickupItem(plant->ItemComponent, plant);
-			plant->isGrown = true;
-			plant = nullptr;
-			plantGrown = false;
-			//enable physics
-		}
-	}
+	
 	//else if (weapon)
 	//{
 	//	if (plantGrown)

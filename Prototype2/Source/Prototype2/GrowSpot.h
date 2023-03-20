@@ -21,12 +21,15 @@ public:
 	// Sets default values for this actor's properties
 	AGrowSpot();
 
-	int playerNumber = 0;
+	UPROPERTY(EditAnywhere)
+	int Player_ID = 0;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_Plant();
+	void Multi_Plant_Implementation();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -38,6 +41,8 @@ public:
 
 	void SetPlant(APlant* _plant, float _growTime);
 	void SetWeapon(AWeapon* _weapon, float _growTime);
+
+
 
 	APlant* plant = nullptr;
 	AWeapon* weapon = nullptr;
