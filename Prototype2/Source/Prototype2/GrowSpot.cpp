@@ -31,7 +31,8 @@ void AGrowSpot::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (growingPlant)
 	{
-		growTime -= GetWorld()->GetDeltaSeconds();
+		if (growTime > 0)
+			growTime -= DeltaTime;
 		if (growTime <= 0)
 		{
 			plantGrown = true;
