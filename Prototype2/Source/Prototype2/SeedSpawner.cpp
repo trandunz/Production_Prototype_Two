@@ -34,9 +34,10 @@ void ASeedSpawner::SpawnSeedsOnTick(float DeltaTime)
 			{
 				FNavLocation Result;
 				navSys->GetRandomPointInNavigableRadius(GetActorLocation(), MaxSpawnRadius, Result);
-				Result.Location += (Result.Location - GetActorLocation()).GetSafeNormal() * MinSpawnRadius;
-				Result.Location += FVector::UpVector * 50.0f;
-				GetWorld()->SpawnActor<ASeed>(SeedPrefabs[rand() % SeedPrefabs.Num()], Result.Location, {});
+				FVector finalLocation = Result.Location;
+				finalLocation += (Result.Location - GetActorLocation()).GetSafeNormal() * MinSpawnRadius;
+				finalLocation.Z = 100.0f;
+				GetWorld()->SpawnActor<ASeed>(SeedPrefabs[rand() % SeedPrefabs.Num()], finalLocation, {});
 				SpawnTimer = AverageSpawnTime + rand() % 4;
 			}
 		}
