@@ -42,15 +42,24 @@ void AGrowSpot::Multi_Plant_Implementation()
 	}
 }
 
+void AGrowSpot::GrowPlantOnTick(float DeltaTime)
+{
+	if (growingPlant)
+	{
+		FVector scale = FMath::Lerp<FVector>({1.0f, 1.0f, 1.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
+		ItemComponent->Mesh->SetWorldScale3D(scale);
+	}
+}
+
 // Called every frame
 void AGrowSpot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (growingPlant)
 	{
-		if (growTime > 0)
-			growTime -= DeltaTime;
-		if (growTime <= 0)
+		if (growTimer > 0)
+			growTimer -= DeltaTime;
+		if (growTimer <= 0)
 		{
 			plantGrown = true;
 			growingPlant = false;
@@ -79,7 +88,9 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					{
 						auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
 						SetPlant(Cast<APlant>(newPlant), seed->growtime);
-						plant->SetActorLocation(GetActorLocation());
+
+						// Set plant pos
+						plant->SetActorLocation(GetActorLocation() + FVector::UpVector * 50.0f);
 						Multi_Plant();
 						if (seed)
 							seed->Destroy();

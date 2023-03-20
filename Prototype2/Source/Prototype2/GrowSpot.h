@@ -30,6 +30,8 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_Plant();
 	void Multi_Plant_Implementation();
+
+	void GrowPlantOnTick(float DeltaTime);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -41,13 +43,14 @@ public:
 
 	void SetPlant(APlant* _plant, float _growTime);
 	void SetWeapon(AWeapon* _weapon, float _growTime);
-
-
-
+	
 	APlant* plant = nullptr;
 	AWeapon* weapon = nullptr;
 
-	float growTime;
+	float growTimer{};
+	UPROPERTY(EditAnywhere)
+	float growTime{10};
+	
 	bool growingPlant = false;
 	bool plantGrown = false;
 };
