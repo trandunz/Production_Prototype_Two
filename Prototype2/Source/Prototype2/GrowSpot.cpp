@@ -44,10 +44,12 @@ void AGrowSpot::Multi_Plant_Implementation()
 
 void AGrowSpot::GrowPlantOnTick(float DeltaTime)
 {
-	if (growingPlant)
+	if (growingPlant && plant && HasAuthority())
 	{
-		FVector scale = FMath::Lerp<FVector>({1.0f, 1.0f, 1.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
-		ItemComponent->Mesh->SetWorldScale3D(scale);
+		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
+		FVector pos = FMath::Lerp<FVector>({GetActorLocation() + FVector::UpVector * 50.0f}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
+		plant->ItemComponent->Mesh->SetWorldScale3D(scale);
+		plant->SetActorLocation(pos);
 	}
 }
 
@@ -65,6 +67,8 @@ void AGrowSpot::Tick(float DeltaTime)
 			growingPlant = false;
 		}
 	}
+
+	GrowPlantOnTick(DeltaTime);
 }
 
 void AGrowSpot::Interact(APrototype2Character* player)
@@ -87,10 +91,10 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					if (seed->plantToGrow)
 					{
 						auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
-						SetPlant(Cast<APlant>(newPlant), seed->growtime);
+						SetPlant(Cast<APlant>(newPlant), growTime);
 
 						// Set plant pos
-						plant->SetActorLocation(GetActorLocation() + FVector::UpVector * 50.0f);
+						plant->SetActorLocation(GetActorLocation() + FVector::UpVector * 10.0f);
 						Multi_Plant();
 						if (seed)
 							seed->Destroy();
@@ -127,8 +131,9 @@ void AGrowSpot::SetPlant(APlant* _plant, float _growTime)
 {
 	if (!plant)
 	{
+		plantGrown = false;
 		plant = _plant;
-		growTime = _growTime;
+		growTimer = _growTime;
 		growingPlant = true;
 	}
 }
@@ -137,8 +142,9 @@ void AGrowSpot::SetWeapon(AWeapon* _weapon, float _growTime)
 {
 	if (!weapon)
 	{
+		plantGrown = false;
 		weapon = _weapon;
-		growTime = _growTime;
+		growTimer = _growTime;
 		growingPlant = true;
 	}
 }
