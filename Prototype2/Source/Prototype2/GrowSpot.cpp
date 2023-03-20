@@ -21,7 +21,8 @@ AGrowSpot::AGrowSpot()
 void AGrowSpot::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	InterfaceType = EInterfaceType::GrowSpot;
 }
 
 // Called every frame
@@ -46,14 +47,23 @@ void AGrowSpot::Interact(APrototype2Character* player)
 	{
 		if (!plant && !weapon)
 		{
-			SetWeapon(weaponSeed->weaponToGrow, weaponSeed->growtime);
+			//SetWeapon(weaponSeed->weaponToGrow, weaponSeed->growtime);
 		}
 	}
 	else if (auto* seed = Cast<ASeed>(player->HeldItem))
 	{
 		if (!plant && !weapon)
 		{
-			SetPlant(seed->plantToGrow, seed->growtime);
+			if (seed->plantToGrow)
+			{
+				auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
+				SetPlant(Cast<APlant>(newPlant), seed->growtime);
+				plant->SetActorEnableCollision(false);
+				//disable physics
+				plant->DisableComponentsSimulatePhysics();
+				plant->SetActorLocation(this->GetActorLocation());
+				plant->SetActorRotation(FRotator(0, 0, 0));
+			}
 		}
 	}
 	else if (plant)
@@ -63,17 +73,20 @@ void AGrowSpot::Interact(APrototype2Character* player)
 			player->HeldItem = plant;
 			plant = nullptr;
 			plantGrown = false;
+			plant->isGrown = true;
+			plant->SetActorEnableCollision(true);
+			//enable physics
 		}
 	}
-	else if (weapon)
-	{
-		if (plantGrown)
-		{
-			player->Weapon = weapon;
-			weapon = nullptr;
-			plantGrown = false;
-		}
-	}
+	//else if (weapon)
+	//{
+	//	if (plantGrown)
+	//	{
+	//		player->Weapon = weapon;
+	//		weapon = nullptr;
+	//		plantGrown = false;
+	//	}
+	//}
 }
 
 void AGrowSpot::SetPlant(APlant* _plant, float _growTime)

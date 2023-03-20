@@ -46,7 +46,7 @@ void UItemComponent::Interact(APrototype2Character* player, APickUpItem* itemPic
 	// Setup Mesh
 	Mesh->SetSimulatePhysics(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	
 	// Set players HeldItem
 	player->HeldItem = itemPickedUp;
 	
