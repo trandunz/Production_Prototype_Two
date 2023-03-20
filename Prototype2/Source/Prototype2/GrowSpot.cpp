@@ -23,6 +23,7 @@ void AGrowSpot::BeginPlay()
 	Super::BeginPlay();
 
 	InterfaceType = EInterfaceType::GrowSpot;
+	ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
 }
 
 // Called every frame
@@ -59,11 +60,11 @@ void AGrowSpot::Interact(APrototype2Character* player)
 			{
 				auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
 				SetPlant(Cast<APlant>(newPlant), seed->growtime);
-				plant->SetActorEnableCollision(false);
-				//disable physics
-				plant->DisableComponentsSimulatePhysics();
+				plant->ItemComponent->Mesh->SetSimulatePhysics(false);
+				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 				plant->SetActorLocation(this->GetActorLocation());
 				plant->SetActorRotation(FRotator(0, 0, 0));
+				player->HeldItem->Destroy();
 			}
 		}
 	}
@@ -72,10 +73,10 @@ void AGrowSpot::Interact(APrototype2Character* player)
 		if (plantGrown)
 		{
 			player->HeldItem = plant;
+			player->Server_PickupItem(plant->ItemComponent, plant);
+			plant->isGrown = true;
 			plant = nullptr;
 			plantGrown = false;
-			plant->isGrown = true;
-			plant->SetActorEnableCollision(true);
 			//enable physics
 		}
 	}
