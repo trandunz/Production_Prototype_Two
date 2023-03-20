@@ -6,6 +6,7 @@
 
 APlant::APlant()
 {
+	bReplicates = true;
 }
 
 void APlant::BeginPlay()

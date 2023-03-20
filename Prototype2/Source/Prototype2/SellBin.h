@@ -33,7 +33,4 @@ public:
 	virtual void Interact(APrototype2Character* player) override;
 
 private:
-	UFUNCTION(Server, Reliable)
-	void Server_SellCrop(APrototype2Character* player);
-	void Server_SellCrop_Implementation(APrototype2Character* player);
 };

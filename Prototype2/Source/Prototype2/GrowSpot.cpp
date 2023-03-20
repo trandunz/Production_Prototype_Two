@@ -14,7 +14,7 @@ AGrowSpot::AGrowSpot()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
-	
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned
