@@ -21,6 +21,9 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 	{
 		GameStateRef = gameState;
 	}
+
+	// Set starting pickup item
+	UpdatePickupUI(None);
 }
 
 void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -124,14 +127,29 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 			PickupImage->SetBrushFromTexture(CarrotTexture);
 			break;
 		}
+	case CarrotSeed:
+		{
+			PickupImage->SetBrushFromTexture(CarrotSeedTexture);
+			break;
+		}
 	case Cabbage:
 		{
 			PickupImage->SetBrushFromTexture(CabbageTexture);
 			break;
 		}
+	case CabbageSeed:
+		{
+			PickupImage->SetBrushFromTexture(CabbageSeedTexture);
+			break;
+		}
 	case Mandrake:
 		{
 			PickupImage->SetBrushFromTexture(MandrakeTexture);
+			break;
+		}
+	case MandrakeSeed:
+		{
+			PickupImage->SetBrushFromTexture(MandrakeSeedTexture);
 			break;
 		}
 	default:

@@ -11,8 +11,11 @@ enum EPickup
 {
 	None,
 	Carrot,
+	CarrotSeed,
 	Cabbage,
-	Mandrake
+	CabbageSeed,
+	Mandrake,
+	MandrakeSeed
 };
 
 UCLASS()
@@ -59,9 +62,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* CarrotTexture;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CarrotSeedTexture;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* CabbageTexture;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CabbageSeedTexture;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* MandrakeTexture;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* MandrakeSeedTexture;
 	
 	
 public:
