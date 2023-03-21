@@ -120,6 +120,7 @@ void APrototype2Character::Tick(float DeltaSeconds)
 			bIsStunned = false;
 
 			// Enable input
+			EnableInput(this->GetLocalViewingPlayerController());
 		}
 	}
 	
@@ -197,7 +198,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	
 	UE_LOG(LogTemp, Warning, TEXT("Sphere Radius = %s"), *FString::SanitizeFloat(AttackSphereRadius));
 	// draw collision sphere
-	DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 2.0f);
+	//DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 2.0f);
 	
 	// check if something got hit in the sweep
 	bool isHit = GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Pawn, colSphere);
@@ -286,6 +287,7 @@ void APrototype2Character::CheckForInteractables()
 void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
 	// Disable input
+	DisableInput(this->GetLocalViewingPlayerController());
 
 	// Drop item
 	if (HeldItem)
