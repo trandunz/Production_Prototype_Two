@@ -416,9 +416,10 @@ void APrototype2Character::Client_AddHUD_Implementation()
 
 void APrototype2Character::Server_TryInteract_Implementation()
 {
-	// If player is holding nothing, and there is something to pickup in range
+
 	if(ClosestInteractableItem && !HeldItem)
 	{
+		// If player is holding nothing, and there is something to pickup in range
 		if (PickupMontage &&
 			ClosestInteractableItem->InterfaceType != EInterfaceType::SellBin &&
 			ClosestInteractableItem->InterfaceType != EInterfaceType::GrowSpot)
@@ -432,7 +433,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			// Put weapon on back
 			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
 		}
-		else if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
+		else if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot) // If the player is trying to pick up a plant from grow plot
 		{
 			// Call the InteractInterface interact function
 			ClosestInteractableItem->Interact(this);
