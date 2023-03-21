@@ -240,9 +240,12 @@ void APrototype2Character::CheckForInteractables()
 		// loop through TArray
 		for (auto& hit : outHits)
 		{
-			if (Cast<IInteractInterface>(hit.GetActor()) && hit.GetActor() != HeldItem)
+			if (Cast<IInteractInterface>(hit.GetActor()))
 			{
-				interactableActors.Add(hit.GetActor());
+				if (hit.GetActor() != HeldItem)
+				{
+					interactableActors.Add(hit.GetActor());
+				}
 			}
 		}
 
@@ -385,25 +388,31 @@ void APrototype2Character::Server_TryInteract_Implementation()
 	// If player is holding nothing, and there is something to pickup in range
 	if(ClosestInteractableItem && !HeldItem)
 	{
-		// Call the InteractInterface interact function
-		ClosestInteractableItem->Interact(this);
-		
-		if (PickupMontage && ClosestInteractableItem->InterfaceType != EInterfaceType::SellBin)
+		if (PickupMontage &&
+			ClosestInteractableItem->InterfaceType != EInterfaceType::SellBin &&
+			ClosestInteractableItem->InterfaceType != EInterfaceType::GrowSpot)
 		{
 			// Animation
 			PlayNetworkMontage(PickupMontage);
+			
+			// Call the InteractInterface interact function
+			ClosestInteractableItem->Interact(this);
 		}
 	}
-	else if (HeldItem)
+	else if (HeldItem) // If holding item
 	{
-		// If Sell Bin close, sell - which destroys HeldItem
-		if (ClosestInteractableItem)
+		// If Sell Bin or Grow Patch close, interact
+		if (ClosestInteractableItem &&
+			(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin ||
+			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot))
 		{
 			ClosestInteractableItem->Interact(this);
 		}
-
-		// If item wasn't sold, drop it
-		Server_DropItem();
+		else
+		{
+			// If item wasn't sold, drop it
+			Server_DropItem();
+		}
 	}
 }
 
@@ -420,6 +429,10 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
 		HeldItem->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
+		// So that CheckForInteractables() can see it again
+		HeldItem->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+		
 		HeldItem = nullptr;
 	}
 }
@@ -434,9 +447,12 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	itemComponent->Mesh->SetSimulatePhysics(false);
 	itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
+	// So that CheckForInteractables() cant see it while player is holding it
+	itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	
 	// Attach to socket
 	_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
 	
 	// Assign Players HeldItem
-	HeldItem = _item;
+	HeldItem = _item;	
 }

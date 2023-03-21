@@ -98,6 +98,9 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						Multi_Plant();
 						if (seed)
 							seed->Destroy();
+
+						// Seed is now planted so remove from player
+						player->HeldItem = nullptr;
 					}
 				}
 			}

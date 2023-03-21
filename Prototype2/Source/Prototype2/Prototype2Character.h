@@ -17,6 +17,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+public: // Public Networking functions
 	UFUNCTION(Server, Reliable)
 	void Server_PickupItem(UItemComponent* itemComponent, APickUpItem* _item);
 	void Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
@@ -24,6 +25,38 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_DropItem();
 	void Server_DropItem_Implementation();
+	
+protected: // Protected Networking functions
+	void PlayNetworkMontage(UAnimMontage* _montage);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_PlayNetworkMontage(UAnimMontage* _montage);
+	void Server_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_PlayNetworkMontage(UAnimMontage* _montage);
+	void Multi_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_AddHUD();
+	void Server_AddHUD_Implementation();
+
+	UFUNCTION(Client, Reliable)
+	void Client_AddHUD();
+	void Client_AddHUD_Implementation();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_TryInteract();
+	void Server_TryInteract_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_DropItem();
+	void Multi_DropItem_Implementation();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_PickupItem(UItemComponent* itemComponent, APickUpItem* _item);
+	void Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
+	
 protected: // Protected Functions
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -57,37 +90,7 @@ protected: // Protected Functions
 	
 	/* UI */
 	void OpenIngameMenu();
-	
-	void PlayNetworkMontage(UAnimMontage* _montage);
-	UFUNCTION(Server, Reliable)
-	void Server_PlayNetworkMontage(UAnimMontage* _montage);
-	void Server_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
-	UFUNCTION(NetMulticast, Reliable)
-	void Multi_PlayNetworkMontage(UAnimMontage* _montage);
-	void Multi_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
-	
-	UFUNCTION(Server, Reliable)
-	void Server_AddHUD();
-	void Server_AddHUD_Implementation();
 
-	UFUNCTION(Client, Reliable)
-	void Client_AddHUD();
-	void Client_AddHUD_Implementation();
-	
-	UFUNCTION(Server, Reliable)
-	void Server_TryInteract();
-	void Server_TryInteract_Implementation();
-
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multi_DropItem();
-	void Multi_DropItem_Implementation();
-	
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multi_PickupItem(UItemComponent* itemComponent, APickUpItem* _item);
-	void Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
-	
 private: // Input actions
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
