@@ -127,8 +127,10 @@ private: // Animation
 	class UAnimMontage* PickupMontage;
 	
 	UPROPERTY(EditAnywhere)
-	class UAnimMontage* AttackMontage;
+	class UAnimMontage* ChargeAttackMontage;
 	
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* ExecuteAttackMontage;
 private: // Private variables
 
 	/* Interact radius for checking closest item */
@@ -149,12 +151,19 @@ private: // Private variables
 
 public:
 	/* Weapon Held */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AWeapon> WeaponPrefab;
+
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class AWeapon* Weapon;
 	
 	/* Currently held item */
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class APickUpItem* HeldItem;
+
+	/* Is player holding down attack */
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsChargingAttack;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
@@ -167,7 +176,6 @@ protected:
 
 private:
 	class IInteractInterface* ClosestInteractableItem;
-	bool bIsChargingAttack;
 	float AttackChargeAmount;
 	bool bIsStunned;
 	float StunTimer;
