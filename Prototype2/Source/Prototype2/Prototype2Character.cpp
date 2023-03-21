@@ -64,6 +64,7 @@ APrototype2Character::APrototype2Character()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
 }
 
 void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -86,7 +87,20 @@ void APrototype2Character::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
+	
+	// Setup Weapon
+	if (WeaponPrefab)
+	{
+		Weapon = GetWorld()->SpawnActor<AWeapon>(WeaponPrefab);
+	
+		Weapon->ItemComponent->Mesh->SetSimulatePhysics(false);
+		Weapon->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Weapon->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	
+		// Attach to socket
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
+	}
+	
 	Server_AddHUD();
 }
 
@@ -121,19 +135,27 @@ void APrototype2Character::Tick(float DeltaSeconds)
 
 void APrototype2Character::ChargeAttack()
 {
+	if (HeldItem)
+	{
+		Server_DropItem();
+	}
+	
 	bIsChargingAttack = true;
 
 	if (Weapon)
 	{
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHeldSocket"));
 	}
-	// todo: Set animation to raise hand/hands
+	
+	// Animation
+	if(ChargeAttackMontage)
+	{
+		PlayNetworkMontage(ChargeAttackMontage);
+	}
 }
 
 void APrototype2Character::ReleaseAttack()
 {
-	// todo: Set animation to execute the attack
-	
 	// Cap attack charge
 	if (AttackChargeAmount > MaxAttackCharge)
 	{
@@ -145,7 +167,7 @@ void APrototype2Character::ReleaseAttack()
 	if (Weapon)
 	{
 		// Create a larger sphere of effect
-		attackSphereRadius = 100.0f + AttackChargeAmount * 10.0f;
+		attackSphereRadius = 75.0f + AttackChargeAmount * 30.0f;
 	}
 	else
 	{
@@ -175,7 +197,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	
 	UE_LOG(LogTemp, Warning, TEXT("Sphere Radius = %s"), *FString::SanitizeFloat(AttackSphereRadius));
 	// draw collision sphere
-	DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 3.0f);
+	DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 2.0f);
 	
 	// check if something got hit in the sweep
 	bool isHit = GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Pawn, colSphere);
@@ -200,15 +222,18 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	}
 
 	// Animation
-	if(AttackMontage)
+	if(ExecuteAttackMontage)
 	{
-		PlayNetworkMontage(AttackMontage);
+		PlayNetworkMontage(ExecuteAttackMontage);
 	}
 }
 
 void APrototype2Character::Interact()
 {
-	Server_TryInteract();
+	if (!bIsChargingAttack)
+	{
+		Server_TryInteract();
+	}
 	
 	// Debug draw collision sphere
 	//FCollisionShape colSphere = FCollisionShape::MakeSphere(InteractRadius);
@@ -262,6 +287,12 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
 	// Disable input
 
+	// Drop item
+	if (HeldItem)
+	{
+		Server_DropItem();
+	}
+	
 	// Knockback
 	GetCharacterMovement()->Velocity = (GetActorLocation() - AttackerLocation).GetSafeNormal() * AttackCharge * KnockBackAmount;
 
@@ -395,6 +426,14 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			// Animation
 			PlayNetworkMontage(PickupMontage);
 			
+			// Call the InteractInterface interact function
+			ClosestInteractableItem->Interact(this);
+
+			// Put weapon on back
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
+		}
+		else if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
+		{
 			// Call the InteractInterface interact function
 			ClosestInteractableItem->Interact(this);
 		}
