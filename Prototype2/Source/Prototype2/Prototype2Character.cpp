@@ -9,9 +9,11 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GrowSpot.h"
 #include "InteractInterface.h"
 #include "PickUpItem.h"
 #include "Prototype2PlayerController.h"
+#include "Prototype2PlayerState.h"
 #include "Weapon.h"
 #include "Components/SphereComponent.h"
 #include "DynamicMesh/ColliderMesh.h"
@@ -21,6 +23,7 @@
 #include "Widgets/Widget_InteractionPanel.h"
 #include "Widgets/Widget_IngameMenu.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Widgets/Widget_PlayerHUD.h"
 
@@ -278,40 +281,135 @@ void APrototype2Character::CheckForInteractables()
 		float distanceToClosest;
 		ClosestInteractableItem = Cast<IInteractInterface>(UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest));
 
-		// // set interact text
-		// switch (ClosestInteractableItem->InterfaceType)
-		// {
-		// case EInterfaceType::SellBin:
-		// 	{
-		// 		// Set to "Sell"
-		// 		PlayerHUDRef->SetHUDInteractText("Sell");
-		// 		break;
-		// 	}
-		// case EInterfaceType::GrowSpot:
-		// 	{
-		// 		// Set to "Grow"
-		// 		PlayerHUDRef->SetHUDInteractText("Grow");
-		// 		break;
-		// 	}
-		// case EInterfaceType::Default:
-		// 	{
-		// 		// Set to "Pickup"
-		// 		PlayerHUDRef->SetHUDInteractText("PickUp");
-		// 		break;
-		// 	}
-		// 	case default:
-		// 	{
-		// 		// Set to none
-		// 		PlayerHUDRef->SetHUDInteractText("");
-		// 	}
-		// }
+		if (ClosestInteractableItem)
+		{
+			SetHUDText(ClosestInteractableItem);
+		}
+		else
+		{
+			// set interact text to nothing
+			PlayerHUDRef->SetHUDInteractText("");
+		}
 	}
 	else
 	{
 		ClosestInteractableItem = nullptr;
 
 		// set interact text to nothing
-		// PlayerHUDRef->SetHUDInteractText("");
+		PlayerHUDRef->SetHUDInteractText("");
+	}
+}
+
+void APrototype2Character::SetHUDText(IInteractInterface* closestInteractableItem)
+{
+	 // set interact text
+	switch (closestInteractableItem->InterfaceType)
+	{
+	case EInterfaceType::SellBin:
+		{
+			// Set to "Sell"
+			if(HeldItem)
+			{
+				if (HeldItem->ItemComponent->PickupType == EPickup::Cabbage ||
+					HeldItem->ItemComponent->PickupType == EPickup::Carrot ||
+					HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
+				{
+					PlayerHUDRef->SetHUDInteractText("Sell");
+					break;
+				}
+			}
+			// Set to none
+			PlayerHUDRef->SetHUDInteractText("");
+			break;
+		}
+	case EInterfaceType::GrowSpot:
+		{
+			if (auto* playerID = Cast<AGrowSpot>(closestInteractableItem))
+			{
+				if (playerID->Player_ID == GetPlayerState<APrototype2PlayerState>()->Player_ID)
+				{
+					switch (closestInteractableItem->GrowSpotState)
+					{
+					case EGrowSpotState::Empty:
+						{
+							// Set to "Grow"
+							if(HeldItem)
+							{
+								if (HeldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
+									HeldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
+			 						HeldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
+								{
+									PlayerHUDRef->SetHUDInteractText("Grow");
+									break;
+								}
+							}
+							break;
+						}
+					case EGrowSpotState::Growing:
+						{
+							// Set to none
+							PlayerHUDRef->SetHUDInteractText("");
+							break;
+						}
+					case EGrowSpotState::Grown:
+						{
+							if (!HeldItem)
+							{
+								// Set to "Grow"
+								PlayerHUDRef->SetHUDInteractText("Pick Up");
+							}
+							else
+							{
+								PlayerHUDRef->SetHUDInteractText("");
+							}
+							break;
+						}
+					case EGrowSpotState::Default:
+						{
+							// Pass through
+						}
+					default:
+						{
+							// Set to none
+							PlayerHUDRef->SetHUDInteractText("");
+						}
+					}						
+				}
+				else
+				{
+					// Set to none
+					PlayerHUDRef->SetHUDInteractText("");
+				}
+			}
+			else
+			{
+				// Set to none
+				PlayerHUDRef->SetHUDInteractText("");
+			}
+			
+			break;
+		}
+	case EInterfaceType::Default:
+		{
+			// Set to "Sell"
+			if (HeldItem)
+			{
+				// Set to none
+				PlayerHUDRef->SetHUDInteractText("");
+			}
+			else
+			{
+				// Set to "Grow"
+				PlayerHUDRef->SetHUDInteractText("Pick Up");
+			}
+			break;
+		}
+	default:
+		{
+			// Set to none
+			PlayerHUDRef->SetHUDInteractText("");
+			break;
+		}
 	}
 }
 

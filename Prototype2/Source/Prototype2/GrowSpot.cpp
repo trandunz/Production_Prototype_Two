@@ -24,6 +24,8 @@ void AGrowSpot::BeginPlay()
 	Super::BeginPlay();
 
 	InterfaceType = EInterfaceType::GrowSpot;
+	GrowSpotState = EGrowSpotState::Empty;
+
 	ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
 }
 
@@ -65,6 +67,7 @@ void AGrowSpot::Tick(float DeltaTime)
 		{
 			plantGrown = true;
 			growingPlant = false;
+			GrowSpotState = EGrowSpotState::Grown;
 		}
 	}
 
@@ -139,6 +142,7 @@ void AGrowSpot::SetPlant(APlant* _plant, float _growTime)
 		plant = _plant;
 		growTimer = _growTime;
 		growingPlant = true;
+		GrowSpotState = EGrowSpotState::Growing;
 	}
 }
 
