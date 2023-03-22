@@ -25,8 +25,8 @@ class PROTOTYPE2_API UWidget_PlayerHUD : public UUserWidget
 
 public:
 
-	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
-	class UWidget_InteractionPanel* InteractionPanel;
+	//UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	//class UWidget_InteractionPanel* InteractionPanel;
 
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UWidget_IngameMenu* IngameMenu;
@@ -71,7 +71,10 @@ public:
 	UTexture2D* MandrakeTexture;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* MandrakeSeedTexture;
-	
+
+	// Interaction Text
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UTextBlock* InteractionText;
 	
 public:
 	// Functions
@@ -91,4 +94,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdatePickupUI(EPickup _pickup);
+
+	UFUNCTION(BlueprintCallable)
+	void SetHUDInteractText(FString _interactionText);
 };

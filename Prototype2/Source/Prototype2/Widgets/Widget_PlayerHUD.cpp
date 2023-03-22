@@ -24,6 +24,9 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 
 	// Set starting pickup item
 	UpdatePickupUI(None);
+
+	// Set interaction text to be hidden on start
+	InteractionText->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -158,6 +161,19 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 		}
 	}
 	
+}
+
+void UWidget_PlayerHUD::SetHUDInteractText(FString _interactionText)
+{
+	if (_interactionText == "")
+	{
+		InteractionText->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		InteractionText->SetVisibility(ESlateVisibility::Visible);
+		InteractionText->SetText(FText::FromString(_interactionText));
+	}
 }
 
 
