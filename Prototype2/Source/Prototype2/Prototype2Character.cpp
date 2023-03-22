@@ -277,10 +277,41 @@ void APrototype2Character::CheckForInteractables()
 
 		float distanceToClosest;
 		ClosestInteractableItem = Cast<IInteractInterface>(UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest));
+
+		// // set interact text
+		// switch (ClosestInteractableItem->InterfaceType)
+		// {
+		// case EInterfaceType::SellBin:
+		// 	{
+		// 		// Set to "Sell"
+		// 		PlayerHUDRef->SetHUDInteractText("Sell");
+		// 		break;
+		// 	}
+		// case EInterfaceType::GrowSpot:
+		// 	{
+		// 		// Set to "Grow"
+		// 		PlayerHUDRef->SetHUDInteractText("Grow");
+		// 		break;
+		// 	}
+		// case EInterfaceType::Default:
+		// 	{
+		// 		// Set to "Pickup"
+		// 		PlayerHUDRef->SetHUDInteractText("PickUp");
+		// 		break;
+		// 	}
+		// 	case default:
+		// 	{
+		// 		// Set to none
+		// 		PlayerHUDRef->SetHUDInteractText("");
+		// 	}
+		// }
 	}
 	else
 	{
 		ClosestInteractableItem = nullptr;
+
+		// set interact text to nothing
+		// PlayerHUDRef->SetHUDInteractText("");
 	}
 }
 
@@ -418,7 +449,6 @@ void APrototype2Character::Client_AddHUD_Implementation()
 
 void APrototype2Character::Server_TryInteract_Implementation()
 {
-
 	if(ClosestInteractableItem && !HeldItem)
 	{
 		// If player is holding nothing, and there is something to pickup in range
@@ -449,6 +479,13 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot))
 		{
 			ClosestInteractableItem->Interact(this);
+
+			// If Held Item was planted or sold, clear HUD item icon
+			if (!HeldItem)
+			{
+				// Set HUD image
+				PlayerHUDRef->UpdatePickupUI(EPickup::None);	
+			}
 		}
 		else
 		{
@@ -476,6 +513,9 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		HeldItem->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 		
 		HeldItem = nullptr;
+
+		// Set HUD image
+		PlayerHUDRef->UpdatePickupUI(EPickup::None);	
 	}
 }
 
@@ -496,5 +536,8 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
 	
 	// Assign Players HeldItem
-	HeldItem = _item;	
+	HeldItem = _item;
+
+	// Set HUD image
+	PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);	
 }

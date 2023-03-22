@@ -90,6 +90,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 				{
 					if (seed->plantToGrow)
 					{
+						growTime = player->HeldItem->ItemComponent->GrowTime;
 						auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
 						SetPlant(Cast<APlant>(newPlant), growTime);
 

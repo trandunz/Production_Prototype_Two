@@ -49,6 +49,7 @@ public:
 
 	float growTimer{};
 	UPROPERTY(EditAnywhere)
+
 	float growTime{10};
 	
 	bool growingPlant = false;
