@@ -26,6 +26,14 @@ public: // Public Networking functions
 	void Server_DropItem();
 	void Server_DropItem_Implementation();
 	
+	UFUNCTION(Server, Reliable)
+	void Server_AddHUD();
+	void Server_AddHUD_Implementation();
+
+	UFUNCTION(Client, Reliable)
+	void Client_AddHUD();
+	void Client_AddHUD_Implementation();
+	
 protected: // Protected Networking functions
 	void PlayNetworkMontage(UAnimMontage* _montage);
 	
@@ -36,14 +44,6 @@ protected: // Protected Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_PlayNetworkMontage(UAnimMontage* _montage);
 	void Multi_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
-	
-	UFUNCTION(Server, Reliable)
-	void Server_AddHUD();
-	void Server_AddHUD_Implementation();
-
-	UFUNCTION(Client, Reliable)
-	void Client_AddHUD();
-	void Client_AddHUD_Implementation();
 	
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract();

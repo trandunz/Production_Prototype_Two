@@ -14,6 +14,7 @@
 #include "PickUpItem.h"
 #include "Prototype2PlayerController.h"
 #include "Prototype2PlayerState.h"
+#include "PrototypeGameInstance.h"
 #include "Weapon.h"
 #include "Components/SphereComponent.h"
 #include "DynamicMesh/ColliderMesh.h"
@@ -24,6 +25,7 @@
 #include "Widgets/Widget_IngameMenu.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerState.h"
+#include "Gamestates/Prototype2Gamestate.h"
 #include "Net/UnrealNetwork.h"
 #include "Widgets/Widget_PlayerHUD.h"
 
@@ -104,7 +106,7 @@ void APrototype2Character::BeginPlay()
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
 	}
 	
-	Server_AddHUD();
+
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -246,6 +248,9 @@ void APrototype2Character::Interact()
 
 void APrototype2Character::CheckForInteractables()
 {
+	if (!PlayerHUDRef && IsLocallyControlled())
+		return;
+	
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
 	
@@ -532,16 +537,12 @@ void APrototype2Character::Client_AddHUD_Implementation()
 {
 	if (PlayerHudPrefab)
 	{
-		if (Controller)
-		{
-			if (auto* playerController = Cast<APrototype2PlayerController>(Controller))
-			{
-				PlayerHUDRef = CreateWidget<UWidget_PlayerHUD>(playerController, PlayerHudPrefab);
+		UE_LOG(LogTemp, Warning, TEXT("Player HUD Created"));
 
-				if (PlayerHUDRef)
-					PlayerHUDRef->AddToViewport();
-			}
-		}
+		PlayerHUDRef = CreateWidget<UWidget_PlayerHUD>(UGameplayStatics::GetPlayerController(GetWorld(), 0), PlayerHudPrefab);
+
+		if (PlayerHUDRef)
+			PlayerHUDRef->AddToViewport();
 	}
 }
 
@@ -613,7 +614,8 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		HeldItem = nullptr;
 
 		// Set HUD image
-		PlayerHUDRef->UpdatePickupUI(EPickup::None);	
+		if (PlayerHUDRef)
+			PlayerHUDRef->UpdatePickupUI(EPickup::None);	
 	}
 }
 
@@ -637,5 +639,6 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	HeldItem = _item;
 
 	// Set HUD image
-	PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);	
+	if (PlayerHUDRef)
+		PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);	
 }
