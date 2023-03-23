@@ -93,21 +93,17 @@ void APrototype2Character::BeginPlay()
 		}
 	}
 	
-	// Setup Weapon
-	if (WeaponPrefab)
+	if (HasAuthority())
 	{
-		Weapon = GetWorld()->SpawnActor<AWeapon>(WeaponPrefab);
-	
-		Weapon->ItemComponent->Mesh->SetSimulatePhysics(false);
-		Weapon->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Weapon->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	
-		// Attach to socket
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
+		if (WeaponPrefab)
+		{
+			Weapon = GetWorld()->SpawnActor<AWeapon>(WeaponPrefab);
+		}
+
+		Server_AddHUD();
 	}
 
-	if (GetLocalRole() == IdealNetRole || GetLocalRole() == ROLE_Authority)
-		Server_AddHUD();
+	Server_SocketItem(Weapon->ItemComponent, Weapon, FName("WeaponHolsterSocket"));
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -163,7 +159,7 @@ void APrototype2Character::ChargeAttack()
 
 		if (Weapon)
 		{
-			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHeldSocket"));
+			Server_SocketItem(Weapon->ItemComponent, Weapon, FName("WeaponHeldSocket"));
 		}
 	}
 }
@@ -271,8 +267,6 @@ void APrototype2Character::Interact()
 
 void APrototype2Character::CheckForInteractables()
 {
-	if ((GetLocalRole() != IdealNetRole && GetLocalRole() != ROLE_Authority))
-		return;
 	
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
@@ -332,6 +326,24 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	
 	bIsStunned = true;
 	StunTimer = AttackCharge;
+}
+
+void APrototype2Character::Multi_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket)
+{
+	if (itemComponent && _item)
+	{
+		if (itemComponent->Mesh)
+		{
+			itemComponent->Mesh->SetSimulatePhysics(false);
+			itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+			// So that CheckForInteractables() cant see it while player is holding it
+			itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		}
+	
+		// Attach to socket
+		_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(_socket));
+	}
 }
 
 void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -458,7 +470,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			ClosestInteractableItem->Interact(this);
 
 			// Put weapon on back
-			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
+			Multi_SocketItem(Weapon->ItemComponent, Weapon,  FName("WeaponHolsterSocket"));
 		}
 		else if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot) // If the player is trying to pick up a plant from grow plot
 		{
@@ -477,14 +489,13 @@ void APrototype2Character::Server_TryInteract_Implementation()
 		}
 		else
 		{
-			Server_DropItem();
+			Multi_DropItem();
 		}
 	}
 }
 
 void APrototype2Character::Server_DropItem_Implementation()
 {
-	
 	Multi_DropItem();
 }
 
@@ -509,6 +520,11 @@ void APrototype2Character::Multi_DropItem_Implementation()
 void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
 	Multi_PickupItem(itemComponent, _item);
+}
+
+void APrototype2Character::Server_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket)
+{
+	Multi_SocketItem(itemComponent, _item, _socket);
 }
 
 void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)

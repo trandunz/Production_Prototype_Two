@@ -23,6 +23,11 @@ public: // Public Networking functions
 	void Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
 
 	UFUNCTION(Server, Reliable)
+	void Server_SocketItem(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
+	void Server_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
+
+
+	UFUNCTION(Server, Reliable)
 	void Server_DropItem();
 	void Server_DropItem_Implementation();
 	
@@ -56,6 +61,10 @@ protected: // Protected Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_PickupItem(UItemComponent* itemComponent, APickUpItem* _item);
 	void Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_SocketItem(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
+	void Multi_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
 	
 protected: // Protected Functions
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
