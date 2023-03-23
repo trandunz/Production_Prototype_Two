@@ -175,6 +175,8 @@ public:
 	/* Is player holding down attack */
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsChargingAttack;
+
+	class IInteractInterface* ClosestInteractableItem;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
@@ -185,8 +187,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+
 private:
-	class IInteractInterface* ClosestInteractableItem;
+	
 	float AttackChargeAmount;
 	bool bIsStunned;
 	float StunTimer;

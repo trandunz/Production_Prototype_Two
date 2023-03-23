@@ -105,8 +105,8 @@ void APrototype2Character::BeginPlay()
 		// Attach to socket
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
 	}
-	
 
+	Server_AddHUD();
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -267,9 +267,6 @@ void APrototype2Character::Interact()
 
 void APrototype2Character::CheckForInteractables()
 {
-	if (!PlayerHUDRef && IsLocallyControlled())
-		return;
-	
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
 	
@@ -284,9 +281,7 @@ void APrototype2Character::CheckForInteractables()
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), colSphere.GetSphereRadius(), 50, FColor::Purple, false, 0.1f);
 	
 	// check if something got hit in the sweep
-	bool isHit = GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Visibility, colSphere);
-
-	if (isHit)
+	if (GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Visibility, colSphere))
 	{
 		TArray<AActor*> interactableActors;
 
@@ -304,23 +299,10 @@ void APrototype2Character::CheckForInteractables()
 
 		float distanceToClosest;
 		ClosestInteractableItem = Cast<IInteractInterface>(UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest));
-
-		if (ClosestInteractableItem)
-		{
-			SetHUDText(ClosestInteractableItem);
-		}
-		else
-		{
-			// set interact text to nothing
-			PlayerHUDRef->SetHUDInteractText("");
-		}
 	}
 	else
 	{
 		ClosestInteractableItem = nullptr;
-
-		// set interact text to nothing
-		PlayerHUDRef->SetHUDInteractText("");
 	}
 }
 
@@ -342,73 +324,58 @@ void APrototype2Character::SetHUDText(IInteractInterface* closestInteractableIte
 					break;
 				}
 			}
-			// Set to none
-			PlayerHUDRef->SetHUDInteractText("");
 			break;
 		}
 	case EInterfaceType::GrowSpot:
 		{
-			if (auto* playerID = Cast<AGrowSpot>(closestInteractableItem))
+			if (auto* growSpot = Cast<AGrowSpot>(closestInteractableItem))
 			{
-				if (playerID->Player_ID == GetPlayerState<APrototype2PlayerState>()->Player_ID)
+				if (auto* playerState = GetPlayerState<APrototype2PlayerState>())
 				{
-					switch (closestInteractableItem->GrowSpotState)
+					if (growSpot->Player_ID == playerState->Player_ID)
 					{
-					case EGrowSpotState::Empty:
+						switch (closestInteractableItem->GrowSpotState)
 						{
-							// Set to "Grow"
-							if(HeldItem)
-							{
-								if (HeldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
-									HeldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
-			 						HeldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
-								{
-									PlayerHUDRef->SetHUDInteractText("Grow");
-									break;
-								}
-							}
-							break;
-						}
-					case EGrowSpotState::Growing:
-						{
-							// Set to none
-							PlayerHUDRef->SetHUDInteractText("");
-							break;
-						}
-					case EGrowSpotState::Grown:
-						{
-							if (!HeldItem)
+						case EGrowSpotState::Empty:
 							{
 								// Set to "Grow"
-								PlayerHUDRef->SetHUDInteractText("Pick Up");
+								if(HeldItem)
+								{
+									if (HeldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
+										HeldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
+										 HeldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
+									{
+										PlayerHUDRef->SetHUDInteractText("Grow");
+										break;
+									}
+								}
+								break;
 							}
-							else
+						case EGrowSpotState::Growing:
 							{
+								break;
+							}
+						case EGrowSpotState::Grown:
+							{
+								if (!HeldItem)
+								{
+									// Set to "Grow"
+									PlayerHUDRef->SetHUDInteractText("Pick Up");
+								}
+								break;
+							}
+						case EGrowSpotState::Default:
+							{
+								// Pass through
+							}
+						default:
+							{
+								// Set to none
 								PlayerHUDRef->SetHUDInteractText("");
 							}
-							break;
-						}
-					case EGrowSpotState::Default:
-						{
-							// Pass through
-						}
-					default:
-						{
-							// Set to none
-							PlayerHUDRef->SetHUDInteractText("");
-						}
-					}						
+						}						
+					}
 				}
-				else
-				{
-					// Set to none
-					PlayerHUDRef->SetHUDInteractText("");
-				}
-			}
-			else
-			{
-				// Set to none
-				PlayerHUDRef->SetHUDInteractText("");
 			}
 			
 			break;
@@ -416,22 +383,14 @@ void APrototype2Character::SetHUDText(IInteractInterface* closestInteractableIte
 	case EInterfaceType::Default:
 		{
 			// Set to "Sell"
-			if (HeldItem)
+			if (!HeldItem)
 			{
-				// Set to none
-				PlayerHUDRef->SetHUDInteractText("");
-			}
-			else
-			{
-				// Set to "Grow"
 				PlayerHUDRef->SetHUDInteractText("Pick Up");
 			}
 			break;
 		}
 	default:
 		{
-			// Set to none
-			PlayerHUDRef->SetHUDInteractText("");
 			break;
 		}
 	}
@@ -461,12 +420,9 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
 		
-		////Jumping
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APrototype2Character::Move);
 
@@ -554,7 +510,7 @@ void APrototype2Character::Server_AddHUD_Implementation()
 
 void APrototype2Character::Client_AddHUD_Implementation()
 {
-	if (PlayerHudPrefab)
+	if (PlayerHudPrefab && IsLocallyControlled())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player HUD Created"));
 
@@ -597,17 +553,9 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot))
 		{
 			ClosestInteractableItem->Interact(this);
-
-			// If Held Item was planted or sold, clear HUD item icon
-			if (!HeldItem)
-			{
-				// Set HUD image
-				PlayerHUDRef->UpdatePickupUI(EPickup::None);	
-			}
 		}
 		else
 		{
-			// If item wasn't sold, drop it
 			Server_DropItem();
 		}
 	}
@@ -615,6 +563,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 
 void APrototype2Character::Server_DropItem_Implementation()
 {
+	
 	Multi_DropItem();
 }
 
@@ -633,8 +582,6 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		HeldItem = nullptr;
 
 		// Set HUD image
-		if (PlayerHUDRef)
-			PlayerHUDRef->UpdatePickupUI(EPickup::None);	
 	}
 }
 
@@ -658,6 +605,6 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	HeldItem = _item;
 
 	// Set HUD image
-	if (PlayerHUDRef)
-		PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);	
+	//if (PlayerHUDRef)
+	//	PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);	
 }
