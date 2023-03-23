@@ -2,6 +2,9 @@
 
 #include "Prototype2GameMode.h"
 
+#include "Prototype2Character.h"
+#include "Prototype2PlayerController.h"
+#include "Blueprint/UserWidget.h"
 #include "Gamestates/Prototype2Gamestate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Prototype2/Prototype2PlayerState.h"
@@ -29,6 +32,8 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
+	UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
+	
 	if (HasAuthority())
 	{
 		if (auto* playerState = NewPlayer->GetPlayerState<APrototype2PlayerState>())
@@ -39,6 +44,11 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 				playerState->Player_ID = gamestate->Server_Players.Num() - 1;
 			}
 		}
+	}
+
+	if (auto* character = Cast<APrototype2Character>(NewPlayer->GetCharacter()))
+	{
+		character->Server_AddHUD();
 	}
 }
 
