@@ -10,8 +10,12 @@
 #include "GameFramework/GameMode.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Prototype2/GrowSpot.h"
+#include "Prototype2/InteractInterface.h"
+#include "Prototype2/Prototype2Character.h"
 #include "Prototype2/Prototype2PlayerState.h"
 #include "Prototype2/Gamestates/Prototype2Gamestate.h"
+#include "Prototype2/PickUpItem.h"
 
 void UWidget_PlayerHUD::NativeOnInitialized()
 {
@@ -94,7 +98,97 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		}
 	}
 
-	
+	SetHUDInteractText("");
+	if (auto* owner = GetOwningPlayerPawn<APrototype2Character>())
+	{
+		if (auto* closestInteractable = owner->ClosestInteractableItem)
+		{
+			switch (closestInteractable->InterfaceType)
+			{
+			case EInterfaceType::SellBin:
+				{
+					// Set to "Sell"
+					if(auto heldItem = owner->HeldItem)
+					{
+						if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
+							heldItem->ItemComponent->PickupType == EPickup::Carrot ||
+							heldItem->ItemComponent->PickupType == EPickup::Mandrake)
+						{
+							SetHUDInteractText("Sell");
+							break;
+						}
+					}
+					break;
+				}
+			case EInterfaceType::GrowSpot:
+				{
+					if (auto* growSpot = Cast<AGrowSpot>(closestInteractable))
+					{
+						if (auto* playerState = owner->GetPlayerState<APrototype2PlayerState>())
+						{
+							if (growSpot->Player_ID == playerState->Player_ID)
+							{
+								switch (closestInteractable->GrowSpotState)
+								{
+								case EGrowSpotState::Empty:
+									{
+										// Set to "Grow"
+										if(auto heldItem = owner->HeldItem)
+										{
+											if (heldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
+												heldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
+												 heldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
+											{
+												SetHUDInteractText("Grow");
+												break;
+											}
+										}
+										break;
+									}
+								case EGrowSpotState::Growing:
+									{
+										break;
+									}
+								case EGrowSpotState::Grown:
+									{
+										if (!owner->HeldItem)
+										{
+											// Set to "Grow"
+											SetHUDInteractText("Pick Up");
+										}
+										break;
+									}
+								case EGrowSpotState::Default:
+									{
+										// Pass through
+									}
+								default:
+									{
+										// Set to none
+										break;
+									}
+								}						
+							}
+						}
+					}
+					break;
+				}
+			case EInterfaceType::Default:
+				{
+					// Set to "Sell"
+					if (!owner->HeldItem)
+					{
+						SetHUDInteractText("Pick Up");
+					}
+					break;
+				}
+			default:
+				{
+					break;
+				}
+			}
+		}
+	}
 }
 
 void UWidget_PlayerHUD::EnableDisableMenu()

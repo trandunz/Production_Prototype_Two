@@ -45,11 +45,6 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 	}
-
-	if (auto* character = Cast<APrototype2Character>(NewPlayer->GetCharacter()))
-	{
-		character->Server_AddHUD();
-	}
 }
 
 
