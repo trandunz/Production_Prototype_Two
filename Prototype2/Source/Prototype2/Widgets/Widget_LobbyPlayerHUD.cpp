@@ -160,20 +160,10 @@ void UWidget_LobbyPlayerHUD::SetCancel()
 		{
 			if (auto* playerState = Cast<ALobbyPlayerState>(GameStateRef->Server_Players[playerID]))
 			{
-				//if (playerState->IsReady == true)
-				//{
 				playerController->SetIsReady(playerID, false);
 
 				ReadyButton->SetVisibility(ESlateVisibility::Visible);
 				CancelButton->SetVisibility(ESlateVisibility::Hidden);
-				//IsReadyButtonText->SetText(FText::FromString("Ready"));
-
-				//}
-				//else
-				//{
-				//	playerController->SetIsReady(playerID, true);
-				//	//IsReadyButtonText->SetText(FText::FromString("Not Ready"));
-				//}
 			}
 		}
 	}
