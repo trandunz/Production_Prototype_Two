@@ -2,9 +2,8 @@
 
 
 #include "Weapon.h"
-
-#include "EdGraphSchema_K2_Actions.h"
 #include "Prototype2Character.h"
+
 void AWeapon::Interact(APrototype2Character* player)
 {
 	//ItemComponent->Interact(player, this);

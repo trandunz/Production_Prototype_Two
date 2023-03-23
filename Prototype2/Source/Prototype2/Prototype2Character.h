@@ -131,9 +131,6 @@ private: // Animation
 	class UAnimMontage* PickupMontage;
 	
 	UPROPERTY(EditAnywhere)
-	class UAnimMontage* ChargeAttackMontage;
-	
-	UPROPERTY(EditAnywhere)
 	class UAnimMontage* ExecuteAttackMontage;
 private: // Private variables
 
@@ -149,6 +146,16 @@ private: // Private variables
 	UPROPERTY(EditAnywhere)
 	float KnockBackAmount = 1000.0f;
 
+	/* Interact timer */
+	UPROPERTY(EditAnywhere)
+	float InteractTimerTime = 1.0f;
+	float InteractTimer{};
+	
+	/* Attack timer */
+	UPROPERTY(EditAnywhere)
+	float AttackTimerTime = 1.0f;
+	float AttackTimer{};
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UWidget_PlayerHUD> PlayerHudPrefab;
 	UWidget_PlayerHUD* PlayerHUDRef;
@@ -183,4 +190,5 @@ private:
 	float AttackChargeAmount;
 	bool bIsStunned;
 	float StunTimer;
+	
 };

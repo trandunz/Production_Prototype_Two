@@ -133,57 +133,70 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		AttackChargeAmount += DeltaSeconds;
 	}
 
-	// Check if anything is around to be interacted with
-	CheckForInteractables();
+	if (InteractTimer < 0.0f)
+	{
+		// Check if anything is around to be interacted with
+		CheckForInteractables();
+	}
+
+	// Countdown timers
+	InteractTimer -= DeltaSeconds;
+	AttackTimer -= DeltaSeconds;
 }
 
 void APrototype2Character::ChargeAttack()
 {
-	if (HeldItem)
+	if (AttackTimer < 0.0f)
 	{
-		Server_DropItem();
-	}
-	
-	bIsChargingAttack = true;
+		if (HeldItem)
+		{
+			Server_DropItem();
+		}
+		
+		bIsChargingAttack = true;
 
-	if (Weapon)
-	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHeldSocket"));
-	}
-	
-	// Animation
-	if(ChargeAttackMontage)
-	{
-		PlayNetworkMontage(ChargeAttackMontage);
+		if (Weapon)
+		{
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHeldSocket"));
+		}
 	}
 }
 
 void APrototype2Character::ReleaseAttack()
 {
-	// Cap attack charge
-	if (AttackChargeAmount > MaxAttackCharge)
+	if (bIsChargingAttack)
 	{
-		AttackChargeAmount = MaxAttackCharge;
-	}
+		// Reset Attack Timer
+		AttackTimer = AttackTimerTime;
+		
+		// Cap attack charge
+		if (AttackChargeAmount > MaxAttackCharge)
+		{
+			AttackChargeAmount = MaxAttackCharge;
+		}
 
-	// Create a sphere collider, check if player hit, call player hit
-	int32 attackSphereRadius;
-	if (Weapon)
-	{
-		// Create a larger sphere of effect
-		attackSphereRadius = 75.0f + AttackChargeAmount * 30.0f;
-	}
-	else
-	{
-		// Create a smaller sphere of effect
-		attackSphereRadius = 50.0f;
-	}
+		// Create a sphere collider, check if player hit, call player hit
+		int32 attackSphereRadius;
+		if (Weapon)
+		{
+			// Create a larger sphere of effect
+			attackSphereRadius = 75.0f + AttackChargeAmount * 30.0f;
+		}
+		else
+		{
+			// Create a smaller sphere of effect
+			attackSphereRadius = 50.0f;
+		}
 
-	ExecuteAttack(attackSphereRadius);
-	
-	// Reset Attack variables
-	bIsChargingAttack = false;
-	AttackChargeAmount = 0.0f;
+		ExecuteAttack(attackSphereRadius);
+		
+		// Reset Attack variables
+		bIsChargingAttack = false;
+		AttackChargeAmount = 0.0f;
+
+		// Stop the player Interacting while "executing attack"
+		InteractTimer = InteractTimerTime;
+	}
 }
 
 void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
@@ -234,9 +247,15 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 
 void APrototype2Character::Interact()
 {
-	if (!bIsChargingAttack)
+	if (InteractTimer < 0.0f)
 	{
-		Server_TryInteract();
+		// Reset the Interact Timer when Player Interacts
+		InteractTimer = InteractTimerTime;
+		
+		if (!bIsChargingAttack)
+		{
+			Server_TryInteract();
+		}
 	}
 	
 	// Debug draw collision sphere
