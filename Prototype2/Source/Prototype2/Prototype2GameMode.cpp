@@ -32,16 +32,15 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
-	
+	//if (GetLocalRole() == ROLE_Authority && GetRemoteRole() >= ROLE_AutonomousProxy)
 	if (HasAuthority())
 	{
 		if (auto* playerState = NewPlayer->GetPlayerState<APrototype2PlayerState>())
 		{
 			if (auto* gamestate = GetGameState<APrototype2Gamestate>())
 			{
-				gamestate->Server_Players.Add(playerState);
-				playerState->Player_ID = gamestate->Server_Players.Num() - 1;
+				UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
+				playerState->Player_ID = gamestate->Server_Players.Add(playerState);
 			}
 		}
 	}

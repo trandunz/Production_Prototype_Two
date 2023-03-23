@@ -55,6 +55,10 @@ void APrototype2Gamestate::Tick(float DeltaSeconds)
 			}
 		}
 	}
+	else
+	{
+		
+	}
 }
 
 void APrototype2Gamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

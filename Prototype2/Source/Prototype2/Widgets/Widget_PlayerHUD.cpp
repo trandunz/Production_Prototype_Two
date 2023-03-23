@@ -16,6 +16,7 @@
 #include "Prototype2/Prototype2PlayerState.h"
 #include "Prototype2/Gamestates/Prototype2Gamestate.h"
 #include "Prototype2/PickUpItem.h"
+#include "Prototype2/Prototype2PlayerController.h"
 
 void UWidget_PlayerHUD::NativeOnInitialized()
 {
@@ -45,49 +46,43 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		// Updating points/coins
 		//if (!GetOwningPlayerPawn()->HasAuthority())
 		//	UE_LOG(LogTemp, Warning, TEXT("Players Array Size = %s"), *FString::FromInt(GameStateRef->PlayerArray.Num()));
-		
+
 		for (int i = 0; i < GameStateRef->Server_Players.Num(); i++)
 		{
 			if (auto player = GameStateRef->Server_Players[i])
 			{
-				if (auto* playerState = Cast<APrototype2PlayerState>(player))
+				auto coins = player->Coins;
+				UE_LOG(LogTemp, Warning, TEXT("Player [%s] ID = %s"), *FString::FromInt(i), *FString::FromInt(player->Player_ID));
+								
+				switch(i)
 				{
-					auto coins = playerState->Coins;
-					if (!GetOwningPlayerPawn()->HasAuthority())
+				case 0:
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Players Array Size = %s"), *FString::FromInt(GameStateRef->Server_Players.Num()));
-						UE_LOG(LogTemp, Warning, TEXT("Players Array [%s] = %s"), *FString::FromInt(i), *FString::FromInt(coins));
+						Player1Coins->SetText(FText::FromString(FString::FromInt(coins)));
+											
+						break;
 					}
-					switch(i)
+				case 1:
 					{
-					case 0:
-						{
-							Player1Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					case 1:
-						{
-							Player2Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					case 2:
-						{
-							Player3Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					case 3:
-						{
-							Player4Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					default:
-						{
-							break;
-						}
+						Player2Coins->SetText(FText::FromString(FString::FromInt(coins)));
+											
+						break;
+					}
+				case 2:
+					{
+						Player3Coins->SetText(FText::FromString(FString::FromInt(coins)));
+											
+						break;
+					}
+				case 3:
+					{
+						Player4Coins->SetText(FText::FromString(FString::FromInt(coins)));
+											
+						break;
+					}
+				default:
+					{
+						break;
 					}
 				}
 			}
@@ -96,95 +91,102 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		{
 			EnableEndgameMenu();
 		}
-	}
-
-	SetHUDInteractText("");
-	if (auto* owner = GetOwningPlayerPawn<APrototype2Character>())
-	{
-		if (auto* closestInteractable = owner->ClosestInteractableItem)
+		
+		if (auto* playerController = Cast<APrototype2PlayerController>(GetOwningPlayer()))
 		{
-			switch (closestInteractable->InterfaceType)
+			auto playerID = playerController->GetPlayerState<APrototype2PlayerState>()->Player_ID;
+			if (GameStateRef->Server_Players.Num() >= playerID)
 			{
-			case EInterfaceType::SellBin:
+				if (auto* playerState = Cast<APrototype2PlayerState>(GameStateRef->Server_Players[playerID]))
 				{
-					// Set to "Sell"
-					if(auto heldItem = owner->HeldItem)
+					SetHUDInteractText("");
+					if (auto* owner = GetOwningPlayerPawn<APrototype2Character>())
 					{
-						if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
-							heldItem->ItemComponent->PickupType == EPickup::Carrot ||
-							heldItem->ItemComponent->PickupType == EPickup::Mandrake)
+						if (auto* closestInteractable = owner->ClosestInteractableItem)
 						{
-							SetHUDInteractText("Sell");
-							break;
-						}
-					}
-					break;
-				}
-			case EInterfaceType::GrowSpot:
-				{
-					if (auto* growSpot = Cast<AGrowSpot>(closestInteractable))
-					{
-						if (auto* playerState = owner->GetPlayerState<APrototype2PlayerState>())
-						{
-							if (growSpot->Player_ID == playerState->Player_ID)
+							switch (closestInteractable->InterfaceType)
 							{
-								switch (closestInteractable->GrowSpotState)
+							case EInterfaceType::SellBin:
 								{
-								case EGrowSpotState::Empty:
+									// Set to "Sell"
+									if(auto heldItem = owner->HeldItem)
 									{
-										// Set to "Grow"
-										if(auto heldItem = owner->HeldItem)
+										if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
+											heldItem->ItemComponent->PickupType == EPickup::Carrot ||
+											heldItem->ItemComponent->PickupType == EPickup::Mandrake)
 										{
-											if (heldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
-												heldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
-												 heldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
+											SetHUDInteractText("Sell");
+											break;
+										}
+									}
+									break;
+								}
+							case EInterfaceType::GrowSpot:
+								{
+									if (auto* growSpot = Cast<AGrowSpot>(closestInteractable))
+									{
+										if (growSpot->Player_ID == playerState->Player_ID)
+										{
+											switch (closestInteractable->GrowSpotState)
 											{
-												SetHUDInteractText("Grow");
-												break;
-											}
+											case EGrowSpotState::Empty:
+												{
+													// Set to "Grow"
+													if(auto heldItem = owner->HeldItem)
+													{
+														if (heldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
+															heldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
+															 heldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
+														{
+															SetHUDInteractText("Grow");
+															break;
+														}
+													}
+													break;
+												}
+											case EGrowSpotState::Growing:
+												{
+													break;
+												}
+											case EGrowSpotState::Grown:
+												{
+													if (!owner->HeldItem)
+													{
+														// Set to "Grow"
+														SetHUDInteractText("Pick Up");
+													}
+													break;
+												}
+											case EGrowSpotState::Default:
+												{
+													// Pass through
+												}
+											default:
+												{
+													// Set to none
+													break;
+												}
+											}						
 										}
-										break;
 									}
-								case EGrowSpotState::Growing:
+									break;
+								}
+							case EInterfaceType::Default:
+								{
+									// Set to "Sell"
+									if (!owner->HeldItem)
 									{
-										break;
+										SetHUDInteractText("Pick Up");
 									}
-								case EGrowSpotState::Grown:
-									{
-										if (!owner->HeldItem)
-										{
-											// Set to "Grow"
-											SetHUDInteractText("Pick Up");
-										}
-										break;
-									}
-								case EGrowSpotState::Default:
-									{
-										// Pass through
-									}
-								default:
-									{
-										// Set to none
-										break;
-									}
-								}						
+									break;
+								}
+							default:
+								{
+									break;
+								}
 							}
 						}
 					}
-					break;
-				}
-			case EInterfaceType::Default:
-				{
-					// Set to "Sell"
-					if (!owner->HeldItem)
-					{
-						SetHUDInteractText("Pick Up");
-					}
-					break;
-				}
-			default:
-				{
-					break;
 				}
 			}
 		}
