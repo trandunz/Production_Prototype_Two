@@ -106,12 +106,16 @@ void APrototype2Character::BeginPlay()
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("WeaponHolsterSocket"));
 	}
 
-	Server_AddHUD();
+	if (GetLocalRole() == IdealNetRole || GetLocalRole() == ROLE_Authority)
+		Server_AddHUD();
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	UpdateAllPlayerIDs();
+	
 	// Stun
 	if (bIsStunned)
 	{
@@ -267,6 +271,9 @@ void APrototype2Character::Interact()
 
 void APrototype2Character::CheckForInteractables()
 {
+	if ((GetLocalRole() != IdealNetRole && GetLocalRole() != ROLE_Authority))
+		return;
+	
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
 	
@@ -303,96 +310,6 @@ void APrototype2Character::CheckForInteractables()
 	else
 	{
 		ClosestInteractableItem = nullptr;
-	}
-}
-
-void APrototype2Character::SetHUDText(IInteractInterface* closestInteractableItem)
-{
-	 // set interact text
-	switch (closestInteractableItem->InterfaceType)
-	{
-	case EInterfaceType::SellBin:
-		{
-			// Set to "Sell"
-			if(HeldItem)
-			{
-				if (HeldItem->ItemComponent->PickupType == EPickup::Cabbage ||
-					HeldItem->ItemComponent->PickupType == EPickup::Carrot ||
-					HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
-				{
-					PlayerHUDRef->SetHUDInteractText("Sell");
-					break;
-				}
-			}
-			break;
-		}
-	case EInterfaceType::GrowSpot:
-		{
-			if (auto* growSpot = Cast<AGrowSpot>(closestInteractableItem))
-			{
-				if (auto* playerState = GetPlayerState<APrototype2PlayerState>())
-				{
-					if (growSpot->Player_ID == playerState->Player_ID)
-					{
-						switch (closestInteractableItem->GrowSpotState)
-						{
-						case EGrowSpotState::Empty:
-							{
-								// Set to "Grow"
-								if(HeldItem)
-								{
-									if (HeldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
-										HeldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
-										 HeldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
-									{
-										PlayerHUDRef->SetHUDInteractText("Grow");
-										break;
-									}
-								}
-								break;
-							}
-						case EGrowSpotState::Growing:
-							{
-								break;
-							}
-						case EGrowSpotState::Grown:
-							{
-								if (!HeldItem)
-								{
-									// Set to "Grow"
-									PlayerHUDRef->SetHUDInteractText("Pick Up");
-								}
-								break;
-							}
-						case EGrowSpotState::Default:
-							{
-								// Pass through
-							}
-						default:
-							{
-								// Set to none
-								PlayerHUDRef->SetHUDInteractText("");
-							}
-						}						
-					}
-				}
-			}
-			
-			break;
-		}
-	case EInterfaceType::Default:
-		{
-			// Set to "Sell"
-			if (!HeldItem)
-			{
-				PlayerHUDRef->SetHUDInteractText("Pick Up");
-			}
-			break;
-		}
-	default:
-		{
-			break;
-		}
 	}
 }
 
@@ -486,6 +403,10 @@ void APrototype2Character::OpenIngameMenu()
 	}
 }
 
+void APrototype2Character::UpdateAllPlayerIDs()
+{
+}
+
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
 {
 	GetMesh()->GetAnimInstance()->Montage_Play(_montage);
@@ -510,7 +431,7 @@ void APrototype2Character::Server_AddHUD_Implementation()
 
 void APrototype2Character::Client_AddHUD_Implementation()
 {
-	if (PlayerHudPrefab && IsLocallyControlled())
+	if (PlayerHudPrefab)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player HUD Created"));
 
@@ -523,7 +444,7 @@ void APrototype2Character::Client_AddHUD_Implementation()
 
 void APrototype2Character::Server_TryInteract_Implementation()
 {
-	if(ClosestInteractableItem && !HeldItem)
+	if((GetLocalRole() == IdealNetRole || GetLocalRole() == ROLE_Authority) && ClosestInteractableItem && !HeldItem)
 	{
 		// If player is holding nothing, and there is something to pickup in range
 		if (PickupMontage &&

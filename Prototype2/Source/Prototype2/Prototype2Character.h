@@ -85,15 +85,16 @@ protected: // Protected Functions
 	/* Create a sphere collider which calculates nearest item */
 	void CheckForInteractables();
 
-	/* Set HUD Text */
-	void SetHUDText(class IInteractInterface* closestInteractableItem);
-
 	/* Called when hit by another player */
 	UFUNCTION(BlueprintCallable)
 	void GetHit(float AttackCharge, FVector AttackerLocation);
 	
 	/* UI */
 	void OpenIngameMenu();
+	
+	void UpdateAllPlayerIDs();
+
+	ENetRole IdealNetRole{ROLE_AutonomousProxy};
 
 private: // Input actions
 	/** MappingContext */
