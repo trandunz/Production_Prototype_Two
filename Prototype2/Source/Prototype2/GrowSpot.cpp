@@ -46,20 +46,8 @@ void AGrowSpot::Multi_Plant_Implementation()
 
 void AGrowSpot::GrowPlantOnTick(float DeltaTime)
 {
-	if (growingPlant && plant && HasAuthority())
-	{
-		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
-		FVector pos = FMath::Lerp<FVector>({GetActorLocation() + FVector::UpVector * 50.0f}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
-		plant->ItemComponent->Mesh->SetWorldScale3D(scale);
-		plant->SetActorLocation(pos);
-	}
-}
 
-// Called every frame
-void AGrowSpot::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	if (growingPlant)
+	if (growingPlant && HasAuthority())
 	{
 		if (growTimer > 0)
 			growTimer -= DeltaTime;
@@ -70,6 +58,24 @@ void AGrowSpot::Tick(float DeltaTime)
 			GrowSpotState = EGrowSpotState::Grown;
 		}
 	}
+
+	FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
+	FVector pos = FMath::Lerp<FVector>({GetActorLocation() + FVector::UpVector * 50.0f}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
+
+	if (plant)
+	{
+		
+		plant->ItemComponent->Mesh->SetWorldScale3D(scale);
+		plant->SetActorLocation(pos);
+	}
+
+}
+
+// Called every frame
+void AGrowSpot::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
 
 	GrowPlantOnTick(DeltaTime);
 }

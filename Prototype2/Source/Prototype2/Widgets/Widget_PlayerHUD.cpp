@@ -92,7 +92,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 			EnableEndgameMenu();
 		}
 		
-		if (auto* playerController = Cast<APrototype2PlayerController>(GetOwningPlayer()))
+		if (auto* playerController = Cast<APrototype2PlayerController>(GetOwningPlayerPawn()->GetController()))
 		{
 			auto playerID = playerController->GetPlayerState<APrototype2PlayerState>()->Player_ID;
 			if (GameStateRef->Server_Players.Num() >= playerID)
