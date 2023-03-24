@@ -59,25 +59,25 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 				case 0:
 					{
 						Player1Coins->SetText(FText::FromString(FString::FromInt(coins)));
-											
+						//P1Icon->SetBrushFromTexture(PlayerIcons[0]);	
 						break;
 					}
 				case 1:
 					{
 						Player2Coins->SetText(FText::FromString(FString::FromInt(coins)));
-											
+						//P2Icon->SetBrushFromTexture(PlayerIcons[1]);				
 						break;
 					}
 				case 2:
 					{
 						Player3Coins->SetText(FText::FromString(FString::FromInt(coins)));
-											
+						//P3Icon->SetBrushFromTexture(PlayerIcons[2]);					
 						break;
 					}
 				case 3:
 					{
 						Player4Coins->SetText(FText::FromString(FString::FromInt(coins)));
-											
+						//P4Icon->SetBrushFromTexture(PlayerIcons[3]);					
 						break;
 					}
 				default:
