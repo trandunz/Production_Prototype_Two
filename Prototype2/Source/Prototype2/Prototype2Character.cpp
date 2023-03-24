@@ -401,7 +401,7 @@ void APrototype2Character::UpdateAllPlayerIDs()
 
 void APrototype2Character::PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay)
 {
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundToPlay, Location);
+	Server_PlaySoundAtLocation(Location,SoundToPlay );
 }
 
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
@@ -517,6 +517,19 @@ void APrototype2Character::Multi_ReleaseAttack_Implementation()
 		// Stop the player Interacting while "executing attack"
 		InteractTimer = InteractTimerTime;
 	}
+}
+
+void APrototype2Character::Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue)
+{
+	Multi_PlaySoundAtLocation(_location, _soundQueue);
+}
+
+void APrototype2Character::Multi_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue)
+{
+	if (SoundAttenuationSettings)
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), _soundQueue, _location, 1, 1, 0, SoundAttenuationSettings);
+	else
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), _soundQueue, _location, 0.5f);
 }
 
 void APrototype2Character::Client_AddHUD_Implementation()

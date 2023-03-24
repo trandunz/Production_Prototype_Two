@@ -56,6 +56,13 @@ public: // Public Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_ReleaseAttack();
 	void Multi_ReleaseAttack_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue);
+	void Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue);
+	void Multi_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue);
 	
 	UFUNCTION(Client, Reliable)
 	void Client_AddHUD();
@@ -63,6 +70,9 @@ public: // Public Networking functions
 	
 	UPROPERTY(VisibleAnywhere, Replicated)
 	UMaterialInstance* PlayerMat;
+
+	UPROPERTY(EditAnywhere, Replicated)
+	USoundAttenuation* SoundAttenuationSettings;
 protected: // Protected Networking functions
 	void PlayNetworkMontage(UAnimMontage* _montage);
 	
