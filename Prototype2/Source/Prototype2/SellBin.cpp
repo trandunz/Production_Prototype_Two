@@ -29,12 +29,6 @@ ASellBin::ASellBin()
 void ASellBin::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (ParticleSystem)
-	{
-		InteractSystem->SetAsset(ParticleSystem);
-		InteractSystem->Activate();
-	}
 }
 
 // Called every frame

@@ -85,7 +85,7 @@ APrototype2Character::APrototype2Character()
 	InteractSystem->SetupAttachment(RootComponent);
 
 	DizzyComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Dizzy Component"));
-	DizzyComponent->AttachToComponent(GetMesh(),  FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("Base-HumanHead"));
+	DizzyComponent->SetupAttachment(GetMesh(), FName("Base-HumanHead"));
 }
 
 void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
