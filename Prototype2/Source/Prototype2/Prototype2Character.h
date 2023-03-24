@@ -23,9 +23,8 @@ public: // Public Networking functions
 	void Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
 
 	UFUNCTION(Server, Reliable)
-	void Server_SocketItem(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
-	void Server_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
-
+	void Server_SocketItem(UStaticMeshComponent* _object, FName _socket);
+	void Server_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
 
 	UFUNCTION(Server, Reliable)
 	void Server_DropItem();
@@ -63,8 +62,8 @@ protected: // Protected Networking functions
 	void Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void Multi_SocketItem(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
-	void Multi_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket);
+	void Multi_SocketItem(UStaticMeshComponent* _object, FName _socket);
+	void Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
 	
 protected: // Protected Functions
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -171,12 +170,8 @@ private: // Private variables
 	UWidget_PlayerHUD* PlayerHUDRef;
 
 public:
-	/* Weapon Held */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AWeapon> WeaponPrefab;
-
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class AWeapon* Weapon;
+	class UWeapon* Weapon;
 	
 	/* Currently held item */
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -203,5 +198,6 @@ private:
 	float AttackChargeAmount;
 	bool bIsStunned;
 	float StunTimer;
+	bool DoOnce{};
 	
 };
