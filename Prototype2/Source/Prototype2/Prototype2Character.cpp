@@ -98,11 +98,7 @@ void APrototype2Character::BeginPlay()
 		}
 	}
 	
-	if (HasAuthority())
-	{
-
-		Server_AddHUD();
-	}
+	Server_AddHUD();
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -486,6 +482,8 @@ void APrototype2Character::Server_TryInteract_Implementation()
 
 void APrototype2Character::Server_DropItem_Implementation()
 {
+
+	
 	Multi_DropItem();
 }
 
@@ -494,12 +492,15 @@ void APrototype2Character::Multi_DropItem_Implementation()
 	if(HeldItem)
 	{
 		// Drop into world
-		HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
-		HeldItem->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		if(HeldItem)
+		{
+			HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
+			HeldItem->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		
-		// So that CheckForInteractables() can see it again
-		HeldItem->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+			// So that CheckForInteractables() can see it again
+			HeldItem->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+		}
 		
 		HeldItem = nullptr;
 
@@ -509,24 +510,29 @@ void APrototype2Character::Multi_DropItem_Implementation()
 
 void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
+
 	Multi_PickupItem(itemComponent, _item);
 }
 
 void APrototype2Character::Server_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
 {
+
 	Multi_SocketItem(_object, _socket);
 }
 
 void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
-	itemComponent->Mesh->SetSimulatePhysics(false);
-	itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (itemComponent->Mesh)
+	{
+		itemComponent->Mesh->SetSimulatePhysics(false);
+		itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	// So that CheckForInteractables() cant see it while player is holding it
-	itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		// So that CheckForInteractables() cant see it while player is holding it
+		itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	}
 	
-	// Attach to socket
 	_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
+	
 	
 	// Assign Players HeldItem
 	HeldItem = _item;

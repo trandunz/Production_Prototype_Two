@@ -6,6 +6,7 @@
 #include "Prototype2Character.h"
 #include "Prototype2PlayerState.h"
 #include "Seed.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AGrowSpot::AGrowSpot()
@@ -15,6 +16,16 @@ AGrowSpot::AGrowSpot()
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	bReplicates = true;
+}
+
+void AGrowSpot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AGrowSpot, growTimer);
+	DOREPLIFETIME(AGrowSpot, growTime);
+	DOREPLIFETIME(AGrowSpot, growingPlant);
+	DOREPLIFETIME(AGrowSpot, plantGrown);
+	DOREPLIFETIME(AGrowSpot, plant);
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +56,6 @@ void AGrowSpot::Multi_Plant_Implementation()
 
 void AGrowSpot::GrowPlantOnTick(float DeltaTime)
 {
-
 	if (growingPlant && HasAuthority())
 	{
 		if (growTimer > 0)
@@ -57,17 +67,18 @@ void AGrowSpot::GrowPlantOnTick(float DeltaTime)
 			GrowSpotState = EGrowSpotState::Grown;
 		}
 	}
-
-	FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
-	FVector pos = FMath::Lerp<FVector>({GetActorLocation() + FVector::UpVector * 50.0f}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
-
+	
 	if (plant)
 	{
-		
+		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
+		FVector pos = FMath::Lerp<FVector>({GetActorLocation() + FVector::UpVector * 50.0f}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
+		ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
+		plant->ItemComponent->Mesh->SetSimulatePhysics(false);
+		plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		plant->ItemComponent->Mesh->SetWorldScale3D(scale);
 		plant->SetActorLocation(pos);
+		plant->SetActorRotation(FRotator(0,0,0));
 	}
-
 }
 
 // Called every frame
@@ -75,61 +86,51 @@ void AGrowSpot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-
 	GrowPlantOnTick(DeltaTime);
 }
 
 void AGrowSpot::Interact(APrototype2Character* player)
 {
-	if (auto* playerState = player->GetPlayerState<APrototype2PlayerState>())
+	if (HasAuthority())
 	{
-		if (playerState->Player_ID == Player_ID)
+		if (auto* playerState = player->GetPlayerState<APrototype2PlayerState>())
 		{
-			if (auto* seed = Cast<ASeed>(player->HeldItem))
+			if (playerState->Player_ID == Player_ID)
 			{
-				if (!plant && !weapon)
+				if (auto* seed = Cast<ASeed>(player->HeldItem))
 				{
-					if (seed->plantToGrow)
+					if (!plant)
 					{
-						growTime = player->HeldItem->ItemComponent->GrowTime;
-						auto* newPlant = GetWorld()->SpawnActor(seed->plantToGrow);
-						SetPlant(Cast<APlant>(newPlant), growTime);
+						if (seed->plantToGrow)
+						{
+							growTime = player->HeldItem->ItemComponent->GrowTime;
+							SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
+							Multi_Plant();
+						
+							if (seed)
+								seed->Destroy();
 
-						// Set plant pos
-						plant->SetActorLocation(GetActorLocation() + FVector::UpVector * 10.0f);
-						Multi_Plant();
-						if (seed)
-							seed->Destroy();
-
-						// Seed is now planted so remove from player
-						player->HeldItem = nullptr;
+							// Seed is now planted so remove from player
+							player->HeldItem = nullptr;
+						}
 					}
 				}
-			}
-			else if (plant)
-			{
-				if (plantGrown)
+				else if (plant)
 				{
-					player->HeldItem = plant;
-					player->Server_PickupItem(plant->ItemComponent, plant);
-					plant->isGrown = true;
-					plant = nullptr;
-					plantGrown = false;
-					//enable physics
+					if (plantGrown)
+					{
+						player->HeldItem = plant;
+						player->Server_PickupItem(plant->ItemComponent, plant);
+						plant->isGrown = true;
+						plant = nullptr;
+						plantGrown = false;
+						growingPlant = false;
+						growTimer = 0.0f;
+					}
 				}
 			}
 		}
 	}
-	
-	//else if (weapon)
-	//{
-	//	if (plantGrown)
-	//	{
-	//		player->Weapon = weapon;
-	//		weapon = nullptr;
-	//		plantGrown = false;
-	//	}
-	//}
 }
 
 void AGrowSpot::SetPlant(APlant* _plant, float _growTime)
