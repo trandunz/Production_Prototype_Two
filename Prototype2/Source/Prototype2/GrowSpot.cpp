@@ -26,6 +26,7 @@ void AGrowSpot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(AGrowSpot, growingPlant);
 	DOREPLIFETIME(AGrowSpot, plantGrown);
 	DOREPLIFETIME(AGrowSpot, plant);
+	DOREPLIFETIME(AGrowSpot, GrowSpotState);
 }
 
 // Called when the game starts or when spawned
@@ -59,7 +60,11 @@ void AGrowSpot::GrowPlantOnTick(float DeltaTime)
 	if (growingPlant && HasAuthority())
 	{
 		if (growTimer > 0)
+		{
+			GrowSpotState = EGrowSpotState::Growing;
 			growTimer -= DeltaTime;
+		}
+			
 		if (growTimer <= 0)
 		{
 			plantGrown = true;
@@ -87,6 +92,31 @@ void AGrowSpot::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	GrowPlantOnTick(DeltaTime);
+
+	switch(GrowSpotState)
+	{
+	case EGrowSpotState::Growing:
+		{
+			if (plant)
+				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			break;
+		}
+	case EGrowSpotState::Grown:
+		{
+			if (plant)
+			{
+				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				plant->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+			}
+				
+			ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
+			break;
+		}
+		default:
+			break;
+	}
 }
 
 void AGrowSpot::Interact(APrototype2Character* player)
@@ -99,7 +129,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 			{
 				if (auto* seed = Cast<ASeed>(player->HeldItem))
 				{
-					if (!plant)
+					if (!plant && GrowSpotState == EGrowSpotState::Empty)
 					{
 						if (seed->plantToGrow)
 						{
@@ -118,7 +148,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 				}
 				else if (plant)
 				{
-					if (plantGrown)
+					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
 					{
 						player->HeldItem = plant;
 						player->Server_PickupItem(plant->ItemComponent, plant);
@@ -127,10 +157,57 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						plantGrown = false;
 						growingPlant = false;
 						growTimer = 0.0f;
+						GrowSpotState = EGrowSpotState::Empty;
 					}
 				}
 			}
 		}
+	}
+}
+
+void AGrowSpot::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PlayerID: %s"), *FString::FromInt(_playerID))
+	UE_LOG(LogTemp, Warning, TEXT("GrowSpotID: %s"), *FString::FromInt(Player_ID))
+		
+	if (Player_ID == _playerID)
+	{
+		switch (GrowSpotState)
+		{
+		case EGrowSpotState::Empty:
+			{
+				// Set to "Grow"
+				if(owner->HeldItem && !Cast<APlant>(owner->HeldItem))
+				{
+					_invokingWiget->SetHUDInteractText("Grow");
+				}
+				break;
+			}
+		case EGrowSpotState::Growing:
+			{
+				_invokingWiget->SetHUDInteractText("");
+				break;
+			}
+		case EGrowSpotState::Grown:
+			{
+				if (!owner->HeldItem)
+				{
+					// Set to "Grow"
+					_invokingWiget->SetHUDInteractText("Pick Up");
+				}
+				break;
+			}
+		case EGrowSpotState::Default:
+			{
+				// Pass through
+				break;
+			}
+		default:
+			{
+				// Set to none
+				break;
+			}
+		}						
 	}
 }
 

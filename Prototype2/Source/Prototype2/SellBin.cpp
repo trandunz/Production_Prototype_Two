@@ -47,3 +47,16 @@ void ASellBin::Interact(APrototype2Character* player)
 	}
 }
 
+void ASellBin::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID)
+{
+	if(auto heldItem = owner->HeldItem)
+	{
+		if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
+			heldItem->ItemComponent->PickupType == EPickup::Carrot ||
+			heldItem->ItemComponent->PickupType == EPickup::Mandrake)
+		{
+			_invokingWiget->SetHUDInteractText("Sell");
+		}
+	}
+}
+
