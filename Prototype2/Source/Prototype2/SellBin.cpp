@@ -3,9 +3,12 @@
 
 #include "SellBin.h"
 
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Plant.h"
 #include "Prototype2Character.h"
 #include "Prototype2PlayerState.h"
+#include "Particles/ParticleSystem.h"
 #include "GameFramework/PlayerState.h"
 
 // Sets default values
@@ -17,6 +20,9 @@ ASellBin::ASellBin()
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 
 	InterfaceType = EInterfaceType::SellBin;
+
+	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
+	InteractSystem->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -24,6 +30,11 @@ void ASellBin::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (ParticleSystem)
+	{
+		InteractSystem->SetAsset(ParticleSystem);
+		InteractSystem->Activate();
+	}
 }
 
 // Called every frame
@@ -31,6 +42,21 @@ void ASellBin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ASellBin::Server_FireParticleSystem_Implementation()
+{
+	Multi_FireParticleSystem();
+}
+
+void ASellBin::Multi_FireParticleSystem_Implementation()
+{
+	// Spawn a one-shot emitter at the InteractSystem's location
+	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystem, InteractSystem->GetComponentLocation());
+	NiagaraComponent->SetIsReplicated(true);
+	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
+	NiagaraComponent->SetAutoDestroy(true);
+	NiagaraComponent->Activate();
 }
 
 void ASellBin::Interact(APrototype2Character* player)
@@ -42,7 +68,8 @@ void ASellBin::Interact(APrototype2Character* player)
 			Cast<APrototype2PlayerState>(player->GetPlayerState())->Coins += plant->ItemComponent->CropValue;
 			player->HeldItem->Destroy();
 			player->HeldItem = nullptr;
-
+			
+			Server_FireParticleSystem();
 		}
 	}
 }

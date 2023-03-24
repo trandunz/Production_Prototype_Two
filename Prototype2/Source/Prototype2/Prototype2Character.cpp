@@ -31,7 +31,8 @@
 #include "Widgets/Widget_PlayerHUD.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
-
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 
 APrototype2Character::APrototype2Character()
@@ -79,6 +80,12 @@ APrototype2Character::APrototype2Character()
 	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	ChargeAttackAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ChargeAttackAudioComponent"));
+
+	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
+	InteractSystem->SetupAttachment(RootComponent);
+
+	DizzyComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Dizzy Component"));
+	DizzyComponent->AttachToComponent(GetMesh(),  FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("Base-HumanHead"));
 }
 
 void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -121,6 +128,11 @@ void APrototype2Character::BeginPlay()
 		if (PlayerHUDRef)
 			PlayerHUDRef->AddToViewport();
 	}
+
+	if (ParticleSystem)
+	{
+		InteractSystem->SetAsset(ParticleSystem);
+	}
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -134,6 +146,7 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	// Stun
 	if (bIsStunned)
 	{
+		
 		bIsChargingAttack = false;
 
 		// Set animation to stun
@@ -164,8 +177,15 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	InteractTimer -= DeltaSeconds;
 	AttackTimer -= DeltaSeconds;
 
-	
-	
+	if (GetVelocity().Length() > 1.0f)
+	{
+		InteractSystem->Activate();
+		
+	}
+	else
+	{
+		InteractSystem->Deactivate();
+	}
 }
 
 void APrototype2Character::ChargeAttack()
@@ -299,7 +319,8 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
 	// Disable input
 	DisableInput(this->GetLocalViewingPlayerController());
-	
+
+	Server_FireDizzySystem();
 	//Server_Ragdoll(true);
 
 	// Drop item
@@ -782,4 +803,19 @@ void APrototype2Character::Multi_ReceiveMaterialsArray_Implementation(
 			meshComponent->SetMaterial(i, _inMaterialsArray[i]);
 		}
 	}
+}
+
+void APrototype2Character::Server_FireDizzySystem_Implementation()
+{
+	Multi_FireParticleSystem();
+}
+
+void APrototype2Character::Multi_FireParticleSystem_Implementation()
+{
+	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DizzySystem, InteractSystem->GetComponentLocation());
+	NiagaraComponent->SetIsReplicated(true);
+	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
+	NiagaraComponent->SetAutoDestroy(true);
+	NiagaraComponent->Activate();
+	NiagaraComponent->AttachToComponent(DizzyComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
