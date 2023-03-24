@@ -155,7 +155,12 @@ protected: // Protected Functions
 
 	ENetRole IdealNetRole{ROLE_AutonomousProxy};
 
-
+	UFUNCTION(Server, Reliable)
+	void Server_FireDizzySystem();
+	void Server_FireDizzySystem_Implementation();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_FireParticleSystem();
+	void Multi_FireParticleSystem_Implementation();
 
 private: // Input actions
 	/** MappingContext */
@@ -265,6 +270,16 @@ public:
 	bool bIsChargingAttack;
 
 	class IInteractInterface* ClosestInteractableItem;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* ParticleSystem;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* InteractSystem;
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* DizzyComponent;
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* DizzySystem;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */

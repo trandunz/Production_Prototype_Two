@@ -27,10 +27,24 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	
+	UFUNCTION(Server, Reliable)
+    void Server_FireParticleSystem();
+    void Server_FireParticleSystem_Implementation();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_FireParticleSystem();
+	void Multi_FireParticleSystem_Implementation();
+
 	UPROPERTY(EditAnywhere)
 	UItemComponent* ItemComponent;
 
 	virtual void Interact(APrototype2Character* player) override;
 	virtual void OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID) override;
 private:
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* ParticleSystem;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* InteractSystem;
 };

@@ -7,6 +7,8 @@
 #include "Prototype2PlayerState.h"
 #include "Seed.h"
 #include "Net/UnrealNetwork.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AGrowSpot::AGrowSpot()
@@ -16,6 +18,9 @@ AGrowSpot::AGrowSpot()
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	bReplicates = true;
+
+	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
+	InteractSystem->SetupAttachment(RootComponent);
 }
 
 void AGrowSpot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -38,6 +43,11 @@ void AGrowSpot::BeginPlay()
 	GrowSpotState = EGrowSpotState::Empty;
 
 	ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
+
+	if (ParticleSystem)
+	{
+		InteractSystem->SetAsset(ParticleSystem);
+	}
 }
 
 void AGrowSpot::Multi_Plant_Implementation()
@@ -55,22 +65,37 @@ void AGrowSpot::Multi_Plant_Implementation()
 	}
 }
 
-void AGrowSpot::GrowPlantOnTick(float DeltaTime)
+void AGrowSpot::Multi_FireParticleSystem_Implementation()
+{
+	// Spawn a one-shot emitter at the InteractSystem's location
+	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystem, InteractSystem->GetComponentLocation());
+	NiagaraComponent->SetIsReplicated(true);
+	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
+	NiagaraComponent->SetAutoDestroy(true);
+}
+
+void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 {
 	if (growingPlant && HasAuthority())
 	{
 		if (growTimer > 0)
 		{
 			GrowSpotState = EGrowSpotState::Growing;
-			growTimer -= DeltaTime;
+			growTimer -= _deltaTime;
+
+			if (growTimer <= 0)
+			{
+				Multi_FireParticleSystem();
+				//InteractSystem->Activate();
+				//InteractSystem->ResetSystem();
+				
+				plantGrown = true;
+				growingPlant = false;
+				GrowSpotState = EGrowSpotState::Grown;
+			}
 		}
 			
-		if (growTimer <= 0)
-		{
-			plantGrown = true;
-			growingPlant = false;
-			GrowSpotState = EGrowSpotState::Grown;
-		}
+		
 	}
 	
 	if (plant)
@@ -97,6 +122,7 @@ void AGrowSpot::Tick(float DeltaTime)
 	{
 	case EGrowSpotState::Growing:
 		{
+			InteractSystem->Deactivate();
 			if (plant)
 				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -133,6 +159,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					{
 						if (seed->plantToGrow)
 						{
+							//Multi_FireParticleSystem();
 							growTime = player->HeldItem->ItemComponent->GrowTime;
 							SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
 							Multi_Plant();
@@ -150,6 +177,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 				{
 					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
 					{
+						Multi_FireParticleSystem();
 						player->HeldItem = plant;
 						player->Server_PickupItem(plant->ItemComponent, plant);
 						plant->isGrown = true;

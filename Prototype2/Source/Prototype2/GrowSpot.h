@@ -33,6 +33,10 @@ protected:
 	void Multi_Plant();
 	void Multi_Plant_Implementation();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_FireParticleSystem();
+	void Multi_FireParticleSystem_Implementation();
+
 	void GrowPlantOnTick(float DeltaTime);
 public:	
 	// Called every frame
@@ -64,4 +68,10 @@ public:
 	bool growingPlant = false;
 	UPROPERTY(Replicated)
 	bool plantGrown = false;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* ParticleSystem;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* InteractSystem;
 };
