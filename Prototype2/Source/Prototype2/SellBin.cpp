@@ -42,6 +42,8 @@ void ASellBin::Interact(APrototype2Character* player)
 			Cast<APrototype2PlayerState>(player->GetPlayerState())->Coins += plant->ItemComponent->CropValue;
 			player->HeldItem->Destroy();
 			player->HeldItem = nullptr;
+
+			player->PlaySoundAtLocation(player->GetActorLocation(), player->SellCue);
 		}
 	}
 }

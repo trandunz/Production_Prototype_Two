@@ -28,6 +28,8 @@
 #include "Gamestates/Prototype2Gamestate.h"
 #include "Net/UnrealNetwork.h"
 #include "Widgets/Widget_PlayerHUD.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 
 
@@ -75,6 +77,8 @@ APrototype2Character::APrototype2Character()
 	Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
     Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
+
+	ChargeAttackAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ChargeAttackAudioComponent"));
 }
 
 void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -99,6 +103,8 @@ void APrototype2Character::BeginPlay()
 	}
 	
 	Server_AddHUD();
+
+	ChargeAttackAudioComponent->SetSound(ChargeCue);
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -156,6 +162,8 @@ void APrototype2Character::ChargeAttack()
 		{
 			Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
 		}
+
+		ChargeAttackAudioComponent->Play();
 	}
 }
 
@@ -163,6 +171,9 @@ void APrototype2Character::ReleaseAttack()
 {
 	if (bIsChargingAttack)
 	{
+		ChargeAttackAudioComponent->Stop();
+		PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
+		
 		// Reset Attack Timer
 		AttackTimer = AttackTimerTime;
 		
@@ -249,10 +260,13 @@ void APrototype2Character::Interact()
 		// Reset the Interact Timer when Player Interacts
 		InteractTimer = InteractTimerTime;
 		
+		PlayerHUDRef->UpdatePickupUI(EPickup::None);
+		
 		if (!bIsChargingAttack)
 		{
 			Server_TryInteract();
 		}
+
 	}
 	
 	// Debug draw collision sphere
@@ -321,6 +335,8 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	
 	bIsStunned = true;
 	StunTimer = AttackCharge;
+
+	PlaySoundAtLocation(GetActorLocation(), GetHitCue);
 }
 
 void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
@@ -403,6 +419,11 @@ void APrototype2Character::OpenIngameMenu()
 
 void APrototype2Character::UpdateAllPlayerIDs()
 {
+}
+
+void APrototype2Character::PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay)
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundToPlay, Location);
 }
 
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
@@ -505,6 +526,10 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		HeldItem = nullptr;
 
 		// Set HUD image
+		if (PlayerHUDRef)
+			PlayerHUDRef->UpdatePickupUI(EPickup::None);
+
+		PlaySoundAtLocation(GetActorLocation(), DropCue);
 	}
 }
 
@@ -538,6 +563,8 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	HeldItem = _item;
 
 	// Set HUD image
-	//if (PlayerHUDRef)
-	//	PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);	
+	if (PlayerHUDRef)
+		PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);
+
+	PlaySoundAtLocation(GetActorLocation(), PickUpCue);
 }
