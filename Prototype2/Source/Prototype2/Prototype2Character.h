@@ -42,6 +42,20 @@ public: // Public Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_Client_AddHUD();
 	void Multi_Client_AddHUD_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_StartAttack();
+	void Server_StartAttack_Implementation();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_StartAttack();
+	void Multi_StartAttack_Implementation();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_ReleaseAttack();
+	void Server_ReleaseAttack_Implementation();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ReleaseAttack();
+	void Multi_ReleaseAttack_Implementation();
 	
 	UFUNCTION(Client, Reliable)
 	void Client_AddHUD();
@@ -227,7 +241,7 @@ public:
 	class APickUpItem* HeldItem;
 
 	/* Is player holding down attack */
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsChargingAttack;
 
 	class IInteractInterface* ClosestInteractableItem;
@@ -243,9 +257,11 @@ protected:
 
 
 private:
-	
+	UPROPERTY(Replicated)
 	float AttackChargeAmount;
+	UPROPERTY(Replicated)
 	bool bIsStunned;
+	UPROPERTY(Replicated)
 	float StunTimer;
 	bool DoOnce{};
 	

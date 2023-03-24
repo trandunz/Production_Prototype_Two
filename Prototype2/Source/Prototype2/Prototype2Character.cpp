@@ -88,6 +88,10 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, HeldItem);
 	DOREPLIFETIME(APrototype2Character, PlayerMat);
 	DOREPLIFETIME(APrototype2Character, PlayerID);
+	DOREPLIFETIME(APrototype2Character, bIsChargingAttack);
+	DOREPLIFETIME(APrototype2Character, AttackChargeAmount);
+	DOREPLIFETIME(APrototype2Character, bIsStunned);
+	DOREPLIFETIME(APrototype2Character, StunTimer);
 }
 
 void APrototype2Character::BeginPlay()
@@ -165,62 +169,12 @@ void APrototype2Character::Tick(float DeltaSeconds)
 
 void APrototype2Character::ChargeAttack()
 {
-	if (AttackTimer < 0.0f)
-	{
-		if (HeldItem)
-		{
-			Server_DropItem();
-		}
-		
-		bIsChargingAttack = true;
-
-		if (Weapon)
-		{
-			Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
-		}
-
-		ChargeAttackAudioComponent->Play();
-	}
+	Server_StartAttack();
 }
 
 void APrototype2Character::ReleaseAttack()
 {
-	if (bIsChargingAttack)
-	{
-		ChargeAttackAudioComponent->Stop();
-		PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
-		
-		// Reset Attack Timer
-		AttackTimer = AttackTimerTime;
-		
-		// Cap attack charge
-		if (AttackChargeAmount > MaxAttackCharge)
-		{
-			AttackChargeAmount = MaxAttackCharge;
-		}
-
-		// Create a sphere collider, check if player hit, call player hit
-		int32 attackSphereRadius;
-		if (Weapon)
-		{
-			// Create a larger sphere of effect
-			attackSphereRadius = 75.0f + AttackChargeAmount * 30.0f;
-		}
-		else
-		{
-			// Create a smaller sphere of effect
-			attackSphereRadius = 50.0f;
-		}
-
-		ExecuteAttack(attackSphereRadius);
-		
-		// Reset Attack variables
-		bIsChargingAttack = false;
-		AttackChargeAmount = 0.0f;
-
-		// Stop the player Interacting while "executing attack"
-		InteractTimer = InteractTimerTime;
-	}
+	Server_ReleaseAttack();
 }
 
 void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
@@ -480,6 +434,81 @@ void APrototype2Character::Multi_Client_AddHUD_Implementation()
     		if (PlayerHUDRef)
     			PlayerHUDRef->AddToViewport();
     	}
+}
+
+void APrototype2Character::Server_StartAttack_Implementation()
+{
+	if (AttackTimer < 0.0f)
+	{
+		if (HeldItem)
+		{
+			Server_DropItem();
+		}
+		
+		bIsChargingAttack = true;
+
+		if (Weapon)
+		{
+			Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
+		}
+
+		ChargeAttackAudioComponent->Play();
+	}
+}
+
+void APrototype2Character::Multi_StartAttack_Implementation()
+{
+	
+}
+
+void APrototype2Character::Server_ReleaseAttack_Implementation()
+{
+	// Create a sphere collider, check if player hit, call player hit
+	
+	if (bIsChargingAttack)
+	{
+		int32 attackSphereRadius;
+		if (Weapon)
+		{
+			// Create a larger sphere of effect
+			attackSphereRadius = 75.0f + AttackChargeAmount * 30.0f;
+		}
+		else
+		{
+			// Create a smaller sphere of effect
+			attackSphereRadius = 50.0f;
+		}
+
+		ExecuteAttack(attackSphereRadius);
+	}
+		
+		
+	Multi_ReleaseAttack();
+}
+
+void APrototype2Character::Multi_ReleaseAttack_Implementation()
+{
+	if (bIsChargingAttack)
+	{
+		ChargeAttackAudioComponent->Stop();
+		PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
+		
+		// Reset Attack Timer
+		AttackTimer = AttackTimerTime;
+		
+		// Cap attack charge
+		if (AttackChargeAmount > MaxAttackCharge)
+		{
+			AttackChargeAmount = MaxAttackCharge;
+		}
+		
+		// Reset Attack variables
+		bIsChargingAttack = false;
+		AttackChargeAmount = 0.0f;
+
+		// Stop the player Interacting while "executing attack"
+		InteractTimer = InteractTimerTime;
+	}
 }
 
 void APrototype2Character::Client_AddHUD_Implementation()
