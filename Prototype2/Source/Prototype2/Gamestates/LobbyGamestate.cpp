@@ -79,14 +79,14 @@ void ALobbyGamestate::SetIsReady(int _player, bool _isReady)
 	if (isEveryoneReady && Server_Players.Num() >= 1)
 	{
 		ShouldServerTravel = true;
-		LobbyLengthSeconds = 10.0f;
+		LobbyLengthSeconds = 7.0f;
 	}
 	else
 	{
 		ShouldServerTravel = false;
 		IsCountingDown = false;
 		PreviousServerTravel = false;
-		LobbyLengthSeconds = 10.0f;
+		LobbyLengthSeconds = 7.0f;
 	}
 }
 
