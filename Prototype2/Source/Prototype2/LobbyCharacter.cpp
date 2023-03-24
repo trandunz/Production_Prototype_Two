@@ -2,9 +2,6 @@
 
 
 #include "LobbyCharacter.h"
-
-#include <dwmapi.h>
-
 #include "Net/UnrealNetwork.h"
 
 // Sets default values

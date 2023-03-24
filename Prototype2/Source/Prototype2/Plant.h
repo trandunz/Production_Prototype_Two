@@ -18,8 +18,5 @@ public:
 	bool isGrown = false;
 	//UPROPERTY(EditAnywhere)
 	//float value; // Moved to ItemComponent
-
-	UPROPERTY(EditAnywhere)
-	class USoundCue* MandrakeScream;
 	
 };

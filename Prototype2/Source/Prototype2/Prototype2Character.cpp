@@ -229,12 +229,20 @@ void APrototype2Character::Interact()
 	{
 		// Reset the Interact Timer when Player Interacts
 		InteractTimer = InteractTimerTime;
-		
-		PlayerHUDRef->UpdatePickupUI(EPickup::None);
+
+		if(!HeldItem)
+		{
+			PlayerHUDRef->UpdatePickupUI(EPickup::None);
+		}
 		
 		if (!bIsChargingAttack)
 		{
 			Server_TryInteract();
+		}
+
+		if(!HeldItem)
+		{
+			PlayerHUDRef->UpdatePickupUI(EPickup::None);
 		}
 
 	}
@@ -562,6 +570,17 @@ void APrototype2Character::Server_TryInteract_Implementation()
 		{
 			// Call the InteractInterface interact function
 			ClosestInteractableItem->Interact(this);
+
+			if (HeldItem)
+			{
+				if (HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
+				{
+					if (MandrakeScreamCue)
+					{
+						PlaySoundAtLocation(GetActorLocation(), MandrakeScreamCue);
+					}
+				}
+			}
 		}
 	}
 	else if (HeldItem) // If holding item
@@ -573,11 +592,11 @@ void APrototype2Character::Server_TryInteract_Implementation()
 		{
 			ClosestInteractableItem->Interact(this);
 
-			if(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin)
+			if(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin && !HeldItem)
 			{
 				PlaySoundAtLocation(GetActorLocation(), SellCue);
 			}
-			if(ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
+			if(ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot && !HeldItem)
 			{
 				PlaySoundAtLocation(GetActorLocation(), PlantCue);
 			}

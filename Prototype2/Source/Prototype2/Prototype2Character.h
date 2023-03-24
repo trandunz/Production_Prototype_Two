@@ -231,6 +231,8 @@ public: // audio
 	USoundCue* PlantCue;
 	UPROPERTY(EditAnywhere)
 	USoundCue* GetHitCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* MandrakeScreamCue;
 	
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

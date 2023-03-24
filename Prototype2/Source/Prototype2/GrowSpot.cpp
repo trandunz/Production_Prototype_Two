@@ -158,6 +158,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						growingPlant = false;
 						growTimer = 0.0f;
 						GrowSpotState = EGrowSpotState::Empty;
+
 					}
 				}
 			}
