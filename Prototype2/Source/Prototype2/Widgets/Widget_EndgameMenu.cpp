@@ -16,6 +16,8 @@ void UWidget_EndgameMenu::NativeOnInitialized()
 	{
 		GameStateRef = gameState;
 	}
+
+	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UWidget_EndgameMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -50,22 +52,26 @@ void UWidget_EndgameMenu::UpdateWinnerText()
 	{
 	case 0:
 		{
-			GameWinnerText->SetText(FText::FromString("Player 1 Wins"));
+			GameWinnerText->SetText(FText::FromString("WINNER!"));
+			GameWinnerText_1->SetText(FText::FromString("Player 1"));
 			break;
 		}
 	case 1:
 		{
-			GameWinnerText->SetText(FText::FromString("Player 2 Wins"));
+			GameWinnerText->SetText(FText::FromString("WINNER!"));
+			GameWinnerText_1->SetText(FText::FromString("Player 2"));
 			break;
 		}
 	case 2:
 		{
-			GameWinnerText->SetText(FText::FromString("Player 3 Wins"));
+			GameWinnerText->SetText(FText::FromString("WINNER!"));
+			GameWinnerText_1->SetText(FText::FromString("Player 3"));
 			break;
 		}
 	case 3:
 		{
-			GameWinnerText->SetText(FText::FromString("Player 4 Wins"));
+			GameWinnerText->SetText(FText::FromString("WINNER!"));
+			GameWinnerText_1->SetText(FText::FromString("Player 4"));
 			break;
 		}
 	default:
@@ -76,7 +82,7 @@ void UWidget_EndgameMenu::UpdateWinnerText()
 	}
 	
 	// Update points
-	GameWinnerPoints->SetText(FText::FromString(FString::FromInt(winnerPoints)));
+	//GameWinnerPoints->SetText(FText::FromString(FString::FromInt(winnerPoints)));
 }
 
 void UWidget_EndgameMenu::EnableEndgameMenu()
