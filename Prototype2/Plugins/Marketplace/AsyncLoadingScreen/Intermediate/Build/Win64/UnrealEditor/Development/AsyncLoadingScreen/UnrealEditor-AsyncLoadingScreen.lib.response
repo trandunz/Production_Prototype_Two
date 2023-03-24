@@ -6,7 +6,7 @@
 /NAME:"UnrealEditor-AsyncLoadingScreen.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
-"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp.obj"
-"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Default.rc2.res"
-/OUT:"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\UnrealEditor-AsyncLoadingScreen.lib"
+"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp.obj"
+"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Default.rc2.res"
+/OUT:"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\UnrealEditor-AsyncLoadingScreen.lib"

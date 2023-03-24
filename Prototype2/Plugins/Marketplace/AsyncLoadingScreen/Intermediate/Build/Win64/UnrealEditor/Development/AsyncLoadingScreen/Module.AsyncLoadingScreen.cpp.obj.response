@@ -1,6 +1,6 @@
-C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp
+C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp
 /I .
-/I C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Source\AsyncLoadingScreen\Private
+/I C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Source\AsyncLoadingScreen\Private
 /I ..\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\UHT
 /I Runtime
 /I Runtime\CoreUObject\Public
@@ -272,24 +272,23 @@ C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plu
 /I Developer\AnimationDataController\Public
 /I ..\Intermediate\Build\Win64\UnrealEditor\Inc\MoviePlayer\UHT
 /I Runtime\MoviePlayer\Public
-/I C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Inc\AsyncLoadingScreen\UHT
-/I C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Source
-/I C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Source\AsyncLoadingScreen\Public
-/external:W0
-/external:I ThirdParty\mimalloc\include
-/external:I ThirdParty\LibTiff\Source\Win64
-/external:I ThirdParty\LibTiff\Source
-/external:I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\INCLUDE"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-/FI"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
-/FI"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Definitions.AsyncLoadingScreen.h"
-/Yu"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
-/Fp"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.pch"
-/Fo"C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp.obj"
-/sourceDependencies C:\Users\trand\OneDrive\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp.dep.json
+/I C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Inc\AsyncLoadingScreen\UHT
+/I C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Source
+/I C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Source\AsyncLoadingScreen\Public
+/I ThirdParty\mimalloc\include
+/I ThirdParty\LibTiff\Source\Win64
+/I ThirdParty\LibTiff\Source
+/I "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt"
+/FI"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
+/FI"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Definitions.AsyncLoadingScreen.h"
+/Yu"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
+/Fp"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Intermediate\Build\Win64\Prototype2Editor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.pch"
+/Fo"C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp.obj"
+/sourceDependencies C:\Users\Julianna\Documents\GitHub\Production_Prototype_Two\Prototype2\Plugins\Marketplace\AsyncLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Development\AsyncLoadingScreen\Module.AsyncLoadingScreen.cpp.dep.json
 /Zc:inline
 /nologo
 /Oi
