@@ -348,7 +348,7 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	UE_LOG(LogTemp, Warning, TEXT("AttackCharge: %s"), *FString::SanitizeFloat(AttackCharge));
 	
 	bIsStunned = true;
-	StunTimer = AttackCharge;
+	StunTimer = 2.0f;
 
 	PlaySoundAtLocation(GetActorLocation(), GetHitCue);
 }
@@ -530,6 +530,15 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot))
 		{
 			ClosestInteractableItem->Interact(this);
+
+			if(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin)
+			{
+				PlaySoundAtLocation(GetActorLocation(), SellCue);
+			}
+			if(ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
+			{
+				PlaySoundAtLocation(GetActorLocation(), PlantCue);
+			}
 		}
 		else
 		{

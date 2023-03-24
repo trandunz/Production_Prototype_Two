@@ -112,8 +112,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 
 							// Seed is now planted so remove from player
 							player->HeldItem = nullptr;
-							
-							player->PlaySoundAtLocation(player->GetActorLocation(), player->PlantCue);
+
 						}
 					}
 				}
