@@ -7,7 +7,10 @@
 #include "InputActionValue.h"
 #include "Prototype2Character.generated.h"
 
+class UAudioComponent;
+class USoundCue;
 class UItemComponent;
+
 UCLASS(config=Game)
 class APrototype2Character : public ACharacter
 {
@@ -169,6 +172,26 @@ private: // Private variables
 	TSubclassOf<class UWidget_PlayerHUD> PlayerHudPrefab;
 	UWidget_PlayerHUD* PlayerHUDRef;
 
+public: // audio
+	void PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay);
+	
+	UAudioComponent* ChargeAttackAudioComponent;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* ChargeCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* ExecuteCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* PickUpCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* DropCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* SellCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* PlantCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* GetHitCue;
+	
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWeapon* Weapon;
