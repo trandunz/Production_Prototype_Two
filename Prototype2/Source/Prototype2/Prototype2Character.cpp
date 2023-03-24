@@ -92,6 +92,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, AttackChargeAmount);
 	DOREPLIFETIME(APrototype2Character, bIsStunned);
 	DOREPLIFETIME(APrototype2Character, StunTimer);
+	DOREPLIFETIME(APrototype2Character, LocationWhenStunned);
 }
 
 void APrototype2Character::BeginPlay()
@@ -141,7 +142,7 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		if (StunTimer < 0.0f)
 		{
 			bIsStunned = false;
-
+			//Server_Ragdoll(false);
 			// Enable input
 			EnableInput(this->GetLocalViewingPlayerController());
 		}
@@ -298,6 +299,8 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
 	// Disable input
 	DisableInput(this->GetLocalViewingPlayerController());
+	
+	//Server_Ragdoll(true);
 
 	// Drop item
 	if (HeldItem)
@@ -402,6 +405,81 @@ void APrototype2Character::UpdateAllPlayerIDs()
 void APrototype2Character::PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay)
 {
 	Server_PlaySoundAtLocation(Location,SoundToPlay );
+}
+
+void APrototype2Character::Ragdoll(bool _ragdoll)
+{
+	if (_ragdoll)
+	{
+		SetReplicateMovement(false);
+		
+		/* Disable all collision on capsule */
+		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		SetActorEnableCollision(true);
+
+		GetMesh()->SetAllBodiesSimulatePhysics(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->WakeAllRigidBodies();
+		GetMesh()->bBlendPhysics = true;
+		
+
+		UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent());
+		if (CharacterComp)
+		{
+			CharacterComp->StopMovementImmediately();
+			CharacterComp->DisableMovement();
+			CharacterComp->SetComponentTickEnabled(false);
+		}
+	}
+	else
+	{
+		SetActorEnableCollision(false);
+		GetMesh()->SetAllBodiesSimulatePhysics(false);
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->bBlendPhysics = false;
+		SetReplicateMovement(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetRelativeTransform(MeshLocationWhenStunned);
+		SetActorTransform(LocationWhenStunned);
+		
+		
+		/* Disable all collision on capsule */
+		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
+
+
+
+
+		UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent());
+		if (CharacterComp)
+		{
+			CharacterComp->SetMovementMode(EMovementMode::MOVE_Walking);
+			CharacterComp->SetComponentTickEnabled(true);
+		}
+
+
+	}
+	
+}
+
+void APrototype2Character::Server_Ragdoll_Implementation(bool _ragdoll)
+{
+	if (_ragdoll)
+	{
+		LocationWhenStunned = GetActorTransform();
+		MeshLocationWhenStunned = GetMesh()->GetRelativeTransform();
+	}
+
+	Multi_Ragdoll(_ragdoll);
+}
+
+void APrototype2Character::Multi_Ragdoll_Implementation(bool _ragdoll)
+{
+	Ragdoll(_ragdoll);
 }
 
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
