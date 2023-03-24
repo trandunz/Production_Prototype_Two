@@ -99,6 +99,8 @@ void APrototype2Character::BeginPlay()
 	}
 	
 	Server_AddHUD();
+
+	
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -139,6 +141,9 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	// Countdown timers
 	InteractTimer -= DeltaSeconds;
 	AttackTimer -= DeltaSeconds;
+
+	
+	
 }
 
 void APrototype2Character::ChargeAttack()

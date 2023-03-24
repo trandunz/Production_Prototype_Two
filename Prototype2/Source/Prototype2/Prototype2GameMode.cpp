@@ -41,6 +41,32 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
 				playerState->Player_ID = gamestate->Server_Players.Add(playerState);
+
+				switch(playerState->Player_ID)
+				{
+				case 0:
+					{
+						NewPlayer->GetCharacter()->SetActorLocation({1680.f,-70.f,90.f});
+						break;
+					}
+				case 1:
+					{
+						NewPlayer->GetCharacter()->SetActorLocation({-1910.000f,-60.000f,90.000f});
+						break;
+					}
+				case 2:
+					{
+						NewPlayer->GetCharacter()->SetActorLocation({-110.f,1730.f,90.f});
+						break;
+					}
+				case 3:
+					{
+						NewPlayer->GetCharacter()->SetActorLocation({-110.f,-1850.f,90.f});
+						break;
+					}
+				default:
+					break;
+				}
 			}
 		}
 	}

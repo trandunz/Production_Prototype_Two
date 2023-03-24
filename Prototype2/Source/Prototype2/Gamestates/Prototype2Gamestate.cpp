@@ -10,7 +10,6 @@ APrototype2Gamestate::APrototype2Gamestate()
 void APrototype2Gamestate::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void APrototype2Gamestate::Tick(float DeltaSeconds)
