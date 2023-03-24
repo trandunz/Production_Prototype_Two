@@ -43,7 +43,6 @@ void ASellBin::Interact(APrototype2Character* player)
 			player->HeldItem->Destroy();
 			player->HeldItem = nullptr;
 
-			player->PlaySoundAtLocation(player->GetActorLocation(), player->SellCue);
 		}
 	}
 }
