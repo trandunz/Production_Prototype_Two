@@ -40,17 +40,17 @@ void ASellBin::Tick(float DeltaTime)
 
 void ASellBin::Server_FireParticleSystem_Implementation()
 {
-	Multi_FireParticleSystem();
+	//Multi_FireParticleSystem();
 }
 
 void ASellBin::Multi_FireParticleSystem_Implementation()
 {
 	// Spawn a one-shot emitter at the InteractSystem's location
-	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystem, InteractSystem->GetComponentLocation());
-	NiagaraComponent->SetIsReplicated(true);
-	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
-	NiagaraComponent->SetAutoDestroy(true);
-	NiagaraComponent->Activate();
+	//UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystem, InteractSystem->GetComponentLocation());
+	//NiagaraComponent->SetIsReplicated(true);
+	//// Set the NiagaraComponent to auto-destroy itself after it finishes playing
+	//NiagaraComponent->SetAutoDestroy(true);
+	//NiagaraComponent->Activate();
 }
 
 void ASellBin::Interact(APrototype2Character* player)
@@ -63,7 +63,7 @@ void ASellBin::Interact(APrototype2Character* player)
 			player->HeldItem->Destroy();
 			player->HeldItem = nullptr;
 			
-			Server_FireParticleSystem();
+			//Server_FireParticleSystem();
 		}
 	}
 }
