@@ -3,6 +3,8 @@
 
 #include "Plant.h"
 #include "Prototype2Character.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 APlant::APlant()
 {
@@ -28,5 +30,12 @@ void APlant::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, clas
 	if (!owner->HeldItem)
 	{
 		_invokingWiget->SetHUDInteractText("Pick Up");
+		if (ItemComponent->PickupType == EPickup::Mandrake)
+		{
+			if (MandrakeScream)
+			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), MandrakeScream, owner->GetActorLocation());
+			}
+		}
 	}
 }
