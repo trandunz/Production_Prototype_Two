@@ -91,103 +91,13 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		{
 			EnableEndgameMenu();
 		}
-		
-		if (auto* playerController = Cast<APrototype2PlayerController>(GetOwningPlayerPawn()->GetController()))
+
+		if (auto* owner = Cast<APrototype2Character>(GetOwningPlayer()->GetCharacter()))
 		{
-			auto playerID = playerController->GetPlayerState<APrototype2PlayerState>()->Player_ID;
-			if (GameStateRef->Server_Players.Num() >= playerID)
+			SetHUDInteractText("");
+			if (auto* closestInteractable = owner->ClosestInteractableItem)
 			{
-				if (auto* playerState = Cast<APrototype2PlayerState>(GameStateRef->Server_Players[playerID]))
-				{
-					SetHUDInteractText("");
-					if (auto* owner = GetOwningPlayerPawn<APrototype2Character>())
-					{
-						if (auto* closestInteractable = owner->ClosestInteractableItem)
-						{
-							switch (closestInteractable->InterfaceType)
-							{
-							case EInterfaceType::SellBin:
-								{
-									// Set to "Sell"
-									if(auto heldItem = owner->HeldItem)
-									{
-										if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
-											heldItem->ItemComponent->PickupType == EPickup::Carrot ||
-											heldItem->ItemComponent->PickupType == EPickup::Mandrake)
-										{
-											SetHUDInteractText("Sell");
-											break;
-										}
-									}
-									break;
-								}
-							case EInterfaceType::GrowSpot:
-								{
-									if (auto* growSpot = Cast<AGrowSpot>(closestInteractable))
-									{
-										if (growSpot->Player_ID == playerState->Player_ID)
-										{
-											switch (closestInteractable->GrowSpotState)
-											{
-											case EGrowSpotState::Empty:
-												{
-													// Set to "Grow"
-													if(auto heldItem = owner->HeldItem)
-													{
-														if (heldItem->ItemComponent->PickupType == EPickup::CabbageSeed ||
-															heldItem->ItemComponent->PickupType == EPickup::CarrotSeed ||
-															 heldItem->ItemComponent->PickupType == EPickup::MandrakeSeed)
-														{
-															SetHUDInteractText("Grow");
-															break;
-														}
-													}
-													break;
-												}
-											case EGrowSpotState::Growing:
-												{
-													break;
-												}
-											case EGrowSpotState::Grown:
-												{
-													if (!owner->HeldItem)
-													{
-														// Set to "Grow"
-														SetHUDInteractText("Pick Up");
-													}
-													break;
-												}
-											case EGrowSpotState::Default:
-												{
-													// Pass through
-												}
-											default:
-												{
-													// Set to none
-													break;
-												}
-											}						
-										}
-									}
-									break;
-								}
-							case EInterfaceType::Default:
-								{
-									// Set to "Sell"
-									if (!owner->HeldItem)
-									{
-										SetHUDInteractText("Pick Up");
-									}
-									break;
-								}
-							default:
-								{
-									break;
-								}
-							}
-						}
-					}
-				}
+				closestInteractable->OnDisplayInteractText(this, owner, owner->PlayerID);
 			}
 		}
 	}

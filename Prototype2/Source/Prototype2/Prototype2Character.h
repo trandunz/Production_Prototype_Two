@@ -19,7 +19,9 @@ public:
 	APrototype2Character();	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	
+	UPROPERTY(VisibleAnywhere, Replicated)
+	int PlayerID{-1};
 public: // Public Networking functions
 	UFUNCTION(Server, Reliable)
 	void Server_PickupItem(UItemComponent* itemComponent, APickUpItem* _item);
@@ -37,6 +39,10 @@ public: // Public Networking functions
 	void Server_AddHUD();
 	void Server_AddHUD_Implementation();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_Client_AddHUD();
+	void Multi_Client_AddHUD_Implementation();
+	
 	UFUNCTION(Client, Reliable)
 	void Client_AddHUD();
 	void Client_AddHUD_Implementation();
