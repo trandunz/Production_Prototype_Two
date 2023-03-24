@@ -224,6 +224,14 @@ private: // Private variables
 
 public: // audio
 	void PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay);
+
+	void Ragdoll(bool _ragdoll);
+	UFUNCTION(Server, Reliable)
+	void Server_Ragdoll(bool _ragdoll);
+	void Server_Ragdoll_Implementation(bool _ragdoll);
+	UFUNCTION(NetMulticast, Reliable)
+    void Multi_Ragdoll(bool _ragdoll);
+    void Multi_Ragdoll_Implementation(bool _ragdoll);
 	
 	UAudioComponent* ChargeAttackAudioComponent;
 
@@ -276,5 +284,9 @@ private:
 	UPROPERTY(Replicated)
 	float StunTimer;
 	bool DoOnce{};
-	
+
+	UPROPERTY(Replicated, VisibleAnywhere)
+	FTransform LocationWhenStunned{};
+	UPROPERTY(Replicated, VisibleAnywhere)
+	FTransform MeshLocationWhenStunned{};
 };
