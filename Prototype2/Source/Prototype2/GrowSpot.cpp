@@ -146,7 +146,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						}
 					}
 				}
-				else if (plant)
+				else if (plant && !player->HeldItem)
 				{
 					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
 					{
@@ -159,6 +159,10 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						growTimer = 0.0f;
 						GrowSpotState = EGrowSpotState::Empty;
 					}
+				}
+				else if (player->HeldItem)
+				{
+					player->Server_DropItem();
 				}
 			}
 		}
