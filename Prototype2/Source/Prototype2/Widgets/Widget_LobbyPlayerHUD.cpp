@@ -5,6 +5,8 @@
 
 #include <string>
 
+#include "Components/Button.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Prototype2/LobbyPlayerState.h"
@@ -20,6 +22,10 @@ void UWidget_LobbyPlayerHUD::NativeOnInitialized()
 	{
 		GameStateRef = gameState;
 	}
+
+	// Make cancel hidden
+	CancelButton->SetVisibility(ESlateVisibility::Hidden);
+	StartCountDown->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -36,6 +42,20 @@ void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDel
 		Player2Text->SetVisibility(ESlateVisibility::Hidden);
 		Player3Text->SetVisibility(ESlateVisibility::Hidden);
 		Player4Text->SetVisibility(ESlateVisibility::Hidden);
+		Player1ReadyImage->SetVisibility(ESlateVisibility::Hidden);
+		Player2ReadyImage->SetVisibility(ESlateVisibility::Hidden);
+		Player3ReadyImage->SetVisibility(ESlateVisibility::Hidden);
+		Player4ReadyImage->SetVisibility(ESlateVisibility::Hidden);
+
+		if (GameStateRef->IsCountingDown)
+		{
+			StartCountDown->SetVisibility(ESlateVisibility::Visible);
+			StartCountDown->SetText(FText::FromString(FString::FromInt(GameStateRef->LobbyLengthSeconds)));
+		}
+		else
+		{
+			StartCountDown->SetVisibility(ESlateVisibility::Hidden);
+		}
 		
 		if (GameStateRef->Server_Players.Num() >= 1)
 			Player1Text->SetVisibility(ESlateVisibility::Visible);
@@ -58,10 +78,12 @@ void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDel
 						{
 							Player1ReadyText->SetText(FText::FromString("Ready"));
 							Player1ReadyText->SetVisibility(ESlateVisibility::Visible);
+							Player1ReadyImage->SetVisibility(ESlateVisibility::Visible);
 						}
 						else
 						{
 							Player1ReadyText->SetText(FText::FromString("Not Ready"));
+							Player1ReadyImage->SetVisibility(ESlateVisibility::Hidden);
 						}
 						break;
 					}
@@ -71,10 +93,12 @@ void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDel
 						{
 							Player2ReadyText->SetText(FText::FromString("Ready"));
 							Player2ReadyText->SetVisibility(ESlateVisibility::Visible);
+							Player2ReadyImage->SetVisibility(ESlateVisibility::Visible);
 						}
 						else
 						{
 							Player2ReadyText->SetText(FText::FromString("Not Ready"));
+							Player2ReadyImage->SetVisibility(ESlateVisibility::Hidden);
 						}
 						break;
 					}
@@ -84,10 +108,12 @@ void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDel
 						{
 							Player3ReadyText->SetText(FText::FromString("Ready"));
 							Player3ReadyText->SetVisibility(ESlateVisibility::Visible);
+							Player3ReadyImage->SetVisibility(ESlateVisibility::Visible);
 						}
 						else
 						{
 							Player3ReadyText->SetText(FText::FromString("Not Ready"));
+							Player3ReadyImage->SetVisibility(ESlateVisibility::Hidden);
 						}
 						break;
 					}
@@ -97,10 +123,12 @@ void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDel
 						{
 							Player4ReadyText->SetText(FText::FromString("Ready"));
 							Player4ReadyText->SetVisibility(ESlateVisibility::Visible);
+							Player4ReadyImage->SetVisibility(ESlateVisibility::Visible);
 						}
 						else
 						{
 							Player4ReadyText->SetText(FText::FromString("Not Ready"));
+							Player4ReadyImage->SetVisibility(ESlateVisibility::Hidden);
 						}
 						break;
 					}
@@ -125,19 +153,42 @@ void UWidget_LobbyPlayerHUD::SetReady()
 		{
 			if (auto* playerState = Cast<ALobbyPlayerState>(GameStateRef->Server_Players[playerID]))
 			{
-				if (playerState->IsReady == true)
-				{
-					playerController->SetIsReady(playerID, false);
-					IsReadyButtonText->SetText(FText::FromString("Ready"));
-
-				}
-				else
-				{
+				//if (playerState->IsReady == true)
+				//{
 					playerController->SetIsReady(playerID, true);
-					IsReadyButtonText->SetText(FText::FromString("Not Ready"));
-				}
+
+					ReadyButton->SetVisibility(ESlateVisibility::Hidden);
+					CancelButton->SetVisibility(ESlateVisibility::Visible);
+					//IsReadyButtonText->SetText(FText::FromString("Ready"));
+
+				//}
+				//else
+				//{
+				//	playerController->SetIsReady(playerID, true);
+				//	//IsReadyButtonText->SetText(FText::FromString("Not Ready"));
+				//}
 			}
 		}
 	}
-	
+}
+
+void UWidget_LobbyPlayerHUD::SetCancel()
+{
+	if (auto* playerController = Cast<APrototype2PlayerController>(GetOwningPlayer()))
+	{
+		auto playerID = playerController->GetPlayerState<ALobbyPlayerState>()->Player_ID;
+		if (playerController->IsLocalPlayerController())
+			UE_LOG(LogTemp, Warning, TEXT("Players ID = %s"), *FString::FromInt(playerID));
+		
+		if (GameStateRef->Server_Players.Num() >= playerID)
+		{
+			if (auto* playerState = Cast<ALobbyPlayerState>(GameStateRef->Server_Players[playerID]))
+			{
+				playerController->SetIsReady(playerID, false);
+
+				ReadyButton->SetVisibility(ESlateVisibility::Visible);
+				CancelButton->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
 }

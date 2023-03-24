@@ -21,6 +21,8 @@ public:
 	// Sets default values for this actor's properties
 	AGrowSpot();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UPROPERTY(EditAnywhere)
 	int Player_ID = 0;
 
@@ -40,18 +42,26 @@ public:
 	UItemComponent* ItemComponent;
 
 	virtual void Interact(APrototype2Character* player) override;
+	virtual void OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID) override;
 
 	void SetPlant(APlant* _plant, float _growTime);
 	void SetWeapon(AWeapon* _weapon, float _growTime);
-	
+
+	UPROPERTY(Replicated, VisibleAnywhere)
+	EGrowSpotState GrowSpotState = EGrowSpotState::Default;
+
+	UPROPERTY(Replicated, VisibleAnywhere)
 	APlant* plant = nullptr;
 	AWeapon* weapon = nullptr;
 
+	UPROPERTY(Replicated)
 	float growTimer{};
-	UPROPERTY(EditAnywhere)
-
-	float growTime{10};
 	
+	UPROPERTY(Replicated, EditAnywhere)
+	float growTime{10};
+
+	UPROPERTY(Replicated)
 	bool growingPlant = false;
+	UPROPERTY(Replicated)
 	bool plantGrown = false;
 };

@@ -10,8 +10,13 @@
 #include "GameFramework/GameMode.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Prototype2/GrowSpot.h"
+#include "Prototype2/InteractInterface.h"
+#include "Prototype2/Prototype2Character.h"
 #include "Prototype2/Prototype2PlayerState.h"
 #include "Prototype2/Gamestates/Prototype2Gamestate.h"
+#include "Prototype2/PickUpItem.h"
+#include "Prototype2/Prototype2PlayerController.h"
 
 void UWidget_PlayerHUD::NativeOnInitialized()
 {
@@ -36,54 +41,105 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	if (GameStateRef)
 	{
 		Minutes->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthMinutes)));
-		Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
+		//Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
+		
+		int seconds = (int)GameStateRef->MatchLengthSeconds;
+
+		if (seconds == 1)
+		{
+			Seconds->SetText(FText::FromString("01"));
+		}
+		else if (seconds == 2)
+		{
+			Seconds->SetText(FText::FromString("02"));
+		}
+		else if (seconds == 3)
+		{
+			Seconds->SetText(FText::FromString("03"));
+		}
+		else if (seconds == 4)
+		{
+			Seconds->SetText(FText::FromString("04"));
+		}
+		else if (seconds == 5)
+		{
+			Seconds->SetText(FText::FromString("05"));
+		}
+		else if (seconds == 6)
+		{
+			Seconds->SetText(FText::FromString("06"));
+		}
+		else if (seconds == 7)
+		{
+			Seconds->SetText(FText::FromString("07"));
+		}
+		else if (seconds == 8)
+		{
+			Seconds->SetText(FText::FromString("08"));
+		}
+		else if (seconds == 9)
+		{
+			Seconds->SetText(FText::FromString("09"));
+		}
+		else if (seconds == 0)
+		{
+			Seconds->SetText(FText::FromString("00"));
+		}
+		else
+		{
+			Seconds->SetText(FText::FromString(FString::FromInt(seconds)));
+			//Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
+		}
+
+		
 
 		// Updating points/coins
 		//if (!GetOwningPlayerPawn()->HasAuthority())
 		//	UE_LOG(LogTemp, Warning, TEXT("Players Array Size = %s"), *FString::FromInt(GameStateRef->PlayerArray.Num()));
-		
+
 		for (int i = 0; i < GameStateRef->Server_Players.Num(); i++)
 		{
 			if (auto player = GameStateRef->Server_Players[i])
 			{
-				if (auto* playerState = Cast<APrototype2PlayerState>(player))
+				auto coins = player->Coins;
+				//UE_LOG(LogTemp, Warning, TEXT("Player [%s] ID = %s"), *FString::FromInt(i), *FString::FromInt(player->Player_ID));
+				
+				P2Icon->SetBrushFromTexture(PlayerIcons[4]);
+				P3Icon->SetBrushFromTexture(PlayerIcons[4]);
+				P4Icon->SetBrushFromTexture(PlayerIcons[4]);
+				switch(i)
 				{
-					auto coins = playerState->Coins;
-					if (!GetOwningPlayerPawn()->HasAuthority())
+				case 0:
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Players Array Size = %s"), *FString::FromInt(GameStateRef->Server_Players.Num()));
-						UE_LOG(LogTemp, Warning, TEXT("Players Array [%s] = %s"), *FString::FromInt(i), *FString::FromInt(coins));
+						Player1Coins->SetText(FText::FromString(FString::FromInt(coins)));
+						if (GameStateRef->Server_Players.Num() >= 1)
+							P1Icon->SetBrushFromTexture(PlayerIcons[0]);
+						break;
 					}
-					switch(i)
+				case 1:
 					{
-					case 0:
-						{
-							Player1Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					case 1:
-						{
-							Player2Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					case 2:
-						{
-							Player3Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					case 3:
-						{
-							Player4Coins->SetText(FText::FromString(FString::FromInt(coins)));
-								
-							break;
-						}
-					default:
-						{
-							break;
-						}
+						Player2Coins->SetText(FText::FromString(FString::FromInt(coins)));
+						if (GameStateRef->Server_Players.Num() >= 2)
+							P2Icon->SetBrushFromTexture(PlayerIcons[1]);
+						break;
+					}
+				case 2:
+					{
+						Player3Coins->SetText(FText::FromString(FString::FromInt(coins)));
+						if (GameStateRef->Server_Players.Num() >= 3)
+							P3Icon->SetBrushFromTexture(PlayerIcons[2]);
+						break;
+					}
+				case 3:
+					{
+						Player4Coins->SetText(FText::FromString(FString::FromInt(coins)));
+						if (GameStateRef->Server_Players.Num() >= 4)
+							P4Icon->SetBrushFromTexture(PlayerIcons[3]);
+						break;
+					}
+				default:
+					{
+						break;
 					}
 				}
 			}
@@ -92,9 +148,16 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		{
 			EnableEndgameMenu();
 		}
-	}
 
-	
+		if (auto* owner = Cast<APrototype2Character>(GetOwningPlayer()->GetCharacter()))
+		{
+			SetHUDInteractText("");
+			if (auto* closestInteractable = owner->ClosestInteractableItem)
+			{
+				closestInteractable->OnDisplayInteractText(this, owner, owner->PlayerID);
+			}
+		}
+	}
 }
 
 void UWidget_PlayerHUD::EnableDisableMenu()

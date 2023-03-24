@@ -17,7 +17,10 @@ class PROTOTYPE2_API UWidget_LobbyPlayerHUD : public UUserWidget
 public:
 	
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
-	class UTextBlock* IsReadyButtonText;
+	class UButton* ReadyButton;
+
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UButton* CancelButton;
 
 	class ALobbyGamestate* GameStateRef;
 
@@ -27,23 +30,32 @@ public:
 	class UTextBlock* Player1Text;
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player1ReadyText;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UImage* Player1ReadyImage;
 	// Player 2
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player2Text;
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player2ReadyText;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UImage* Player2ReadyImage;
 	// Player 3
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player3Text;
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player3ReadyText;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UImage* Player3ReadyImage;
 	// Player 4
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player4Text;
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player4ReadyText;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UImage* Player4ReadyImage;
 
-	
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UTextBlock* StartCountDown;
 public:
 
 	virtual void NativeOnInitialized() override;
@@ -51,4 +63,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetReady();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCancel();
 };

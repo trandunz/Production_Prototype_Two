@@ -7,7 +7,10 @@
 #include "InputActionValue.h"
 #include "Prototype2Character.generated.h"
 
+class UAudioComponent;
+class USoundCue;
 class UItemComponent;
+
 UCLASS(config=Game)
 class APrototype2Character : public ACharacter
 {
@@ -16,16 +19,60 @@ public:
 	APrototype2Character();	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	
+	UPROPERTY(VisibleAnywhere, Replicated)
+	int PlayerID{-1};
 public: // Public Networking functions
 	UFUNCTION(Server, Reliable)
 	void Server_PickupItem(UItemComponent* itemComponent, APickUpItem* _item);
 	void Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
 
 	UFUNCTION(Server, Reliable)
+	void Server_SocketItem(UStaticMeshComponent* _object, FName _socket);
+	void Server_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
+
+	UFUNCTION(Server, Reliable)
 	void Server_DropItem();
 	void Server_DropItem_Implementation();
 	
+	UFUNCTION(Server, Reliable)
+	void Server_AddHUD();
+	void Server_AddHUD_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_Client_AddHUD();
+	void Multi_Client_AddHUD_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_StartAttack();
+	void Server_StartAttack_Implementation();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_StartAttack();
+	void Multi_StartAttack_Implementation();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_ReleaseAttack();
+	void Server_ReleaseAttack_Implementation();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ReleaseAttack();
+	void Multi_ReleaseAttack_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue);
+	void Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue);
+	void Multi_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_AddHUD();
+	void Client_AddHUD_Implementation();
+	
+	UPROPERTY(VisibleAnywhere, Replicated)
+	UMaterialInstance* PlayerMat;
+
+	UPROPERTY(EditAnywhere, Replicated)
+	USoundAttenuation* SoundAttenuationSettings;
 protected: // Protected Networking functions
 	void PlayNetworkMontage(UAnimMontage* _montage);
 	
@@ -36,14 +83,14 @@ protected: // Protected Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_PlayNetworkMontage(UAnimMontage* _montage);
 	void Multi_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
-	
-	UFUNCTION(Server, Reliable)
-	void Server_AddHUD();
-	void Server_AddHUD_Implementation();
 
-	UFUNCTION(Client, Reliable)
-	void Client_AddHUD();
-	void Client_AddHUD_Implementation();
+	UFUNCTION(Server, Reliable)
+	void Server_SetPlayerColour();
+	void Server_SetPlayerColour_Implementation();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_SetPlayerColour();
+	void Multi_SetPlayerColour_Implementation();
 	
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract();
@@ -56,7 +103,12 @@ protected: // Protected Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_PickupItem(UItemComponent* itemComponent, APickUpItem* _item);
 	void Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
-	
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_SocketItem(UStaticMeshComponent* _object, FName _socket);
+	void Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
+
+
 protected: // Protected Functions
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -85,15 +137,25 @@ protected: // Protected Functions
 	/* Create a sphere collider which calculates nearest item */
 	void CheckForInteractables();
 
-	/* Set HUD Text */
-	void SetHUDText(class IInteractInterface* closestInteractableItem);
-
 	/* Called when hit by another player */
 	UFUNCTION(BlueprintCallable)
 	void GetHit(float AttackCharge, FVector AttackerLocation);
 	
 	/* UI */
 	void OpenIngameMenu();
+	
+	void UpdateAllPlayerIDs();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ReceiveMaterialsArray(const TArray<UMaterialInstance*>& InMaterialsArray);
+	void Server_ReceiveMaterialsArray_Implementation(const TArray<UMaterialInstance*>& InMaterialsArray);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ReceiveMaterialsArray(const TArray<UMaterialInstance*>& InMaterialsArray);
+	void Multi_ReceiveMaterialsArray_Implementation(const TArray<UMaterialInstance*>& InMaterialsArray);
+
+	ENetRole IdealNetRole{ROLE_AutonomousProxy};
+
+
 
 private: // Input actions
 	/** MappingContext */
@@ -131,9 +193,6 @@ private: // Animation
 	class UAnimMontage* PickupMontage;
 	
 	UPROPERTY(EditAnywhere)
-	class UAnimMontage* ChargeAttackMontage;
-	
-	UPROPERTY(EditAnywhere)
 	class UAnimMontage* ExecuteAttackMontage;
 private: // Private variables
 
@@ -149,25 +208,55 @@ private: // Private variables
 	UPROPERTY(EditAnywhere)
 	float KnockBackAmount = 1000.0f;
 
+	/* Interact timer */
+	UPROPERTY(EditAnywhere)
+	float InteractTimerTime = 1.0f;
+	float InteractTimer{};
+	
+	/* Attack timer */
+	UPROPERTY(EditAnywhere)
+	float AttackTimerTime = 1.0f;
+	float AttackTimer{};
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UWidget_PlayerHUD> PlayerHudPrefab;
 	UWidget_PlayerHUD* PlayerHUDRef;
 
-public:
-	/* Weapon Held */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AWeapon> WeaponPrefab;
+public: // audio
+	void PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay);
+	
+	UAudioComponent* ChargeAttackAudioComponent;
 
+	UPROPERTY(EditAnywhere)
+	USoundCue* ChargeCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* ExecuteCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* PickUpCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* DropCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* SellCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* PlantCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* GetHitCue;
+	UPROPERTY(EditAnywhere)
+	USoundCue* MandrakeScreamCue;
+	
+public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class AWeapon* Weapon;
+	class UWeapon* Weapon;
 	
 	/* Currently held item */
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class APickUpItem* HeldItem;
 
 	/* Is player holding down attack */
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsChargingAttack;
+
+	class IInteractInterface* ClosestInteractableItem;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
@@ -178,9 +267,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+
 private:
-	class IInteractInterface* ClosestInteractableItem;
+	UPROPERTY(Replicated)
 	float AttackChargeAmount;
+	UPROPERTY(Replicated)
 	bool bIsStunned;
+	UPROPERTY(Replicated)
 	float StunTimer;
+	bool DoOnce{};
+	
 };
