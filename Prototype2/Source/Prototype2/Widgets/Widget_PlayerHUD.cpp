@@ -41,7 +41,57 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	if (GameStateRef)
 	{
 		Minutes->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthMinutes)));
-		Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
+		//Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
+		
+		int seconds = (int)GameStateRef->MatchLengthSeconds;
+
+		if (seconds == 1)
+		{
+			Seconds->SetText(FText::FromString("01"));
+		}
+		else if (seconds == 2)
+		{
+			Seconds->SetText(FText::FromString("02"));
+		}
+		else if (seconds == 3)
+		{
+			Seconds->SetText(FText::FromString("03"));
+		}
+		else if (seconds == 4)
+		{
+			Seconds->SetText(FText::FromString("04"));
+		}
+		else if (seconds == 5)
+		{
+			Seconds->SetText(FText::FromString("05"));
+		}
+		else if (seconds == 6)
+		{
+			Seconds->SetText(FText::FromString("06"));
+		}
+		else if (seconds == 7)
+		{
+			Seconds->SetText(FText::FromString("07"));
+		}
+		else if (seconds == 8)
+		{
+			Seconds->SetText(FText::FromString("08"));
+		}
+		else if (seconds == 9)
+		{
+			Seconds->SetText(FText::FromString("09"));
+		}
+		else if (seconds == 0)
+		{
+			Seconds->SetText(FText::FromString("00"));
+		}
+		else
+		{
+			Seconds->SetText(FText::FromString(FString::FromInt(seconds)));
+			//Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
+		}
+
+		
 
 		// Updating points/coins
 		//if (!GetOwningPlayerPawn()->HasAuthority())
