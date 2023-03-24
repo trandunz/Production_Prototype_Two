@@ -41,6 +41,8 @@ public: // Public Networking functions
 	void Client_AddHUD();
 	void Client_AddHUD_Implementation();
 	
+	UPROPERTY(VisibleAnywhere, Replicated)
+	UMaterialInstance* PlayerMat;
 protected: // Protected Networking functions
 	void PlayNetworkMontage(UAnimMontage* _montage);
 	
@@ -51,6 +53,14 @@ protected: // Protected Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_PlayNetworkMontage(UAnimMontage* _montage);
 	void Multi_PlayNetworkMontage_Implementation(UAnimMontage* _montage);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetPlayerColour();
+	void Server_SetPlayerColour_Implementation();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_SetPlayerColour();
+	void Multi_SetPlayerColour_Implementation();
 	
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract();
@@ -67,7 +77,8 @@ protected: // Protected Networking functions
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_SocketItem(UStaticMeshComponent* _object, FName _socket);
 	void Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
-	
+
+
 protected: // Protected Functions
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -105,7 +116,16 @@ protected: // Protected Functions
 	
 	void UpdateAllPlayerIDs();
 
+	UFUNCTION(Server, Reliable)
+	void Server_ReceiveMaterialsArray(const TArray<UMaterialInstance*>& InMaterialsArray);
+	void Server_ReceiveMaterialsArray_Implementation(const TArray<UMaterialInstance*>& InMaterialsArray);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ReceiveMaterialsArray(const TArray<UMaterialInstance*>& InMaterialsArray);
+	void Multi_ReceiveMaterialsArray_Implementation(const TArray<UMaterialInstance*>& InMaterialsArray);
+
 	ENetRole IdealNetRole{ROLE_AutonomousProxy};
+
+
 
 private: // Input actions
 	/** MappingContext */

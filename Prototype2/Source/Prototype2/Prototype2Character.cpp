@@ -12,6 +12,7 @@
 #include "GrowSpot.h"
 #include "InteractInterface.h"
 #include "PickUpItem.h"
+#include "Prototype2GameMode.h"
 #include "Prototype2PlayerController.h"
 #include "Prototype2PlayerState.h"
 #include "PrototypeGameInstance.h"
@@ -76,6 +77,7 @@ APrototype2Character::APrototype2Character()
 	Weapon->Mesh->SetSimulatePhysics(false);
 	Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+    Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
 
 	ChargeAttackAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ChargeAttackAudioComponent"));
 }
@@ -85,6 +87,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APrototype2Character, Weapon);
 	DOREPLIFETIME(APrototype2Character, HeldItem);
+	DOREPLIFETIME(APrototype2Character, PlayerMat);
 }
 
 void APrototype2Character::BeginPlay()
@@ -105,13 +108,19 @@ void APrototype2Character::BeginPlay()
 	
 	ChargeAttackAudioComponent->SetSound(ChargeCue);
 
-	Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
+	//PlayerMat = GetMesh()-
+	//
+	//Multi_SetPlayerColour();
+
+	
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	GetMesh()->SetMaterial(0, PlayerMat);
+	
 	UpdateAllPlayerIDs();
 	
 	// Stun
@@ -447,6 +456,11 @@ void APrototype2Character::Multi_PlayNetworkMontage_Implementation(UAnimMontage*
 	GetMesh()->GetAnimInstance()->Montage_Play(_montage);
 }
 
+void APrototype2Character::Server_SetPlayerColour_Implementation()
+{
+	Multi_SetPlayerColour();
+}
+
 void APrototype2Character::Server_AddHUD_Implementation()
 {
 	Client_AddHUD();
@@ -462,6 +476,24 @@ void APrototype2Character::Client_AddHUD_Implementation()
 
 		if (PlayerHUDRef)
 			PlayerHUDRef->AddToViewport();
+	}
+}
+
+void APrototype2Character::Multi_SetPlayerColour_Implementation()
+{
+	if (auto* gamemode = Cast<APrototype2GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+	{
+		if (auto* gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
+		{
+			for(auto player : gamestate->PlayerArray)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Player Colour Assigned Locally"));
+				if (auto* character = Cast<APrototype2Character>(player->GetPlayerController()->GetCharacter()))
+				{
+					character->GetMesh()->SetMaterial(0, gamemode->PlayerMaterials[Cast<APrototype2PlayerState>(player)->Player_ID]);
+				}
+			}
+		}
 	}
 }
 
@@ -571,4 +603,23 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);
 
 	PlaySoundAtLocation(GetActorLocation(), PickUpCue);
+}
+
+void APrototype2Character::Server_ReceiveMaterialsArray_Implementation(
+	const TArray<UMaterialInstance*>& InMaterialsArray)
+{
+	Multi_ReceiveMaterialsArray(InMaterialsArray);
+}
+
+void APrototype2Character::Multi_ReceiveMaterialsArray_Implementation(
+	const TArray<UMaterialInstance*>& _inMaterialsArray)
+{
+	USkeletalMeshComponent* meshComponent = GetMesh();
+	if (meshComponent && _inMaterialsArray.Num() > 0)
+	{
+		for (int32 i = 0; i < _inMaterialsArray.Num(); i++)
+		{
+			meshComponent->SetMaterial(i, _inMaterialsArray[i]);
+		}
+	}
 }
