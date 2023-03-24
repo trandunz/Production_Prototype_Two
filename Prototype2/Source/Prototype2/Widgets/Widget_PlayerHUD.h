@@ -56,7 +56,7 @@ public:
 	class UImage* WeaponImage;
 
 	UPROPERTY(EditAnywhere)
-	TArray<class UTexture2D*> PlayerIcons{{},{},{},{}};
+	TArray<class UTexture2D*> PlayerIcons{{},{},{},{}, {}, {}, {}, {}};
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UImage* P1Icon;
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
