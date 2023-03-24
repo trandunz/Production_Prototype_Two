@@ -6,7 +6,6 @@
 #include "Prototype2Character.h"
 #include "Prototype2PlayerState.h"
 #include "Seed.h"
-#include "WeaponSeed.h"
 
 // Sets default values
 AGrowSpot::AGrowSpot()
@@ -86,14 +85,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 	{
 		if (playerState->Player_ID == Player_ID)
 		{
-			if (auto* weaponSeed = Cast<AWeaponSeed>(player->HeldItem))
-			{
-				if (!plant && !weapon)
-				{
-					//SetWeapon(weaponSeed->weaponToGrow, weaponSeed->growtime);
-				}
-			}
-			else if (auto* seed = Cast<ASeed>(player->HeldItem))
+			if (auto* seed = Cast<ASeed>(player->HeldItem))
 			{
 				if (!plant && !weapon)
 				{

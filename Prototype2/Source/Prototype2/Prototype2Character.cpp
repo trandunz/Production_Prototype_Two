@@ -70,6 +70,11 @@ APrototype2Character::APrototype2Character()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
+	Weapon = CreateDefaultSubobject<UWeapon>(TEXT("Weapon"));
+	Weapon->Mesh->SetSimulatePhysics(false);
+	Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+    Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
 }
 
 void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -95,15 +100,9 @@ void APrototype2Character::BeginPlay()
 	
 	if (HasAuthority())
 	{
-		if (WeaponPrefab)
-		{
-			Weapon = GetWorld()->SpawnActor<AWeapon>(WeaponPrefab);
-		}
 
 		Server_AddHUD();
 	}
-
-	Server_SocketItem(Weapon->ItemComponent, Weapon, FName("WeaponHolsterSocket"));
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -159,7 +158,7 @@ void APrototype2Character::ChargeAttack()
 
 		if (Weapon)
 		{
-			Server_SocketItem(Weapon->ItemComponent, Weapon, FName("WeaponHeldSocket"));
+			Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
 		}
 	}
 }
@@ -328,22 +327,13 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	StunTimer = AttackCharge;
 }
 
-void APrototype2Character::Multi_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket)
+void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
 {
-	if (itemComponent && _item)
-	{
-		if (itemComponent->Mesh)
-		{
-			itemComponent->Mesh->SetSimulatePhysics(false);
-			itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_object->SetSimulatePhysics(false);
+	_object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_object->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	
-			// So that CheckForInteractables() cant see it while player is holding it
-			itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-		}
-	
-		// Attach to socket
-		_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(_socket));
-	}
+	_object->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(_socket));
 }
 
 void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -470,7 +460,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			ClosestInteractableItem->Interact(this);
 
 			// Put weapon on back
-			Multi_SocketItem(Weapon->ItemComponent, Weapon,  FName("WeaponHolsterSocket"));
+			Multi_SocketItem(Weapon->Mesh,  FName("WeaponHolsterSocket"));
 		}
 		else if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot) // If the player is trying to pick up a plant from grow plot
 		{
@@ -522,9 +512,9 @@ void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* item
 	Multi_PickupItem(itemComponent, _item);
 }
 
-void APrototype2Character::Server_SocketItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item, FName _socket)
+void APrototype2Character::Server_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
 {
-	Multi_SocketItem(itemComponent, _item, _socket);
+	Multi_SocketItem(_object, _socket);
 }
 
 void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
