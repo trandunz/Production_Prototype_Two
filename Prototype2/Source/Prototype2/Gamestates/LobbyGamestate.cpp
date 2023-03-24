@@ -47,7 +47,7 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 				if (LobbyLengthMinutes <= 0)
 				{
 					// End of timer
-					GetWorld()->ServerTravel("Level_Main");
+					GetWorld()->ServerTravel("Level_Main", false, false);
 				}
 				else
 				{
