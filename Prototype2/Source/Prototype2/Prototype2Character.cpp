@@ -76,7 +76,6 @@ APrototype2Character::APrototype2Character()
 	Weapon->Mesh->SetSimulatePhysics(false);
 	Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-    Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
 
 	ChargeAttackAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ChargeAttackAudioComponent"));
 }
@@ -105,6 +104,8 @@ void APrototype2Character::BeginPlay()
 	Server_AddHUD();
 	
 	ChargeAttackAudioComponent->SetSound(ChargeCue);
+
+	Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
