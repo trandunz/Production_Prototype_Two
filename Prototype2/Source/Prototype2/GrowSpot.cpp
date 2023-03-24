@@ -71,7 +71,7 @@ void AGrowSpot::GrowPlantOnTick(float DeltaTime)
 	if (plant)
 	{
 		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
-		FVector pos = FMath::Lerp<FVector>({GetActorLocation() + FVector::UpVector * 50.0f}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
+		FVector pos = FMath::Lerp<FVector>({GetActorLocation()}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
 		ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
 		plant->ItemComponent->Mesh->SetSimulatePhysics(false);
 		plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
