@@ -199,6 +199,9 @@ private: // Animation
 	
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* ExecuteAttackMontage;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* ExecuteAttackMontage_LongerWindUp;
 private: // Private variables
 
 	/* Interact radius for checking closest item */
@@ -292,6 +295,9 @@ protected:
 
 
 private:
+	UPROPERTY(EditAnywhere)
+	float InstantAttackThreshold = 1.0f; // Todo: Does this need to be replicated? -ben
+	bool bCanAttack = true;
 	UPROPERTY(Replicated)
 	float AttackChargeAmount;
 	UPROPERTY(Replicated)
