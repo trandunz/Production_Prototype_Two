@@ -6,7 +6,6 @@
 #include "Prototype2Character.h"
 #include "Prototype2PlayerState.h"
 #include "Seed.h"
-#include "Weapon.h"
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
@@ -109,17 +108,6 @@ void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 		plant->ItemComponent->Mesh->SetWorldScale3D(scale);
 		plant->SetActorLocation(pos);
 		plant->SetActorRotation(FRotator(0,0,0));
-	}
-	else if (weapon)
-	{
-		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
-		FVector pos = FMath::Lerp<FVector>({GetActorLocation()}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
-		ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
-		weapon->ItemComponent->Mesh->SetSimulatePhysics(false);
-		weapon->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		weapon->ItemComponent->Mesh->SetWorldScale3D(scale);
-		weapon->SetActorLocation(pos);
-		weapon->SetActorRotation(FRotator(0,0,0));
 	}
 }
 
