@@ -74,7 +74,7 @@ APrototype2Character::APrototype2Character()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
-	Weapon = CreateDefaultSubobject<UWeapon>(TEXT("Weapon"));
+	Weapon = CreateDefaultSubobject<AWeapon>(TEXT("Weapon"));
 	Weapon->Mesh->SetSimulatePhysics(false);
 	Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
