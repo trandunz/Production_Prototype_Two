@@ -8,6 +8,7 @@
 #include "ItemComponent.h"
 #include "SellBin.generated.h"
 
+class UWidgetComponent;
 class APrototype2Character;
 class APlant;
 UCLASS()
@@ -37,6 +38,13 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UItemComponent* ItemComponent;
+
+	UPROPERTY(EditAnywhere)
+	UWidgetComponent* SellAmountWidgetComponent;
+	UPROPERTY(EditAnywhere)
+	float startPositionZ{};
+
+	
 
 	virtual void Interact(APrototype2Character* player) override;
 	virtual void OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID) override;
