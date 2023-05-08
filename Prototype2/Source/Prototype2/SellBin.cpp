@@ -10,6 +10,8 @@
 #include "Prototype2PlayerState.h"
 #include "Particles/ParticleSystem.h"
 #include "GameFramework/PlayerState.h"
+#include "Components/WidgetComponent.h"
+#include "Widgets/Widget_SellCropUI.h"
 
 // Sets default values
 ASellBin::ASellBin()
@@ -18,6 +20,10 @@ ASellBin::ASellBin()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
+
+	SellAmountWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SellAmountWidgetComponent"));
+	//SellAmountWidgetComponent->SetupAttachment(ItemComponent->Mesh);
+	startPositionZ = SellAmountWidgetComponent->GetComponentTransform().GetLocation().Z;
 
 	InterfaceType = EInterfaceType::SellBin;
 
@@ -29,6 +35,8 @@ ASellBin::ASellBin()
 void ASellBin::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SellAmountWidgetComponent->SetupAttachment(ItemComponent->Mesh);
 }
 
 // Called every frame
@@ -64,6 +72,15 @@ void ASellBin::Interact(APrototype2Character* player)
 			player->HeldItem = nullptr;
 			
 			//Server_FireParticleSystem();
+
+			// Selling UI
+			if (SellAmountWidgetComponent->GetWidget())
+			{
+				if (auto* SellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
+				{
+					SellCropUI->SetCropValue(plant->ItemComponent->CropValue);
+				}
+			}
 		}
 	}
 }
