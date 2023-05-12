@@ -8,6 +8,7 @@
 #include "Plant.h"
 #include "Prototype2Character.h"
 #include "Prototype2PlayerState.h"
+#include "Components/TextBlock.h"
 #include "Particles/ParticleSystem.h"
 #include "GameFramework/PlayerState.h"
 #include "Components/WidgetComponent.h"
@@ -21,9 +22,19 @@ ASellBin::ASellBin()
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 
+	// Sell UI
 	SellAmountWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SellAmountWidgetComponent"));
-	//SellAmountWidgetComponent->SetupAttachment(ItemComponent->Mesh);
-	startPositionZ = SellAmountWidgetComponent->GetComponentTransform().GetLocation().Z;
+	SellAmountWidgetComponent->SetupAttachment(RootComponent);
+	//if (SellAmountWidgetComponent->GetWidget())
+	//{
+	//	if (auto* SellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
+	//	{
+	//		SellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
+	//	}
+	//}
+	startPosition = SellAmountWidgetComponent->GetComponentLocation();
+	movingTimer = movingTime;
+	
 
 	InterfaceType = EInterfaceType::SellBin;
 
@@ -35,8 +46,6 @@ ASellBin::ASellBin()
 void ASellBin::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SellAmountWidgetComponent->SetupAttachment(ItemComponent->Mesh);
 }
 
 // Called every frame
@@ -44,6 +53,10 @@ void ASellBin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (isMoving == true)
+	{
+		MoveUIComponent(DeltaTime);
+	}
 }
 
 void ASellBin::Server_FireParticleSystem_Implementation()
@@ -61,6 +74,28 @@ void ASellBin::Multi_FireParticleSystem_Implementation()
 	//NiagaraComponent->Activate();
 }
 
+void ASellBin::MoveUIComponent(float _dt)
+{
+	if (movingTimer > 0)
+	{
+		movingTimer -= _dt; // Decrease timer
+		SellAmountWidgetComponent->AddLocalOffset(FVector(0, 0, moveSpeed * _dt)); // Move component
+	}
+	else
+	{
+		movingTimer = movingTime;
+		isMoving = false;
+		if (SellAmountWidgetComponent->GetWidget())
+		{
+			if (auto* SellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
+			{
+				SellCropUI->SellText->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
+	
+}
+
 void ASellBin::Interact(APrototype2Character* player)
 {
 	if (player->HeldItem)
@@ -73,12 +108,17 @@ void ASellBin::Interact(APrototype2Character* player)
 			
 			//Server_FireParticleSystem();
 
-			// Selling UI
+			// Selling UI - Show in-game UI when selling
 			if (SellAmountWidgetComponent->GetWidget())
 			{
+				SellAmountWidgetComponent->SetRelativeLocation(FVector(startPosition)); // Reset text to start position
+				
 				if (auto* SellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
 				{
 					SellCropUI->SetCropValue(plant->ItemComponent->CropValue);
+					SellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
+					isMoving = true;
+					
 				}
 			}
 		}

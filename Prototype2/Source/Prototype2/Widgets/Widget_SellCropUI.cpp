@@ -7,5 +7,10 @@
 
 void UWidget_SellCropUI::SetCropValue(int _value)
 {
-	SellText->SetText(FText::FromString(FString::FromInt(_value)));
+	FString firstString = "$";
+	FString secondString = FString::FromInt(_value);
+
+	FString combinedString = FString::Printf(TEXT("%s %s"), *firstString, *secondString);
+	
+	SellText->SetText(FText::FromString(combinedString));
 }
