@@ -25,17 +25,7 @@ ASellBin::ASellBin()
 	// Sell UI
 	SellAmountWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SellAmountWidgetComponent"));
 	SellAmountWidgetComponent->SetupAttachment(RootComponent);
-	//if (SellAmountWidgetComponent->GetWidget())
-	//{
-	//	if (auto* SellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
-	//	{
-	//		SellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
-	//	}
-	//}
-	startPosition = SellAmountWidgetComponent->GetComponentLocation();
-	movingTimer = movingTime;
 	
-
 	InterfaceType = EInterfaceType::SellBin;
 
 	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
@@ -46,6 +36,10 @@ ASellBin::ASellBin()
 void ASellBin::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Sell UI related
+	startPosition = SellAmountWidgetComponent->GetComponentLocation(); // Set UI start location variable
+	movingTimer = movingTime; // Set starting timer to equal max time
 }
 
 // Called every frame
