@@ -38,6 +38,10 @@
 		{
 			"Name": "OnlineServicesOSSAdapter",
 			"Enabled": true
+		},
+		{
+			"Name": "GeometryScripting",
+			"Enabled": true
 		}
 	]
 }
