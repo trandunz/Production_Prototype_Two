@@ -53,7 +53,7 @@ APrototype2Character::APrototype2Character()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
@@ -160,6 +160,24 @@ void APrototype2Character::Tick(float DeltaSeconds)
 			EnableInput(this->GetLocalViewingPlayerController());
 		}
 	}
+
+	// Sprint
+	if (SprintTimer < 0.0f && CanSprintTimer)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		if (RunAnimation)
+		{
+			RunAnimation->RateScale = 1.25f;
+		}
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		if(RunAnimation)
+		{
+			RunAnimation->RateScale = 2.50f;
+		}
+	}
 	
 	// Attack
 	if (bIsChargingAttack)
@@ -176,11 +194,12 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	// Countdown timers
 	InteractTimer -= DeltaSeconds;
 	AttackTimer -= DeltaSeconds;
+	SprintTimer -= DeltaSeconds;
+	CanSprintTimer -= DeltaSeconds;
 
 	if (GetVelocity().Length() > 1.0f)
 	{
-		InteractSystem->Activate();
-		
+		InteractSystem->Activate();		
 	}
 	else
 	{
@@ -195,6 +214,7 @@ void APrototype2Character::ChargeAttack()
 
 void APrototype2Character::ReleaseAttack()
 {
+	// 
 	Server_ReleaseAttack();
 }
 
@@ -236,12 +256,22 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 			}
 		}
 	}
+	
+	// Reset Attack Timer
+	AttackTimer = AttackTimerTime;
 
-	// Animation
-	if(ExecuteAttackMontage)
-	{
-		PlayNetworkMontage(ExecuteAttackMontage);
-	}
+	// Reset Attack variables
+	bIsChargingAttack = false;
+	AttackChargeAmount = 0.0f;
+
+	// audio
+	ChargeAttackAudioComponent->Stop();
+	PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
+
+	// Stop the player Interacting while "executing attack"
+	InteractTimer = InteractTimerTime;
+
+	bCanAttack = true;
 }
 
 void APrototype2Character::Interact()
@@ -271,6 +301,19 @@ void APrototype2Character::Interact()
 	// Debug draw collision sphere
 	//FCollisionShape colSphere = FCollisionShape::MakeSphere(InteractRadius);
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), colSphere.GetSphereRadius(), 50, FColor::Purple, false, 3.0f);
+}
+
+void APrototype2Character::Sprint()
+{
+	if (CanSprintTimer < 0.0f && !bIsChargingAttack)
+	{
+		SprintTimer = SprintTime;
+		CanSprintTimer = CanSprintTime;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Time until you can sprint again: %f"), CanSprintTimer);
+	}
 }
 
 void APrototype2Character::CheckForInteractables()
@@ -371,6 +414,9 @@ void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* Play
 
 		// Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APrototype2Character::Interact);
+
+		// Sprint
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &APrototype2Character::Sprint);
 	}
 }
 
@@ -572,8 +618,16 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 {
 	// Create a sphere collider, check if player hit, call player hit
 	
-	if (bIsChargingAttack)
+	if (bIsChargingAttack && bCanAttack)
 	{
+		bCanAttack = false;
+		
+		// Cap attack charge
+		if (AttackChargeAmount > MaxAttackCharge)
+		{
+			AttackChargeAmount = MaxAttackCharge;
+		}
+		
 		int32 attackSphereRadius;
 		if (Weapon)
 		{
@@ -586,36 +640,36 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 			attackSphereRadius = 50.0f;
 		}
 
-		ExecuteAttack(attackSphereRadius);
+		// If attack button is clicked without being held
+		if (AttackChargeAmount < InstantAttackThreshold)
+		{
+			// Animation
+			if(ExecuteAttackMontage_LongerWindUp)
+			{
+				PlayNetworkMontage(ExecuteAttackMontage_LongerWindUp);
+			}
+			// Delayed attack
+			FTimerHandle Handle;
+			GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([this, attackSphereRadius] { ExecuteAttack(attackSphereRadius); }), 0.5f, false);	
+		}
+		else
+		{
+			// Animation
+			if(ExecuteAttackMontage)
+			{
+				PlayNetworkMontage(ExecuteAttackMontage);
+			}
+			
+			ExecuteAttack(attackSphereRadius);
+		}
 	}
-		
-		
+
+	// empty
 	Multi_ReleaseAttack();
 }
 
 void APrototype2Character::Multi_ReleaseAttack_Implementation()
 {
-	if (bIsChargingAttack)
-	{
-		ChargeAttackAudioComponent->Stop();
-		PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
-		
-		// Reset Attack Timer
-		AttackTimer = AttackTimerTime;
-		
-		// Cap attack charge
-		if (AttackChargeAmount > MaxAttackCharge)
-		{
-			AttackChargeAmount = MaxAttackCharge;
-		}
-		
-		// Reset Attack variables
-		bIsChargingAttack = false;
-		AttackChargeAmount = 0.0f;
-
-		// Stop the player Interacting while "executing attack"
-		InteractTimer = InteractTimerTime;
-	}
 }
 
 void APrototype2Character::Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue)

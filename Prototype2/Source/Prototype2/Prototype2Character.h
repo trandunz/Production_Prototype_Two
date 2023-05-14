@@ -134,6 +134,9 @@ protected: // Protected Functions
 	/* Pickup/Plant/Sell */
 	void Interact();
 
+	/* Activate Sprint */
+	void Sprint();
+	
 	/* Create a sphere collider which calculates nearest item */
 	void CheckForInteractables();
 
@@ -193,12 +196,19 @@ private: // Input actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* InteractAction;
 
+	/* Sprint */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SprintAction;
+
 private: // Animation
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* PickupMontage;
 	
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* ExecuteAttackMontage;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* ExecuteAttackMontage_LongerWindUp;
 private: // Private variables
 
 	/* Interact radius for checking closest item */
@@ -292,6 +302,21 @@ protected:
 
 
 private:
+	// Sprint Variables
+	UPROPERTY(EditAnywhere)
+	UAnimSequence* RunAnimation;
+	float WalkSpeed = 500.f;
+	UPROPERTY(EditAnywhere)
+	float SprintSpeed = 750.0f;
+	UPROPERTY(EditAnywhere)
+	float SprintTime = 2.0f;
+	float SprintTimer;
+	UPROPERTY(EditAnywhere)
+	float CanSprintTime = 5.0f;
+	float CanSprintTimer;
+	UPROPERTY(EditAnywhere)
+	float InstantAttackThreshold = 1.0f; // Todo: Does this need to be replicated? -ben
+	bool bCanAttack = true;
 	UPROPERTY(Replicated)
 	float AttackChargeAmount;
 	UPROPERTY(Replicated)
