@@ -96,7 +96,11 @@ void ASellBin::Interact(APrototype2Character* player)
 	{
 		if (auto* plant = Cast<APlant>(player->HeldItem))
 		{
-			Cast<APrototype2PlayerState>(player->GetPlayerState())->Coins += plant->ItemComponent->CropValue;
+			//Cast<APrototype2PlayerState>(player->GetPlayerState())->Coins += plant->ItemComponent->CropValue; // Previous way - increased crop value directly
+			Cast<APrototype2PlayerState>(player->GetPlayerState())->ExtraCoins = plant->ItemComponent->CropValue;
+			Cast<APrototype2PlayerState>(player->GetPlayerState())->IsShowingExtraCoins = true; 
+
+			// Destroy the crop the player is holding
 			player->HeldItem->Destroy();
 			player->HeldItem = nullptr;
 			
@@ -112,7 +116,6 @@ void ASellBin::Interact(APrototype2Character* player)
 					SellCropUI->SetCropValue(plant->ItemComponent->CropValue);
 					SellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
 					isMoving = true;
-					
 				}
 			}
 		}
