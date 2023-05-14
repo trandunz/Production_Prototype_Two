@@ -9,7 +9,7 @@
 #include "GrowSpot.generated.h"
 
 class APlant;
-class AWeapon;
+class AGrowableWeapon;
 class ASeed;
 class AWeaponSeed;
 UCLASS()
@@ -49,14 +49,14 @@ public:
 	virtual void OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID) override;
 
 	void SetPlant(APlant* _plant, float _growTime);
-	void SetWeapon(AWeapon* _weapon, float _growTime);
+	void SetWeapon(AGrowableWeapon* _weapon, float _growTime);
 
 	UPROPERTY(Replicated, VisibleAnywhere)
 	EGrowSpotState GrowSpotState = EGrowSpotState::Default;
 
 	UPROPERTY(Replicated, VisibleAnywhere)
 	APlant* plant = nullptr;
-	AWeapon* weapon = nullptr;
+	AGrowableWeapon* weapon = nullptr;
 
 	UPROPERTY(Replicated)
 	float growTimer{};
