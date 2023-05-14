@@ -12,8 +12,8 @@ class PROTOTYPE2_API AGrowableWeapon : public APickUpItem, public IInteractInter
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UWeapon* Weapon;
+	//UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	//UWeapon* Weapon;
 	AGrowableWeapon();
 	virtual void Interact(APrototype2Character* player) override;
 	virtual void OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID) override;

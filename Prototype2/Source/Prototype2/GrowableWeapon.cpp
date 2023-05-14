@@ -8,10 +8,10 @@
 
 AGrowableWeapon::AGrowableWeapon()
 {
-	Weapon = CreateDefaultSubobject<UWeapon>(TEXT("Weapon"));
-	Weapon->Mesh->SetSimulatePhysics(false);
-	Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	//Weapon = CreateDefaultSubobject<UWeapon>(TEXT("Weapon"));
+	//Weapon->Mesh->SetSimulatePhysics(false);
+	//Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 }
 
 void AGrowableWeapon::Interact(APrototype2Character* player)
