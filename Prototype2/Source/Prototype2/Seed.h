@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool isPlanted;
 
+	UPROPERTY(EditAnywhere)
+	bool isWeapon;
+
 	virtual void Grow();
 	
 	UPROPERTY(EditAnywhere)

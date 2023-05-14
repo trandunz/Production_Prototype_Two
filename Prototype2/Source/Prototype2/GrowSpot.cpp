@@ -2,10 +2,12 @@
 
 
 #include "GrowSpot.h"
+#include "GrowSpot.h"
 #include "Plant.h"
 #include "Prototype2Character.h"
 #include "Prototype2PlayerState.h"
 #include "Seed.h"
+#include "GrowableWeapon.h"
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
@@ -109,6 +111,18 @@ void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 		plant->SetActorLocation(pos);
 		plant->SetActorRotation(FRotator(0,0,0));
 	}
+
+	if (weapon)
+	{
+		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
+		FVector pos = FMath::Lerp<FVector>({GetActorLocation()}, GetActorLocation() + FVector::UpVector * 10.0f, growTimer / growTime);
+		ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
+		weapon->ItemComponent->Mesh->SetSimulatePhysics(false);
+		weapon->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		weapon->ItemComponent->Mesh->SetWorldScale3D(scale);
+		//weapon->SetActorLocation(pos);
+		//weapon->SetActorRotation(FRotator(0,0,0));
+	}
 }
 
 // Called every frame
@@ -155,21 +169,39 @@ void AGrowSpot::Interact(APrototype2Character* player)
 			{
 				if (auto* seed = Cast<ASeed>(player->HeldItem))
 				{
-					if (!plant && GrowSpotState == EGrowSpotState::Empty)
+					if (seed->isWeapon)
 					{
-						if (seed->plantToGrow)
+						if (!plant && GrowSpotState == EGrowSpotState::Empty)
 						{
-							//Multi_FireParticleSystem();
-							growTime = player->HeldItem->ItemComponent->GrowTime;
-							SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
-							Multi_Plant();
+							if (seed->plantToGrow)
+							{
+								if (seed->isWeapon)
+								{
+									//Multi_FireParticleSystem();
+									growTime = player->HeldItem->ItemComponent->GrowTime;
+									SetWeapon(GetWorld()->SpawnActor<AGrowableWeapon>(seed->plantToGrow), growTime);
+									Multi_Plant();
 						
-							if (seed)
-								seed->Destroy();
+									if (seed)
+										seed->Destroy();
 
-							// Seed is now planted so remove from player
-							player->HeldItem = nullptr;
+									// Seed is now planted so remove from player
+									player->HeldItem = nullptr;
+								}
+								else
+								{
+									//Multi_FireParticleSystem();
+									growTime = player->HeldItem->ItemComponent->GrowTime;
+									SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
+									Multi_Plant();
+						
+									if (seed)
+										seed->Destroy();
 
+									// Seed is now planted so remove from player
+									player->HeldItem = nullptr;
+								}
+							}
 						}
 					}
 				}
@@ -256,7 +288,7 @@ void AGrowSpot::SetPlant(APlant* _plant, float _growTime)
 	}
 }
 
-void AGrowSpot::SetWeapon(AWeapon* _weapon, float _growTime)
+void AGrowSpot::SetWeapon(AGrowableWeapon* _weapon, float _growTime)
 {
 	if (!weapon)
 	{
