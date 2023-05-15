@@ -797,10 +797,8 @@ void APrototype2Character::Multi_DropItem_Implementation()
 			FVector LaunchItemVelocity = GetVelocity();
 			LaunchItemVelocity = LaunchItemVelocity.GetSafeNormal();
 			LaunchItemVelocity *= ItemLaunchStrength;
-			UE_LOG(LogTemp, Warning, TEXT("LaunchItemVelocity: %s"), *LaunchItemVelocity.ToString());
 			HeldItem->ItemComponent->Mesh->AddForce(LaunchItemVelocity);
 		}
-
 		
 		HeldItem = nullptr;
 
