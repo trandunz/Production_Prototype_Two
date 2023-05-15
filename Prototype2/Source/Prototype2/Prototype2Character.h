@@ -232,6 +232,9 @@ private: // Private variables
 	UPROPERTY(EditAnywhere)
 	float AttackTimerTime = 1.0f;
 	float AttackTimer{};
+
+	UPROPERTY(EditAnywhere)
+	float ItemLaunchStrength = 500000.0f;
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UWidget_PlayerHUD> PlayerHudPrefab;
