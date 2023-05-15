@@ -120,8 +120,8 @@ void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 		weapon->ItemComponent->Mesh->SetSimulatePhysics(false);
 		weapon->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		weapon->ItemComponent->Mesh->SetWorldScale3D(scale);
-		//weapon->SetActorLocation(pos);
-		//weapon->SetActorRotation(FRotator(0,0,0));
+		weapon->SetActorLocation(pos);
+		weapon->SetActorRotation(FRotator(0,0,0));
 	}
 }
 
@@ -169,40 +169,54 @@ void AGrowSpot::Interact(APrototype2Character* player)
 			{
 				if (auto* seed = Cast<ASeed>(player->HeldItem))
 				{
-					if (seed->isWeapon)
+					if (!plant && GrowSpotState == EGrowSpotState::Empty)
 					{
-						if (!plant && GrowSpotState == EGrowSpotState::Empty)
+						if (seed->plantToGrow)
 						{
-							if (seed->plantToGrow)
+							if (seed->isWeapon)
 							{
-								if (seed->isWeapon)
-								{
-									//Multi_FireParticleSystem();
-									growTime = player->HeldItem->ItemComponent->GrowTime;
-									SetWeapon(GetWorld()->SpawnActor<AGrowableWeapon>(seed->plantToGrow), growTime);
-									Multi_Plant();
+								//Multi_FireParticleSystem();
+								growTime = player->HeldItem->ItemComponent->GrowTime;
+								SetWeapon(GetWorld()->SpawnActor<AGrowableWeapon>(seed->plantToGrow), growTime);
+								Multi_Plant();
 						
-									if (seed)
-										seed->Destroy();
+								if (seed)
+									seed->Destroy();
 
-									// Seed is now planted so remove from player
-									player->HeldItem = nullptr;
-								}
-								else
-								{
-									//Multi_FireParticleSystem();
-									growTime = player->HeldItem->ItemComponent->GrowTime;
-									SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
-									Multi_Plant();
+								// Seed is now planted so remove from player
+								player->HeldItem = nullptr;
+							}
+							else
+							{
+								//Multi_FireParticleSystem();
+								growTime = player->HeldItem->ItemComponent->GrowTime;
+								SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
+								Multi_Plant();
 						
-									if (seed)
-										seed->Destroy();
+								if (seed)
+									seed->Destroy();
 
-									// Seed is now planted so remove from player
-									player->HeldItem = nullptr;
-								}
+								// Seed is now planted so remove from player
+								player->HeldItem = nullptr;
 							}
 						}
+					}
+				}
+				else if (weapon && !player->HeldItem)
+				{
+					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
+					{
+						// replace here with weapon equip
+						Multi_FireParticleSystem();
+						player->HeldItem = weapon;
+						player->Server_PickupItem(weapon->ItemComponent, weapon);
+						weapon->isGrown = true;
+						weapon = nullptr;
+						plantGrown = false;
+						growingPlant = false;
+						growTimer = 0.0f;
+						GrowSpotState = EGrowSpotState::Empty;
+
 					}
 				}
 				else if (plant && !player->HeldItem)
@@ -285,6 +299,10 @@ void AGrowSpot::SetPlant(APlant* _plant, float _growTime)
 		growTimer = _growTime;
 		growingPlant = true;
 		GrowSpotState = EGrowSpotState::Growing;
+		if (growTimer == 0)
+		{
+			growTimer = 1;
+		}
 	}
 }
 
@@ -296,6 +314,11 @@ void AGrowSpot::SetWeapon(AGrowableWeapon* _weapon, float _growTime)
 		weapon = _weapon;
 		growTimer = _growTime;
 		growingPlant = true;
+		GrowSpotState = EGrowSpotState::Growing;
+		if (growTimer == 0)
+		{
+			growTimer = 1;
+		}
 	}
 }
 
