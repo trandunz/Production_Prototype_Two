@@ -365,15 +365,15 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 
 	Server_FireDizzySystem();
 	//Server_Ragdoll(true);
+	
+	// Knockback
+	GetCharacterMovement()->Velocity = (GetActorLocation() - AttackerLocation).GetSafeNormal() * AttackCharge * KnockBackAmount;
 
 	// Drop item
 	if (HeldItem)
 	{
 		Server_DropItem();
 	}
-	
-	// Knockback
-	GetCharacterMovement()->Velocity = (GetActorLocation() - AttackerLocation).GetSafeNormal() * AttackCharge * KnockBackAmount;
 
 	// debug attack
 	UE_LOG(LogTemp, Warning, TEXT("AttackCharge: %s"), *FString::SanitizeFloat(AttackCharge));
@@ -792,6 +792,12 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		
 			// So that CheckForInteractables() can see it again
 			HeldItem->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+			
+			// Launch the HeldItem towards the player instead of droppping
+			FVector LaunchItemVelocity = GetVelocity();
+			LaunchItemVelocity = LaunchItemVelocity.GetSafeNormal();
+			LaunchItemVelocity *= ItemLaunchStrength;
+			HeldItem->ItemComponent->Mesh->AddForce(LaunchItemVelocity);
 		}
 		
 		HeldItem = nullptr;
