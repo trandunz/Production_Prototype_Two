@@ -716,6 +716,17 @@ void APrototype2Character::Multi_SetPlayerColour_Implementation()
 
 void APrototype2Character::Server_TryInteract_Implementation()
 {
+	// If picking up a weapon
+	//if (ClosestInteractableItem->InterfaceType != EInterfaceType::Weapon)
+	//{
+	//	// If holding an item
+	//	// If holding a item and weapon
+	//	// If holding neither
+	//	// If picking up 
+	//	return;
+	//}
+	
+	
 	if((GetLocalRole() == IdealNetRole || GetLocalRole() == ROLE_Authority) && ClosestInteractableItem && !HeldItem)
 	{
 		// If player is holding nothing, and there is something to pickup in range
@@ -824,26 +835,34 @@ void APrototype2Character::Server_SocketItem_Implementation(UStaticMeshComponent
 
 void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
-	if (itemComponent->Mesh)
-	{
-		itemComponent->Mesh->SetSimulatePhysics(false);
-		itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
-		// So that CheckForInteractables() cant see it while player is holding it
-		itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	}
-	
-	_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
-	
-	
-	// Assign Players HeldItem
-	HeldItem = _item;
-
-	// Set HUD image
-	if (PlayerHUDRef)
-		PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);
-
+	// Audio
 	PlaySoundAtLocation(GetActorLocation(), PickUpCue);
+
+	// Check if pick up is a weapon
+	if (itemComponent->PickupType == EPickup::Weapon)
+	{
+		
+	}
+	else // pick up other
+	{
+		if (itemComponent->Mesh)
+		{
+			itemComponent->Mesh->SetSimulatePhysics(false);
+			itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
+			// So that CheckForInteractables() cant see it while player is holding it
+			itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		}
+		
+		_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
+		
+		// Assign Players HeldItem
+		HeldItem = _item;
+
+		// Set HUD image
+		if (PlayerHUDRef)
+			PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);
+	}
 }
 
 void APrototype2Character::Server_ReceiveMaterialsArray_Implementation(

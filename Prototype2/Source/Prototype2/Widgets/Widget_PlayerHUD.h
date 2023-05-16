@@ -15,7 +15,8 @@ enum EPickup
 	Cabbage,
 	CabbageSeed,
 	Mandrake,
-	MandrakeSeed
+	MandrakeSeed,
+	Weapon
 };
 
 UCLASS()

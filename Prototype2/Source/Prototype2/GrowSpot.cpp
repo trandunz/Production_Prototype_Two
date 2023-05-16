@@ -207,9 +207,10 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
 					{
 						// replace here with weapon equip
-						Multi_FireParticleSystem();
 						player->HeldItem = weapon;
 						player->Server_PickupItem(weapon->ItemComponent, weapon);
+						
+						Multi_FireParticleSystem();
 						weapon->isGrown = true;
 						weapon = nullptr;
 						plantGrown = false;
