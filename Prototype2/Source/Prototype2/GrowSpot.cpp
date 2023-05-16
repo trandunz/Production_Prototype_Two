@@ -173,6 +173,12 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					{
 						if (seed->plantToGrow)
 						{
+							// Audio
+							if (player->PlantCue)
+							{
+								player->PlaySoundAtLocation(GetActorLocation(), player->PlantCue);
+							}
+							
 							if (seed->isWeapon)
 							{
 								//Multi_FireParticleSystem();
@@ -234,6 +240,17 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						growTimer = 0.0f;
 						GrowSpotState = EGrowSpotState::Empty;
 
+						// Special sound for mandrake when picked up
+						if (player->HeldItem)
+						{
+							if (player->HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
+							{
+								if (player->MandrakeScreamCue)
+								{
+									player->PlaySoundAtLocation(GetActorLocation(), player->MandrakeScreamCue);
+								}
+							}
+						}
 					}
 				}
 				else if (player->HeldItem)

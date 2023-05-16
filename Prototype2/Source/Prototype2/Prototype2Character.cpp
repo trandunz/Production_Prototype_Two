@@ -725,9 +725,53 @@ void APrototype2Character::Server_TryInteract_Implementation()
 	//	// If picking up 
 	//	return;
 	//}
+	if((GetLocalRole() == IdealNetRole || GetLocalRole() == ROLE_Authority))
+	{
+		// Drop HeldItem
+		if (!ClosestInteractableItem)
+		{
+			Multi_DropItem();
+			return;
+		}
+
+		// SellBin or GrowSpot
+		if (ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin ||
+			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
+		{			
+			ClosestInteractableItem->Interact(this);			
+			return;
+		}
+		
+		// Weapon
+		if (ClosestInteractableItem->InterfaceType == EInterfaceType::Weapon)
+		{
+			return;
+		}
+
+		// If nothing is held, and there is something to pickup
+		if (ClosestInteractableItem && PickupMontage)
+		{
+			// Drop what they're carrying first
+			if (HeldItem)
+			{
+				Multi_DropItem();
+			}
+			
+			// Animation
+			PlayNetworkMontage(PickupMontage);
+			
+			// Call the InteractInterface interact function
+			ClosestInteractableItem->Interact(this);
+
+			// Put weapon on back
+			Multi_SocketItem(Weapon->Mesh, FName("WeaponHolsterSocket"));
+			return;
+		}
+	}
+
 	
-	
-	if((GetLocalRole() == IdealNetRole || GetLocalRole() == ROLE_Authority) && ClosestInteractableItem && !HeldItem)
+	/* old */
+	/*if (ClosestInteractableItem && !HeldItem)
 	{
 		// If player is holding nothing, and there is something to pickup in range
 		if (PickupMontage &&
@@ -782,7 +826,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 		{
 			Multi_DropItem();
 		}
-	}
+	}*/
 }
 
 void APrototype2Character::Server_DropItem_Implementation()
