@@ -727,7 +727,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			PlayNetworkMontage(PickupMontage);
 			
 			// Call the InteractInterface interact function
-			ClosestInteractableItem->Interact(this);
+			ClosestInteractableItem->Interact(this);					// ClosestInteractableItem->Interact(this);
 
 			// Put weapon on back
 			Multi_SocketItem(Weapon->Mesh,  FName("WeaponHolsterSocket"));
@@ -735,7 +735,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 		else if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot) // If the player is trying to pick up a plant from grow plot
 		{
 			// Call the InteractInterface interact function
-			ClosestInteractableItem->Interact(this);
+			ClosestInteractableItem->Interact(this);					// ClosestInteractableItem->Interact(this);
 
 			if (HeldItem)
 			{
@@ -756,7 +756,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin ||
 			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot))
 		{
-			ClosestInteractableItem->Interact(this);
+			ClosestInteractableItem->Interact(this);				// ClosestInteractableItem->Interact(this);
 
 			if(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin && !HeldItem)
 			{
