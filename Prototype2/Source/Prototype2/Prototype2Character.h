@@ -110,6 +110,10 @@ protected: /* Protected Networking functions */
 	UFUNCTION(Server, Reliable)
 	void Server_SetPlayerColour();
 	void Server_SetPlayerColour_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Sprint();
+	void Server_Sprint_Implementation();
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_SetPlayerColour();
@@ -349,12 +353,14 @@ private: /* Private variables */
 	
 	UPROPERTY(EditAnywhere)
 	float SprintTime = 2.0f;
-	
+
+	UPROPERTY(Replicated)
 	float SprintTimer;
 	
 	UPROPERTY(EditAnywhere)
 	float CanSprintTime = 5.0f;
-	
+
+	UPROPERTY(Replicated)
 	float CanSprintTimer;
 
 	/* Attack */
@@ -362,8 +368,6 @@ private: /* Private variables */
 	float InstantAttackThreshold = 1.0f;
 	
 	bool bCanAttack = true;
-	
-
 	
 	UPROPERTY(Replicated)
 	bool bIsStunned;
