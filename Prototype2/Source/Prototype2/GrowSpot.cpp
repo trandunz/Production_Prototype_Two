@@ -11,6 +11,7 @@
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Weapon.h"
 
 // Sets default values
 AGrowSpot::AGrowSpot()
@@ -173,6 +174,12 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					{
 						if (seed->plantToGrow)
 						{
+							// Audio
+							if (player->PlantCue)
+							{
+								player->PlaySoundAtLocation(GetActorLocation(), player->PlantCue);
+							}
+							
 							if (seed->isWeapon)
 							{
 								//Multi_FireParticleSystem();
@@ -202,15 +209,19 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						}
 					}
 				}
-				else if (weapon && !player->HeldItem)
+				else if (weapon)
 				{
 					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
 					{
 						// replace here with weapon equip
-						Multi_FireParticleSystem();
-						player->HeldItem = weapon;
 						player->Server_PickupItem(weapon->ItemComponent, weapon);
+						
+						Multi_FireParticleSystem();
 						weapon->isGrown = true;
+						
+						// Destroy the growable weapon
+						weapon->Destroy();
+						
 						weapon = nullptr;
 						plantGrown = false;
 						growingPlant = false;
@@ -223,6 +234,9 @@ void AGrowSpot::Interact(APrototype2Character* player)
 				{
 					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
 					{
+						// Put players weapon on back
+						player->Multi_SocketItem_Implementation(player->Weapon->Mesh, FName("WeaponHolsterSocket"));
+						
 						Multi_FireParticleSystem();
 						player->HeldItem = plant;
 						player->Server_PickupItem(plant->ItemComponent, plant);
@@ -233,6 +247,17 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						growTimer = 0.0f;
 						GrowSpotState = EGrowSpotState::Empty;
 
+						// Special sound for mandrake when picked up
+						if (player->HeldItem)
+						{
+							if (player->HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
+							{
+								if (player->MandrakeScreamCue)
+								{
+									player->PlaySoundAtLocation(GetActorLocation(), player->MandrakeScreamCue);
+								}
+							}
+						}
 					}
 				}
 				else if (player->HeldItem)
