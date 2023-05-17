@@ -24,6 +24,9 @@ public:
 
 	class ALobbyGamestate* GameStateRef;
 
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UWidget_MapChoice* MapChoiceWidget; 
+
 	// Player text -ready or not
 	// Player 1
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
@@ -60,6 +63,7 @@ public:
 
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	
 	
 	UFUNCTION(BlueprintCallable)
 	void SetReady();
