@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "Widget_MapChoice.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -137,6 +138,11 @@ void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDel
 				}
 					
 			}
+		}
+		// Show map choice
+		if (GameStateRef->bHasCountedDown == true)
+		{
+			MapChoiceWidget->EnableMapChoice(); // Show map choice UI
 		}
 	}
 }
