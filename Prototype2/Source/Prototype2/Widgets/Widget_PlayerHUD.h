@@ -92,6 +92,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* MandrakeSeedTexture;
 
+	// Sprint
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UImage* SprintImage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CanSprintIconTexture;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CanNotSprintIconTexture;
+	
 	// Interaction Text
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* InteractionText;

@@ -300,11 +300,11 @@ void UWidget_PlayerHUD::SetPlayerSprintTimer(float _sprintTime)
 {
 	if (_sprintTime < 0.0f)
 	{
-		
+		SprintImage->SetBrushFromTexture(CanSprintIconTexture);
 	}
 	else
 	{
-		
+		SprintImage->SetBrushFromTexture(CanNotSprintIconTexture);
 	}
 }
 
