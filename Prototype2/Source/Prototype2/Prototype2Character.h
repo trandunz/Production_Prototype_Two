@@ -236,6 +236,13 @@ public: /* Public variables */
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsChargingAttack;
 
+	/* Maximum amount of Attack Charge */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxAttackCharge = 3.0f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float AttackChargeAmount;
+
 	class IInteractInterface* ClosestInteractableItem;
 
 	UPROPERTY(EditAnywhere)
@@ -308,9 +315,7 @@ private: /* Private variables */
 	UPROPERTY(EditAnywhere)
 	float InteractRadius = 200.0f;
 
-	/* Maximum amount of Attack Charge */
-	UPROPERTY(EditAnywhere)
-	float MaxAttackCharge = 3.0f;
+
 
 	/* Amount of knockback applied which is multiplied by charge */
 	UPROPERTY(EditAnywhere)
@@ -358,8 +363,7 @@ private: /* Private variables */
 	
 	bool bCanAttack = true;
 	
-	UPROPERTY(Replicated)
-	float AttackChargeAmount;
+
 	
 	UPROPERTY(Replicated)
 	bool bIsStunned;
