@@ -201,17 +201,22 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	AttackTimer -= DeltaSeconds;
 	SprintTimer -= DeltaSeconds;
 	CanSprintTimer -= DeltaSeconds;
-
-	// Update sprint UI
-	PlayerHUDRef->SetPlayerSprintTimer(CanSprintTimer);
-
-	if (GetVelocity().Length() > 1.0f)
+	
+	if (PlayerHUDRef)
 	{
-		InteractSystem->Activate();		
-	}
-	else
-	{
-		InteractSystem->Deactivate();
+
+		// Update sprint UI
+		PlayerHUDRef->SetPlayerSprintTimer(CanSprintTimer);
+
+		
+		if (GetVelocity().Length() > 1.0f)
+		{
+			InteractSystem->Activate();		
+		}
+		else
+		{
+			InteractSystem->Deactivate();
+		}
 	}
 }
 
