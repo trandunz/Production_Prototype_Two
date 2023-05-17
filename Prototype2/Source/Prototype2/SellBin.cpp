@@ -38,7 +38,7 @@ void ASellBin::BeginPlay()
 	Super::BeginPlay();
 
 	// Sell UI related
-	startPosition = SellAmountWidgetComponent->GetComponentLocation(); // Set UI start location variable
+	startPosition = FVector(0, 0, 0);// SellAmountWidgetComponent->GetComponentLocation(); // Set UI start location variable
 	movingTimer = movingTime; // Set starting timer to equal max time
 }
 
