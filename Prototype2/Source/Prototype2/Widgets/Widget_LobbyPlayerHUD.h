@@ -25,7 +25,9 @@ public:
 	class ALobbyGamestate* GameStateRef;
 
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
-	class UWidget_MapChoice* MapChoiceWidget; 
+	class UWidget_MapChoice* MapChoiceWidget;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UOverlay* MapChoiceClientOverlay;
 
 	// Player text -ready or not
 	// Player 1
@@ -70,4 +72,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetCancel();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowWaitingForHost();
 };
