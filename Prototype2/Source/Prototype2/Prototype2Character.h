@@ -30,13 +30,23 @@ public:
 	void Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
 
 	UFUNCTION(Server, Reliable)
+	void Server_DropItem();
+	void Server_DropItem_Implementation();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_SocketItem(UStaticMeshComponent* _object, FName _socket);
+	void Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
+
+	// Weapon
+	UFUNCTION(Server, Reliable)
 	void Server_SocketItem(UStaticMeshComponent* _object, FName _socket);
 	void Server_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
 
 	UFUNCTION(Server, Reliable)
-	void Server_DropItem();
-	void Server_DropItem_Implementation();
-
+	void Server_DropWeapon();
+	void Server_DropWeapon_Implementation();
+	
+	// Attack
 	UFUNCTION(Server, Reliable)
 	void Server_StartAttack();
 	void Server_StartAttack_Implementation();
@@ -118,8 +128,8 @@ protected: /* Protected Networking functions */
 	void Multi_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void Multi_SocketItem(UStaticMeshComponent* _object, FName _socket);
-	void Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket);
+	void Multi_DropWeapon();
+	void Multi_DropWeapon_Implementation();
 
 	UFUNCTION(Server, Reliable)
 	void Server_ReceiveMaterialsArray(const TArray<UMaterialInstance*>& InMaterialsArray);
@@ -356,6 +366,12 @@ private: /* Private variables */
 	
 	UPROPERTY(Replicated)
 	float StunTimer;
+
+	UPROPERTY(EditAnywhere)
+	int WeaponCurrentDurability;
+
+	UPROPERTY(EditAnywhere)
+	int WeaponMaxDurability;
 
 	/* Other */
 	bool DoOnce{};
