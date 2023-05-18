@@ -283,8 +283,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	{
 		Weapon->Mesh->SetHiddenInGame(true);
 
-		//// Update UI
-		//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
+		// Update UI
+		PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
 	}
 	
 	// Reset Attack Timer
@@ -562,6 +562,12 @@ void APrototype2Character::Server_Ragdoll_Implementation(bool _ragdoll)
 void APrototype2Character::Multi_Ragdoll_Implementation(bool _ragdoll)
 {
 	Ragdoll(_ragdoll);
+}
+
+UWidget_PlayerHUD* APrototype2Character::GetPlayerHUD()
+{
+	// Update UI
+	return PlayerHUDRef;
 }
 
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
@@ -903,19 +909,11 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	// Check if pick up is a weapon
 	if (itemComponent->PickupType == EPickup::Weapon)
 	{
-		//if (Weapon->Mesh->IsVisible())
-		//{
-		//	Server_DropWeapon();
-		//}
-		
 		// Fresh durability
 		WeaponCurrentDurability = WeaponMaxDurability;
 		
 		Weapon->Mesh->SetStaticMesh(itemComponent->Mesh->GetStaticMesh());
 		Weapon->Mesh->SetHiddenInGame(false);
-
-		//// Update UI
-		//PlayerHUDRef->UpdateWeaponUI(EPickup::Weapon);
 	}
 	else // pick up other
 	{

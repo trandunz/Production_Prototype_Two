@@ -299,12 +299,12 @@ void UWidget_PlayerHUD::UpdateWeaponUI(EPickup _weapon)
 	{
 	case Weapon:
 		{
-			//WeaponImage->SetVisibility(ESlateVisibility::Visible);
+			WeaponImage->SetVisibility(ESlateVisibility::Visible);
 			break;
 		}
 	case NoWeapon:
 		{
-			//WeaponImage->SetVisibility(ESlateVisibility::Hidden);
+			WeaponImage->SetVisibility(ESlateVisibility::Hidden);
 			break;
 		}
 	default:
