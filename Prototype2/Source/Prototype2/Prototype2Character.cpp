@@ -102,6 +102,8 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, bIsStunned);
 	DOREPLIFETIME(APrototype2Character, StunTimer);
 	DOREPLIFETIME(APrototype2Character, LocationWhenStunned);
+	DOREPLIFETIME(APrototype2Character, CanSprintTimer);
+	DOREPLIFETIME(APrototype2Character, SprintTimer);
 }
 
 void APrototype2Character::BeginPlay()
@@ -201,17 +203,22 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	AttackTimer -= DeltaSeconds;
 	SprintTimer -= DeltaSeconds;
 	CanSprintTimer -= DeltaSeconds;
-
-	// Update sprint UI
-	PlayerHUDRef->SetPlayerSprintTimer(CanSprintTimer);
-
-	if (GetVelocity().Length() > 1.0f)
+	
+	if (PlayerHUDRef)
 	{
-		InteractSystem->Activate();		
-	}
-	else
-	{
-		InteractSystem->Deactivate();
+
+		// Update sprint UI
+		PlayerHUDRef->SetPlayerSprintTimer(CanSprintTimer);
+
+		
+		if (GetVelocity().Length() > 1.0f)
+		{
+			InteractSystem->Activate();		
+		}
+		else
+		{
+			InteractSystem->Deactivate();
+		}
 	}
 }
 
@@ -324,15 +331,7 @@ void APrototype2Character::Interact()
 
 void APrototype2Character::Sprint()
 {
-	if (CanSprintTimer < 0.0f && !bIsChargingAttack)
-	{
-		SprintTimer = SprintTime;
-		CanSprintTimer = CanSprintTime;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Time until you can sprint again: %f"), CanSprintTimer);
-	}
+	Server_Sprint();
 }
 
 void APrototype2Character::CheckForInteractables()
@@ -588,6 +587,19 @@ void APrototype2Character::Multi_PlayNetworkMontage_Implementation(UAnimMontage*
 void APrototype2Character::Server_SetPlayerColour_Implementation()
 {
 	Multi_SetPlayerColour();
+}
+
+void APrototype2Character::Server_Sprint_Implementation()
+{
+	if (CanSprintTimer < 0.0f && !bIsChargingAttack)
+	{
+		SprintTimer = SprintTime;
+		CanSprintTimer = CanSprintTime;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Time until you can sprint again: %f"), CanSprintTimer);
+	}
 }
 
 void APrototype2Character::Server_AddHUD_Implementation()

@@ -110,6 +110,10 @@ protected: /* Protected Networking functions */
 	UFUNCTION(Server, Reliable)
 	void Server_SetPlayerColour();
 	void Server_SetPlayerColour_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Sprint();
+	void Server_Sprint_Implementation();
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_SetPlayerColour();
@@ -236,6 +240,13 @@ public: /* Public variables */
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsChargingAttack;
 
+	/* Maximum amount of Attack Charge */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxAttackCharge = 3.0f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float AttackChargeAmount;
+
 	class IInteractInterface* ClosestInteractableItem;
 
 	UPROPERTY(EditAnywhere)
@@ -308,9 +319,7 @@ private: /* Private variables */
 	UPROPERTY(EditAnywhere)
 	float InteractRadius = 200.0f;
 
-	/* Maximum amount of Attack Charge */
-	UPROPERTY(EditAnywhere)
-	float MaxAttackCharge = 3.0f;
+
 
 	/* Amount of knockback applied which is multiplied by charge */
 	UPROPERTY(EditAnywhere)
@@ -344,12 +353,14 @@ private: /* Private variables */
 	
 	UPROPERTY(EditAnywhere)
 	float SprintTime = 2.0f;
-	
+
+	UPROPERTY(Replicated)
 	float SprintTimer;
 	
 	UPROPERTY(EditAnywhere)
 	float CanSprintTime = 5.0f;
-	
+
+	UPROPERTY(Replicated)
 	float CanSprintTimer;
 
 	/* Attack */
@@ -357,9 +368,6 @@ private: /* Private variables */
 	float InstantAttackThreshold = 1.0f;
 	
 	bool bCanAttack = true;
-	
-	UPROPERTY(Replicated)
-	float AttackChargeAmount;
 	
 	UPROPERTY(Replicated)
 	bool bIsStunned;

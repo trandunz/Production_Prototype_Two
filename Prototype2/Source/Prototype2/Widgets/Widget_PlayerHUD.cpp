@@ -118,9 +118,9 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						// Showing coin increase
 						if (isShowingExtraCoins == true)
 						{
-							Player1ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							FString plus = "+";
 							FString combined = plus + extraCoins;
+							Player1ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							
 							Player1ExtraCoins->SetText(FText::FromString(combined)); // Set player extra score
 						}
@@ -139,9 +139,9 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						// Showing coin increase
 						if (isShowingExtraCoins == true)
 						{
-							Player2ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							FString plus = "+";
 							FString combined = plus + extraCoins;
+							Player2ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							
 							Player2ExtraCoins->SetText(FText::FromString(combined)); // Set player extra score
 						}
@@ -160,9 +160,9 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						// Showing coin increase
 						if (isShowingExtraCoins == true)
 						{
-							Player3ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							FString plus = "+";
 							FString combined = plus + extraCoins;
+							Player3ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							
 							Player3ExtraCoins->SetText(FText::FromString(combined)); // Set player extra score
 						}
@@ -180,9 +180,9 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						// Showing coin increase
 						if (isShowingExtraCoins == true)
 						{
-							Player4ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							FString plus = "+";
 							FString combined = plus + extraCoins;
+							Player4ExtraCoins->SetVisibility(ESlateVisibility::Visible);
 							
 							Player4ExtraCoins->SetText(FText::FromString(combined)); // Set player extra score
 						}
