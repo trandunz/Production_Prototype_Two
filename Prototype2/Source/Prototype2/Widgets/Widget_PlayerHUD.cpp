@@ -293,6 +293,27 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 	
 }
 
+void UWidget_PlayerHUD::UpdateWeaponUI(EPickup _weapon)
+{
+	switch(_weapon)
+	{
+	case Weapon:
+		{
+			WeaponImage->SetVisibility(ESlateVisibility::Visible);
+			break;
+		}
+	case NoWeapon:
+		{
+			WeaponImage->SetVisibility(ESlateVisibility::Hidden);
+			break;
+		}
+	default:
+		{
+			
+		}
+	}
+}
+
 void UWidget_PlayerHUD::SetHUDInteractText(FString _interactionText)
 {
 	if (_interactionText == "")

@@ -280,7 +280,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 		Weapon->Mesh->SetHiddenInGame(true);
 
 		// Update UI
-		PlayerHUDRef->UpdatePickupUI(EPickup::NoWeapon);
+		PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
 	}
 	
 	// Reset Attack Timer
@@ -534,10 +534,6 @@ void APrototype2Character::Ragdoll(bool _ragdoll)
 		/* Disable all collision on capsule */
 		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		
-
-
-
 
 		UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent());
 		if (CharacterComp)
@@ -545,10 +541,7 @@ void APrototype2Character::Ragdoll(bool _ragdoll)
 			CharacterComp->SetMovementMode(EMovementMode::MOVE_Walking);
 			CharacterComp->SetComponentTickEnabled(true);
 		}
-
-
-	}
-	
+	}	
 }
 
 void APrototype2Character::Server_Ragdoll_Implementation(bool _ragdoll)
@@ -866,18 +859,20 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		// So that CheckForInteractables() can see it again
 		HeldItem->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 		
-		// Launch the HeldItem towards the player instead of droppping
-		FVector LaunchItemVelocity = GetVelocity();
-		LaunchItemVelocity = LaunchItemVelocity.GetSafeNormal();
-		LaunchItemVelocity *= ItemLaunchStrength;
-		HeldItem->ItemComponent->Mesh->AddForce(LaunchItemVelocity);
+		//// Launch the HeldItem towards the player instead of droppping
+		//FVector LaunchItemVelocity = GetVelocity();
+		//LaunchItemVelocity = LaunchItemVelocity.GetSafeNormal();
+		//LaunchItemVelocity *= ItemLaunchStrength;
+		//HeldItem->ItemComponent->Mesh->AddForce(LaunchItemVelocity);
 	}
 	
 	HeldItem = nullptr;
 	
 	// Set HUD image
 	if (PlayerHUDRef)
+	{
 		PlayerHUDRef->UpdatePickupUI(EPickup::None);
+	}
 	PlaySoundAtLocation(GetActorLocation(), DropCue);
 }
 
@@ -916,7 +911,7 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		Weapon->Mesh->SetHiddenInGame(false);
 
 		// Update UI
-		PlayerHUDRef->UpdatePickupUI(EPickup::Weapon);
+		PlayerHUDRef->UpdateWeaponUI(EPickup::Weapon);
 	}
 	else // pick up other
 	{
