@@ -199,10 +199,14 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	}
 
 	// Countdown timers
-	InteractTimer -= DeltaSeconds;
-	AttackTimer -= DeltaSeconds;
-	SprintTimer -= DeltaSeconds;
-	CanSprintTimer -= DeltaSeconds;
+	if (InteractTimer > 0)
+		InteractTimer -= DeltaSeconds;
+	if (AttackTimer > 0)
+		AttackTimer -= DeltaSeconds;
+	if (SprintTimer > 0)
+		SprintTimer -= DeltaSeconds;
+	if (CanSprintTimer > 0)
+		CanSprintTimer -= DeltaSeconds;
 	
 	if (PlayerHUDRef)
 	{
@@ -379,7 +383,7 @@ void APrototype2Character::CheckForInteractables()
 void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
 	// Disable input
-	DisableInput(this->GetLocalViewingPlayerController());
+	//DisableInput(this->GetLocalViewingPlayerController());
 
 	Server_FireDizzySystem();
 	//Server_Ragdoll(true);
