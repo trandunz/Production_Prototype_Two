@@ -283,8 +283,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	{
 		Multi_DropWeapon();
 
-		// Update UI
-		PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
+		//// Update UI
+		//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
 	}
 	
 	// Reset Attack Timer

@@ -217,8 +217,8 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						// replace here with weapon equip
 						player->Server_PickupItem(weapon->ItemComponent, weapon);
 
-						// Change the weapon UI for this player
-						player->GetPlayerHUD()->UpdateWeaponUI(EPickup::Weapon);
+						//// Change the weapon UI for this player
+						//player->GetPlayerHUD()->UpdateWeaponUI(EPickup::Weapon);
 						
 						Multi_FireParticleSystem();
 						weapon->isGrown = true;
