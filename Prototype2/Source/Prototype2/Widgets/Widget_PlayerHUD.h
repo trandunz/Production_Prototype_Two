@@ -123,6 +123,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdatePickupUI(EPickup _pickup);
+	
+	UFUNCTION(BlueprintCallable)
+	void UpdateWeaponUI(EPickup _weapon);
 
 	UFUNCTION(BlueprintCallable)
 	void SetHUDInteractText(FString _interactionText);
