@@ -104,6 +104,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, LocationWhenStunned);
 	DOREPLIFETIME(APrototype2Character, CanSprintTimer);
 	DOREPLIFETIME(APrototype2Character, SprintTimer);
+	DOREPLIFETIME(APrototype2Character, WeaponCurrentDurability);
 }
 
 void APrototype2Character::BeginPlay()
@@ -233,7 +234,6 @@ void APrototype2Character::ChargeAttack()
 
 void APrototype2Character::ReleaseAttack()
 {
-	// 
 	Server_ReleaseAttack();
 }
 
@@ -281,7 +281,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	PlayerHUDRef->SetWeaponDurability(WeaponCurrentDurability);
 	if (WeaponCurrentDurability <= 0)
 	{
-		Weapon->Mesh->SetHiddenInGame(true);
+		Multi_DropWeapon();
 
 		//// Update UI
 		//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
@@ -693,7 +693,7 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 	}
 
 	// empty
-	Multi_ReleaseAttack();
+	//Multi_ReleaseAttack();
 }
 
 void APrototype2Character::Multi_ReleaseAttack_Implementation()
@@ -941,8 +941,7 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 
 void APrototype2Character::Multi_DropWeapon_Implementation()
 {
-	//GetWorld()->SpawnActor<AGrowableWeapon>(GetActorLocation(), GetActorRotation());
-	//Weapon->Mesh->SetHiddenInGame(true);
+	Weapon->Mesh->SetVisibility(false);
 }
 
 void APrototype2Character::Server_ReceiveMaterialsArray_Implementation(

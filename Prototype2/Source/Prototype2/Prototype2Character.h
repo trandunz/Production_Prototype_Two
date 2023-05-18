@@ -382,7 +382,7 @@ private: /* Private variables */
 	UPROPERTY(Replicated)
 	float StunTimer;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	int WeaponCurrentDurability;
 
 	UPROPERTY(EditAnywhere)
