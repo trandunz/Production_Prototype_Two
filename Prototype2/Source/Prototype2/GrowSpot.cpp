@@ -34,6 +34,7 @@ void AGrowSpot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(AGrowSpot, growingPlant);
 	DOREPLIFETIME(AGrowSpot, plantGrown);
 	DOREPLIFETIME(AGrowSpot, plant);
+	DOREPLIFETIME(AGrowSpot, weapon);
 	DOREPLIFETIME(AGrowSpot, GrowSpotState);
 }
 

@@ -61,10 +61,6 @@ public:
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* Player4ExtraCoins;
 
-	// Weapon UI
-	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
-	class UImage* WeaponImage;
-
 	UPROPERTY(EditAnywhere)
 	TArray<class UTexture2D*> PlayerIcons{{},{},{},{}, {}, {}, {}, {}};
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
@@ -79,6 +75,11 @@ public:
 	// Pickup UI
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UImage* PickupImage;
+
+	// Weapon UI
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UImage* WeaponImage;
+
 	// Textures
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* CarrotTexture;

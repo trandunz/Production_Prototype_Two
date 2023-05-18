@@ -199,13 +199,13 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	}
 
 	// Countdown timers
-	if (InteractTimer > 0)
+	if (InteractTimer >= 0)
 		InteractTimer -= DeltaSeconds;
-	if (AttackTimer > 0)
+	if (AttackTimer >= 0)
 		AttackTimer -= DeltaSeconds;
-	if (SprintTimer > 0)
+	if (SprintTimer >= 0)
 		SprintTimer -= DeltaSeconds;
-	if (CanSprintTimer > 0)
+	if (CanSprintTimer >= 0)
 		CanSprintTimer -= DeltaSeconds;
 	
 	if (PlayerHUDRef)
@@ -283,8 +283,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	{
 		Weapon->Mesh->SetHiddenInGame(true);
 
-		// Update UI
-		PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
+		//// Update UI
+		//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
 	}
 	
 	// Reset Attack Timer
@@ -914,8 +914,8 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		Weapon->Mesh->SetStaticMesh(itemComponent->Mesh->GetStaticMesh());
 		Weapon->Mesh->SetHiddenInGame(false);
 
-		// Update UI
-		PlayerHUDRef->UpdateWeaponUI(EPickup::Weapon);
+		//// Update UI
+		//PlayerHUDRef->UpdateWeaponUI(EPickup::Weapon);
 	}
 	else // pick up other
 	{
