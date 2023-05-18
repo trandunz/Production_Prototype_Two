@@ -49,14 +49,14 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 				if (LobbyLengthMinutes <= 0)
 				{
 					// End of timer
-					//GetWorld()->ServerTravel(MapChoice, true, false); // Start level
+					GetWorld()->ServerTravel(MapChoice, false, false); // Start level
 
 					// Show map choice
-					bHasCountedDown = true;
-					if (bMapChosen == true)
-					{
-						GetWorld()->ServerTravel(MapChoice, false, false); // Start level
-					}
+					//bHasCountedDown = true;
+					//if (bMapChosen == true)
+					//{
+					//	GetWorld()->ServerTravel(MapChoice, false, false); // Start level
+					//}
 				}
 				else
 				{
