@@ -275,6 +275,16 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 			PickupImage->SetBrushFromTexture(MandrakeSeedTexture);
 			break;
 		}
+	case Weapon:
+		{
+			WeaponImage->SetVisibility(ESlateVisibility::Visible);
+			break;
+		}
+	case NoWeapon:
+		{
+			WeaponImage->SetVisibility(ESlateVisibility::Hidden);
+			break;
+		}
 	default:
 		{
 			

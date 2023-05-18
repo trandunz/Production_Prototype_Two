@@ -271,6 +271,9 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	if (WeaponCurrentDurability <= 0)
 	{
 		Weapon->Mesh->SetHiddenInGame(true);
+
+		// Update UI
+		PlayerHUDRef->UpdatePickupUI(EPickup::NoWeapon);
 	}
 	
 	// Reset Attack Timer
@@ -899,6 +902,9 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		
 		Weapon->Mesh->SetStaticMesh(itemComponent->Mesh->GetStaticMesh());
 		Weapon->Mesh->SetHiddenInGame(false);
+
+		// Update UI
+		PlayerHUDRef->UpdatePickupUI(EPickup::Weapon);
 	}
 	else // pick up other
 	{
