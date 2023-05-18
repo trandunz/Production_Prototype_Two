@@ -247,6 +247,13 @@ public: /* Public variables */
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float AttackChargeAmount;
 
+	/* Sprint */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float CanSprintTime = 5.0f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float CanSprintTimer;
+
 	class IInteractInterface* ClosestInteractableItem;
 
 	UPROPERTY(EditAnywhere)
@@ -357,11 +364,11 @@ private: /* Private variables */
 	UPROPERTY(Replicated)
 	float SprintTimer;
 	
-	UPROPERTY(EditAnywhere)
-	float CanSprintTime = 5.0f;
-
-	UPROPERTY(Replicated)
-	float CanSprintTimer;
+	//UPROPERTY(EditAnywhere)
+	//float CanSprintTime = 5.0f;
+//
+	//UPROPERTY(Replicated)
+	//float CanSprintTimer;
 
 	/* Attack */
 	UPROPERTY(EditAnywhere)

@@ -299,12 +299,12 @@ void UWidget_PlayerHUD::UpdateWeaponUI(EPickup _weapon)
 	{
 	case Weapon:
 		{
-			WeaponImage->SetVisibility(ESlateVisibility::Visible);
+			//WeaponImage->SetVisibility(ESlateVisibility::Visible);
 			break;
 		}
 	case NoWeapon:
 		{
-			WeaponImage->SetVisibility(ESlateVisibility::Hidden);
+			//WeaponImage->SetVisibility(ESlateVisibility::Hidden);
 			break;
 		}
 	default:
@@ -331,11 +331,11 @@ void UWidget_PlayerHUD::SetPlayerSprintTimer(float _sprintTime)
 {
 	if (_sprintTime < 0.0f)
 	{
-		SprintImage->SetBrushFromTexture(CanSprintIconTexture);
+		//SprintImage->SetBrushFromTexture(CanSprintIconTexture);
 	}
 	else
 	{
-		SprintImage->SetBrushFromTexture(CanNotSprintIconTexture);
+		//SprintImage->SetBrushFromTexture(CanNotSprintIconTexture);
 	}
 }
 
