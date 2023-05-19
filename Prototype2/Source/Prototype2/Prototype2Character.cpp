@@ -863,6 +863,7 @@ void APrototype2Character::Multi_DropItem_Implementation()
 	if(HeldItem)
 	{
 		HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		HeldItem->SetActorLocation({HeldItem->GetActorLocation().X,HeldItem->GetActorLocation().Y,0 });
 		HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
 		HeldItem->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
@@ -888,6 +889,8 @@ void APrototype2Character::Multi_DropItem_Implementation()
 
 void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
+	WeaponCurrentDurability = WeaponMaxDurability;
+	
 	Multi_PickupItem(itemComponent, _item);
 }
 
@@ -909,11 +912,9 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	// Check if pick up is a weapon
 	if (itemComponent->PickupType == EPickup::Weapon)
 	{
-		// Fresh durability
-		WeaponCurrentDurability = WeaponMaxDurability;
-		
 		Weapon->Mesh->SetStaticMesh(itemComponent->Mesh->GetStaticMesh());
 		Weapon->Mesh->SetHiddenInGame(false);
+		Weapon->Mesh->SetVisibility(true);
 	}
 	else // pick up other
 	{
@@ -927,12 +928,10 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		}
 		
 		_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
-		
-		// Assign Players HeldItem
-		HeldItem = _item;
 
-		// Set HUD image
-		if (PlayerHUDRef)
+		HeldItem = _item;
+		
+		if (PlayerHUDRef && HeldItem)
 			PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);
 	}
 }
