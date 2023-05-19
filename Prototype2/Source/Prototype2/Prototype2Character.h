@@ -95,6 +95,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
     void Multi_Ragdoll(bool _ragdoll);
     void Multi_Ragdoll_Implementation(bool _ragdoll);
+	
+	class UWidget_PlayerHUD* GetPlayerHUD();
 
 protected: /* Protected Networking functions */
 	void PlayNetworkMontage(UAnimMontage* _montage);
@@ -382,7 +384,7 @@ private: /* Private variables */
 	UPROPERTY(Replicated)
 	float StunTimer;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	int WeaponCurrentDurability;
 
 	UPROPERTY(EditAnywhere)

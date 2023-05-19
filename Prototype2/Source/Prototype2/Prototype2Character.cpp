@@ -104,6 +104,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, LocationWhenStunned);
 	DOREPLIFETIME(APrototype2Character, CanSprintTimer);
 	DOREPLIFETIME(APrototype2Character, SprintTimer);
+	DOREPLIFETIME(APrototype2Character, WeaponCurrentDurability);
 }
 
 void APrototype2Character::BeginPlay()
@@ -233,7 +234,6 @@ void APrototype2Character::ChargeAttack()
 
 void APrototype2Character::ReleaseAttack()
 {
-	// 
 	Server_ReleaseAttack();
 }
 
@@ -281,7 +281,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	PlayerHUDRef->SetWeaponDurability(WeaponCurrentDurability);
 	if (WeaponCurrentDurability <= 0)
 	{
-		Weapon->Mesh->SetHiddenInGame(true);
+		Multi_DropWeapon();
 
 		//// Update UI
 		//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
@@ -564,6 +564,12 @@ void APrototype2Character::Multi_Ragdoll_Implementation(bool _ragdoll)
 	Ragdoll(_ragdoll);
 }
 
+UWidget_PlayerHUD* APrototype2Character::GetPlayerHUD()
+{
+	// Update UI
+	return PlayerHUDRef;
+}
+
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
 {
 	GetMesh()->GetAnimInstance()->Montage_Play(_montage);
@@ -693,7 +699,7 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 	}
 
 	// empty
-	Multi_ReleaseAttack();
+	//Multi_ReleaseAttack();
 }
 
 void APrototype2Character::Multi_ReleaseAttack_Implementation()
@@ -903,19 +909,11 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	// Check if pick up is a weapon
 	if (itemComponent->PickupType == EPickup::Weapon)
 	{
-		//if (Weapon->Mesh->IsVisible())
-		//{
-		//	Server_DropWeapon();
-		//}
-		
 		// Fresh durability
 		WeaponCurrentDurability = WeaponMaxDurability;
 		
 		Weapon->Mesh->SetStaticMesh(itemComponent->Mesh->GetStaticMesh());
 		Weapon->Mesh->SetHiddenInGame(false);
-
-		//// Update UI
-		//PlayerHUDRef->UpdateWeaponUI(EPickup::Weapon);
 	}
 	else // pick up other
 	{
@@ -941,8 +939,7 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 
 void APrototype2Character::Multi_DropWeapon_Implementation()
 {
-	//GetWorld()->SpawnActor<AGrowableWeapon>(GetActorLocation(), GetActorRotation());
-	//Weapon->Mesh->SetHiddenInGame(true);
+	Weapon->Mesh->SetVisibility(false);
 }
 
 void APrototype2Character::Server_ReceiveMaterialsArray_Implementation(
