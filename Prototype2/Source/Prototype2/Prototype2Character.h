@@ -389,6 +389,9 @@ private: /* Private variables */
 
 	UPROPERTY(EditAnywhere)
 	int WeaponMaxDurability;
+		
+	UPROPERTY(EditAnywhere, Category=Attack)
+	FVector KnockUp = {1.0f, 1.0f, 100000000.0f};
 
 	/* Other */
 	bool DoOnce{};

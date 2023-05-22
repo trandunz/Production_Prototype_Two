@@ -211,10 +211,8 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	
 	if (PlayerHUDRef)
 	{
-
 		// Update sprint UI
 		PlayerHUDRef->SetPlayerSprintTimer(CanSprintTimer);
-
 		
 		if (GetVelocity().Length() > 1.0f)
 		{
@@ -340,7 +338,6 @@ void APrototype2Character::Sprint()
 
 void APrototype2Character::CheckForInteractables()
 {
-	
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
 	
@@ -389,8 +386,14 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	//Server_Ragdoll(true);
 	
 	// Knockback
-	GetCharacterMovement()->Velocity = (GetActorLocation() - AttackerLocation).GetSafeNormal() * AttackCharge * KnockBackAmount;
+	//GetCharacterMovement()->Velocity = (GetActorLocation() - AttackerLocation).GetSafeNormal() * AttackCharge * KnockBackAmount;
+	//GetCharacterMovement()->Velocity =  AttackCharge * KnockBackAmount * GetActorUpVector() * 100000;
 
+	//GetCharacterMovement()->Launch((KnockUp * () * AttackCharge * KnockBackAmount);
+
+	FVector KnockAway = GetActorUpVector()/2 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
+	GetCharacterMovement()->Launch(KnockAway * AttackCharge * KnockBackAmount);
+	
 	// Drop item
 	if (HeldItem)
 	{
