@@ -216,7 +216,8 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					{
 						// replace here with weapon equip
 						player->Server_PickupItem(weapon->ItemComponent, weapon);
-
+						player->WeaponCurrentDurability = player->WeaponMaxDurability;
+						
 						//// Change the weapon UI for this player
 						//player->GetPlayerHUD()->UpdateWeaponUI(EPickup::Weapon);
 						

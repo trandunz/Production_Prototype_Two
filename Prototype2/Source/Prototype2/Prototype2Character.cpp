@@ -892,8 +892,6 @@ void APrototype2Character::Multi_DropItem_Implementation()
 
 void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
-	WeaponCurrentDurability = WeaponMaxDurability;
-	
 	Multi_PickupItem(itemComponent, _item);
 }
 
