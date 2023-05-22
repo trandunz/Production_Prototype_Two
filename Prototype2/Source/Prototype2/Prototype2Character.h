@@ -256,6 +256,13 @@ public: /* Public variables */
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float CanSprintTimer;
 
+	/* Weapon degrading */
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
+	int WeaponCurrentDurability;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int WeaponMaxDurability;
+
 	class IInteractInterface* ClosestInteractableItem;
 
 	UPROPERTY(EditAnywhere)
@@ -392,6 +399,7 @@ private: /* Private variables */
 		
 	UPROPERTY(EditAnywhere, Category=Attack)
 	FVector KnockUp = {1.0f, 1.0f, 100000000.0f};
+	
 
 	/* Other */
 	bool DoOnce{};
