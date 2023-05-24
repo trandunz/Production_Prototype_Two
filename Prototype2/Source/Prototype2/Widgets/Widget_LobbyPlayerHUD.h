@@ -61,6 +61,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UTextBlock* StartCountDown;
+
+	// Player number
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	int playerNumber{};
 public:
 
 	virtual void NativeOnInitialized() override;
