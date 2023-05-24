@@ -6,6 +6,8 @@
 #include "Widget_EndgameMenu.h"
 #include "Widget_IngameMenu.h"
 #include "Components/Image.h"
+#include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/GameMode.h"
 #include "GameFramework/PlayerState.h"
@@ -17,6 +19,8 @@
 #include "Prototype2/Gamestates/Prototype2Gamestate.h"
 #include "Prototype2/PickUpItem.h"
 #include "Prototype2/Prototype2PlayerController.h"
+#include "Widgets/SOverlay.h"
+#include "Layout/Margin.h"
 
 void UWidget_PlayerHUD::NativeOnInitialized()
 {
@@ -32,6 +36,8 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 
 	// Set interaction text to be hidden on start
 	InteractionText->SetVisibility(ESlateVisibility::Hidden);
+
+	
 }
 
 void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -91,8 +97,55 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 			//Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
 		}
 
-		
+		// Set number of UI shown on screen
+		if (GameStateRef->Server_Players.Num() <= 4)
+		{
+			Overlay_P1->SetVisibility(ESlateVisibility::Visible);
+			Overlay_P2->SetVisibility(ESlateVisibility::Visible);
+			Overlay_P3->SetVisibility(ESlateVisibility::Visible);
+			Overlay_P4->SetVisibility(ESlateVisibility::Visible);
+			
+			if (GameStateRef->Server_Players.Num() <= 3)
+			{
+				Overlay_P4->SetVisibility(ESlateVisibility::Hidden);
 
+				if (GameStateRef->Server_Players.Num() <= 2)
+				{
+					Overlay_P3->SetVisibility(ESlateVisibility::Hidden);
+					
+					if (GameStateRef->Server_Players.Num() == 2)
+					{
+						Overlay_P2->SetVisibility(ESlateVisibility::Visible);
+
+					}
+					else if (GameStateRef->Server_Players.Num() == 1)
+					{
+						Overlay_P2->SetVisibility(ESlateVisibility::Hidden);
+					}
+					Overlay_P1->SetVisibility(ESlateVisibility::Visible);
+			
+					UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]);
+					overlaySlot->SetPadding(FMargin(0,0,0,0));
+				}
+			}
+		}
+
+		// Set positions of slots
+		if (GameStateRef->Server_Players.Num() == 4 || GameStateRef->Server_Players.Num() == 3)
+		{
+			UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]); // Change position of player 1
+			overlaySlot->SetPadding(FMargin(0,0,650,0));
+			overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[1]); // Change position of player 2
+			overlaySlot->SetPadding(FMargin(0,0,300,0));
+		}
+		else
+		{
+			UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]); // Change position of player 1
+			overlaySlot->SetPadding(FMargin(0,0,400,0));
+			overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[1]); // Change position of player 2
+			overlaySlot->SetPadding(FMargin(400,0,0,0));
+		}
+		
 		// Updating points/coins
 		//if (!GetOwningPlayerPawn()->HasAuthority())
 		//	UE_LOG(LogTemp, Warning, TEXT("Players Array Size = %s"), *FString::FromInt(GameStateRef->PlayerArray.Num()));
@@ -107,9 +160,9 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 				
 				//UE_LOG(LogTemp, Warning, TEXT("Player [%s] ID = %s"), *FString::FromInt(i), *FString::FromInt(player->Player_ID));
 				
-				P2Icon->SetBrushFromTexture(PlayerIcons[4]);
-				P3Icon->SetBrushFromTexture(PlayerIcons[4]);
-				P4Icon->SetBrushFromTexture(PlayerIcons[4]);
+				//P2Icon->SetBrushFromTexture(PlayerIcons[4]);
+				//P3Icon->SetBrushFromTexture(PlayerIcons[4]);
+				//P4Icon->SetBrushFromTexture(PlayerIcons[4]);
 				switch(i)
 				{
 				case 0:
@@ -129,8 +182,8 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 							Player1ExtraCoins->SetVisibility(ESlateVisibility::Hidden);
 						}
 						
-						if (GameStateRef->Server_Players.Num() >= 1)
-							P1Icon->SetBrushFromTexture(PlayerIcons[0]);
+						//if (GameStateRef->Server_Players.Num() >= 1)
+						//	P1Icon->SetBrushFromTexture(PlayerIcons[0]);
 						break;
 					}
 				case 1:
@@ -150,8 +203,8 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 							Player2ExtraCoins->SetVisibility(ESlateVisibility::Hidden);
 						}
 						
-						if (GameStateRef->Server_Players.Num() >= 2)
-							P2Icon->SetBrushFromTexture(PlayerIcons[1]);
+						//if (GameStateRef->Server_Players.Num() >= 2)
+						//	P2Icon->SetBrushFromTexture(PlayerIcons[1]);
 						break;
 					}
 				case 2:
@@ -170,8 +223,8 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						{
 							Player3ExtraCoins->SetVisibility(ESlateVisibility::Hidden);
 						}
-						if (GameStateRef->Server_Players.Num() >= 3)
-							P3Icon->SetBrushFromTexture(PlayerIcons[2]);
+						//if (GameStateRef->Server_Players.Num() >= 3)
+						//	P3Icon->SetBrushFromTexture(PlayerIcons[2]);
 						break;
 					}
 				case 3:
@@ -190,8 +243,8 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						{
 							Player4ExtraCoins->SetVisibility(ESlateVisibility::Hidden);
 						}
-						if (GameStateRef->Server_Players.Num() >= 4)
-							P4Icon->SetBrushFromTexture(PlayerIcons[3]);
+						//if (GameStateRef->Server_Players.Num() >= 4)
+						//	P4Icon->SetBrushFromTexture(PlayerIcons[3]);
 						break;
 					}
 				default:
