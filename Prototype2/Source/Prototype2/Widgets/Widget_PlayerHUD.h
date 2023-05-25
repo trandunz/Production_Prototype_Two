@@ -72,6 +72,18 @@ public:
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UImage* P4Icon;
 
+	// Player UI overlays
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UOverlay* TopOverlayUI;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UOverlay* Overlay_P1;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UOverlay* Overlay_P2;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UOverlay* Overlay_P3;
+	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	class UOverlay* Overlay_P4;
+	
 	// Pickup UI
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UImage* PickupImage;
