@@ -338,9 +338,11 @@ private: /* Private variables */
 
 
 	/* Amount of knockback applied which is multiplied by charge */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = KnockBack)
 	float KnockBackAmount = 1000.0f;
-
+	UPROPERTY(EditAnywhere, Category = KnockBack)
+	float MaxKnockBackVelocity = 10000.0f;
+	
 	/* Interact timer */
 	UPROPERTY(EditAnywhere)
 	float InteractTimerTime = 1.0f;
@@ -350,7 +352,8 @@ private: /* Private variables */
 	UPROPERTY(EditAnywhere)
 	float AttackTimerTime = 1.0f;
 	float AttackTimer{};
-
+	UPROPERTY(EditAnywhere)
+	float InstantAttackDelay = 0.5f;
 	UPROPERTY(EditAnywhere)
 	float ItemLaunchStrength = 500000.0f;
 	

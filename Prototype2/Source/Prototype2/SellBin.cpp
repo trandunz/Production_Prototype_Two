@@ -40,6 +40,8 @@ void ASellBin::BeginPlay()
 	// Sell UI related
 	startPosition = FVector(0, 0, 0);// SellAmountWidgetComponent->GetComponentLocation(); // Set UI start location variable
 	movingTimer = movingTime; // Set starting timer to equal max time
+
+	ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 }
 
 // Called every frame

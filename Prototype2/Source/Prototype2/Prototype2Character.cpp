@@ -249,8 +249,9 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	FCollisionShape colSphere = FCollisionShape::MakeSphere(AttackSphereRadius);
 	
 	UE_LOG(LogTemp, Warning, TEXT("Sphere Radius = %s"), *FString::SanitizeFloat(AttackSphereRadius));
+	
 	// draw collision sphere
-	//DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 2.0f);
+	// DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 2.0f);
 	
 	// check if something got hit in the sweep
 	bool isHit = GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Pawn, colSphere);
@@ -386,13 +387,26 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	//Server_Ragdoll(true);
 	
 	// Knockback
-	//GetCharacterMovement()->Velocity = (GetActorLocation() - AttackerLocation).GetSafeNormal() * AttackCharge * KnockBackAmount;
-	//GetCharacterMovement()->Velocity =  AttackCharge * KnockBackAmount * GetActorUpVector() * 100000;
-
-	//GetCharacterMovement()->Launch((KnockUp * () * AttackCharge * KnockBackAmount);
-
 	FVector KnockAway = GetActorUpVector()/2 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
-	GetCharacterMovement()->Launch(KnockAway * AttackCharge * KnockBackAmount);
+
+	// Set minimum attack charge for scaling knockback
+	if (AttackCharge < 1.0f)
+	{
+		AttackCharge = 1.0f;
+	}
+	
+	KnockAway *= AttackCharge * KnockBackAmount;
+	
+	UKismetSystemLibrary::PrintString(GetWorld(), "Pre limit: " + FString::SanitizeFloat(KnockAway.Size()));
+	// Limit the knockback to MaxKnockBackVelocity
+	if (KnockAway.Size() > MaxKnockBackVelocity)
+	{
+		KnockAway = KnockAway.GetSafeNormal() * MaxKnockBackVelocity;
+		UKismetSystemLibrary::PrintString(GetWorld(), "Post limit: " + FString::SanitizeFloat(KnockAway.Size()));
+	}
+
+	// Knock this player away
+	GetCharacterMovement()->Launch(KnockAway);
 	
 	// Drop item
 	if (HeldItem)
@@ -674,7 +688,7 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 		else
 		{
 			// Create a smaller sphere of effect
-			attackSphereRadius = 50.0f;
+			attackSphereRadius = 75.0f;
 		}
 
 		// If attack button is clicked without being held
@@ -687,7 +701,7 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 			}
 			// Delayed attack
 			FTimerHandle Handle;
-			GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([this, attackSphereRadius] { ExecuteAttack(attackSphereRadius); }), 0.5f, false);	
+			GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([this, attackSphereRadius] { ExecuteAttack(attackSphereRadius); }), InstantAttackDelay, false);	
 		}
 		else
 		{
@@ -866,7 +880,7 @@ void APrototype2Character::Multi_DropItem_Implementation()
 	if(HeldItem)
 	{
 		HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		HeldItem->SetActorLocation({HeldItem->GetActorLocation().X,HeldItem->GetActorLocation().Y,0 });
+		//HeldItem->SetActorLocation({HeldItem->GetActorLocation().X,HeldItem->GetActorLocation().Y,0 });
 		HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
 		HeldItem->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
