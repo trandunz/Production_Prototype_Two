@@ -35,6 +35,10 @@ void UItemComponent::BeginPlay()
 	if (Mesh->Mobility.GetValue() == EComponentMobility::Movable)
 	{
 		Mesh->SetSimulatePhysics(true);
+		//Mesh->BodyInstance.bLockXRotation = true;
+		//Mesh->BodyInstance.bLockYRotation = true;
+		Mesh->BodyInstance.bLockXTranslation = true;
+		Mesh->BodyInstance.bLockYTranslation = true;
 	}
 }
 
