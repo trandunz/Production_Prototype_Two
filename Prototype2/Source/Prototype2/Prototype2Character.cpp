@@ -105,6 +105,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, CanSprintTimer);
 	DOREPLIFETIME(APrototype2Character, SprintTimer);
 	DOREPLIFETIME(APrototype2Character, WeaponCurrentDurability);
+	DOREPLIFETIME(APrototype2Character, DizzyComponent);
 }
 
 void APrototype2Character::BeginPlay()
@@ -1019,10 +1020,7 @@ void APrototype2Character::Server_FireDizzySystem_Implementation()
 
 void APrototype2Character::Multi_FireParticleSystem_Implementation()
 {
-	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DizzySystem, InteractSystem->GetComponentLocation());
-	NiagaraComponent->SetIsReplicated(true);
-	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
-	NiagaraComponent->SetAutoDestroy(true);
-	NiagaraComponent->Activate();
-	NiagaraComponent->AttachToComponent(DizzyComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	DizzyComponent->SetAsset(DizzySystem);
+    DizzyComponent->Activate();
+    DizzyComponent->SetAutoDestroy(false);
 }

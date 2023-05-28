@@ -276,7 +276,7 @@ public: /* Public variables */
 	UPROPERTY(EditAnywhere)
 	class UNiagaraComponent* InteractSystem;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	class UNiagaraComponent* DizzyComponent;
 	
 	UPROPERTY(EditAnywhere)
