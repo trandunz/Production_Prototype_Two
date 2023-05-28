@@ -39,6 +39,9 @@ public:
 	float CropValue;
 	
 	UPROPERTY(EditAnywhere)
+	bool gold = false;
+	
+	UPROPERTY(EditAnywhere)
 	int32 WeaponDurability;
 
 	// For HUD changing icons

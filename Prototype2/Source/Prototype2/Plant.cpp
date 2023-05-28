@@ -16,10 +16,10 @@ void APlant::BeginPlay()
 	int x = rand() % 100;
 	if (x < chanceOfGold)
 	{
-		gold = true;
+		ItemComponent->gold = true;
 	}
 
-	if (gold)
+	if (ItemComponent->gold)
 	{
 		// change the plant material to gold
 		ItemComponent->CropValue *= goldMultiplier;
