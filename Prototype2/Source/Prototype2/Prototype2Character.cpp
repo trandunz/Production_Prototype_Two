@@ -311,6 +311,7 @@ void APrototype2Character::Interact()
 		
 		if (!bIsChargingAttack)
 		{
+			TryInteract();
 			Server_TryInteract();
 		}
 
@@ -778,6 +779,14 @@ void APrototype2Character::Multi_SetPlayerColour_Implementation()
 				}
 			}
 		}
+	}
+}
+
+void APrototype2Character::TryInteract()
+{
+	if (ClosestInteractableItem)
+	{
+		ClosestInteractableItem->ClientInteract(this);		
 	}
 }
 
