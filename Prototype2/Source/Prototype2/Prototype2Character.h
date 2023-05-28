@@ -120,6 +120,8 @@ protected: /* Protected Networking functions */
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_SetPlayerColour();
 	void Multi_SetPlayerColour_Implementation();
+
+	void TryInteract();
 	
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract();
