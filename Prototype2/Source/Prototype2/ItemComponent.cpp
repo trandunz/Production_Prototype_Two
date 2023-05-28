@@ -37,8 +37,8 @@ void UItemComponent::BeginPlay()
 		Mesh->SetSimulatePhysics(true);
 		//Mesh->BodyInstance.bLockXRotation = true;
 		//Mesh->BodyInstance.bLockYRotation = true;
-		Mesh->BodyInstance.bLockXTranslation = true;
-		Mesh->BodyInstance.bLockYTranslation = true;
+		//Mesh->BodyInstance.bLockXTranslation = true;
+		//Mesh->BodyInstance.bLockYTranslation = true;
 	}
 }
 
