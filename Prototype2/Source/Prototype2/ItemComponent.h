@@ -34,9 +34,12 @@ public:
 public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* leafMesh;
 	
 	UPROPERTY(EditAnywhere)
-	float CropValue;
+	float CropValue; 
 	
 	UPROPERTY(EditAnywhere)
 	bool gold = false;
