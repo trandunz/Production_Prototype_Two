@@ -27,9 +27,9 @@ void APlant::BeginPlay()
 		{
 			ItemComponent->Mesh->SetMaterial(0, goldMaterial);
 		}
-		if (goldMaterial2 && ItemComponent->leafMesh)
+		if (goldMaterial2)
 		{
-			ItemComponent->leafMesh->SetMaterial(0, goldMaterial2);
+			//ItemComponent->Mesh->SetMaterial(0, goldMaterial2);
 		}
 		ItemComponent->CropValue *= goldMultiplier;
 	}

@@ -34,9 +34,6 @@ public:
 public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
-
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* leafMesh;
 	
 	UPROPERTY(EditAnywhere)
 	float CropValue; 

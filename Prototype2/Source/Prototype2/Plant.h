@@ -22,7 +22,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	// ReSharper disable once CppUE4ProbableMemoryIssuesWithUObject
 	UMaterialInterface* goldMaterial2;
-	
 	int chanceOfGold = 5; // x/100
 	int goldMultiplier = 3;
 	//UPROPERTY(EditAnywhere)
