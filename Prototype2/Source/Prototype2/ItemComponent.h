@@ -46,5 +46,7 @@ public:
 	TEnumAsByte<EPickup> PickupType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float GrowTime;	
+	float GrowTime;
+
+	bool bIsGold;
 };

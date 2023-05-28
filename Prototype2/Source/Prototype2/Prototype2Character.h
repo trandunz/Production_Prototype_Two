@@ -182,6 +182,9 @@ protected: /* Protected non-network Functions */
 
 	/* Activate Sprint */
 	void Sprint();
+
+	/* Handle character speed */
+	void UpdateCharacterSpeed(float _WalkSpeed, float _SprintSpeed, float MaxAnimationRateScale);
 	
 	/* Create a sphere collider which calculates nearest item */
 	void CheckForInteractables();
@@ -361,11 +364,15 @@ private: /* Private variables */
 	TSubclassOf<class UWidget_PlayerHUD> PlayerHudPrefab;
 	UWidget_PlayerHUD* PlayerHUDRef;
 	
-	/* Sprint */
+	/* Sprint/Walk/Slow Walk */
 	UPROPERTY(EditAnywhere)
 	UAnimSequence* RunAnimation;
 	
 	float WalkSpeed = 500.f;
+
+	float GoldPlantSpeed = 300.0f;
+
+	bool bIsHoldingGold;
 	
 	UPROPERTY(EditAnywhere)
 	float SprintSpeed = 750.0f;

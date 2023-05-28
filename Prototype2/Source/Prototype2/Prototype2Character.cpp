@@ -168,23 +168,13 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	//}
 
 	// Sprint
-	if (SprintTimer < 0.0f)
+	if (bIsHoldingGold)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-
-		// Speed up animation
-		if (RunAnimation)
-		{
-			RunAnimation->RateScale = 1.25f;
-		}
+		UpdateCharacterSpeed(GoldPlantSpeed, WalkSpeed, 1.25f);
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-		if(RunAnimation)
-		{
-			RunAnimation->RateScale = 2.50f;
-		}
+		UpdateCharacterSpeed(WalkSpeed, SprintSpeed, 2.5f);
 	}
 	
 	// Attack
@@ -335,6 +325,28 @@ void APrototype2Character::Interact()
 void APrototype2Character::Sprint()
 {
 	Server_Sprint();
+}
+
+void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintSpeed, float MaxAnimationRateScale)
+{
+	if (SprintTimer < 0.0f)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _WalkSpeed;
+
+		// Speed up animation
+		if (RunAnimation)
+		{
+			RunAnimation->RateScale = MaxAnimationRateScale/2;
+		}
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _SprintSpeed;
+		if(RunAnimation)
+		{
+			RunAnimation->RateScale = MaxAnimationRateScale;
+		}
+	}
 }
 
 void APrototype2Character::CheckForInteractables()
@@ -879,6 +891,12 @@ void APrototype2Character::Multi_DropItem_Implementation()
 	// Drop into world
 	if(HeldItem)
 	{
+		// If Item was gold, set bool to return character to normal speed in tick
+		if (HeldItem->ItemComponent->gold)
+		{
+			bIsHoldingGold = false;
+		}
+		
 		HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		//HeldItem->SetActorLocation({HeldItem->GetActorLocation().X,HeldItem->GetActorLocation().Y,0 });
 		HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
@@ -945,6 +963,13 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
 
 		HeldItem = _item;
+
+		// If item is the gold plant, slow down the player
+		if (HeldItem->ItemComponent->gold)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = GoldPlantSpeed;
+			bIsHoldingGold = true;
+		}
 		
 		if (PlayerHUDRef && HeldItem)
 			PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);
