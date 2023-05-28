@@ -171,6 +171,16 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	//	}
 	//}
 
+	// Temp fix until SellBin is free to set it there
+	if (HeldItem->ItemComponent->gold)
+	{
+		bIsHoldingGold = true;
+	}
+	else
+	{
+		bIsHoldingGold = false;
+	}
+	
 	// Sprint
 	if (bIsHoldingGold)
 	{
