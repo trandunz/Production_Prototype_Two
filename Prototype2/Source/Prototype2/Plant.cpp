@@ -3,6 +3,7 @@
 
 #include "Plant.h"
 #include "Prototype2Character.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 APlant::APlant()
@@ -22,6 +23,14 @@ void APlant::BeginPlay()
 	if (ItemComponent->gold)
 	{
 		// change the plant material to gold
+		if (goldMaterial)
+		{
+			ItemComponent->Mesh->SetMaterial(0, goldMaterial);
+		}
+		if (goldMaterial2 && ItemComponent->leafMesh)
+		{
+			ItemComponent->leafMesh->SetMaterial(0, goldMaterial2);
+		}
 		ItemComponent->CropValue *= goldMultiplier;
 	}
 }
