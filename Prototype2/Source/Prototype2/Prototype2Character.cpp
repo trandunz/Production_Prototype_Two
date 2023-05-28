@@ -61,9 +61,9 @@ APrototype2Character::APrototype2Character()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
+	
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
@@ -139,6 +139,10 @@ void APrototype2Character::BeginPlay()
 	{
 		InteractSystem->SetAsset(ParticleSystem);
 	}
+
+	// Clamp the viewing angle of the camera
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -40.0f;
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 0.0f;
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -967,7 +971,6 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		// If item is the gold plant, slow down the player
 		if (HeldItem->ItemComponent->gold)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = GoldPlantSpeed;
 			bIsHoldingGold = true;
 		}
 		
