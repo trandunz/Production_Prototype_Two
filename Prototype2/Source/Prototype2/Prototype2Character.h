@@ -291,6 +291,8 @@ public: /* Public variables */
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* DizzySystem;
 	
+	bool bIsHoldingGold;
+	
 protected:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -382,8 +384,6 @@ private: /* Private variables */
 	float WalkSpeed = 500.f;
 
 	float GoldPlantSpeed = 300.0f;
-
-	bool bIsHoldingGold;
 	
 	UPROPERTY(EditAnywhere)
 	float SprintSpeed = 750.0f;
