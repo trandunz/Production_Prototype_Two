@@ -105,6 +105,9 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, CanSprintTimer);
 	DOREPLIFETIME(APrototype2Character, SprintTimer);
 	DOREPLIFETIME(APrototype2Character, WeaponCurrentDurability);
+	DOREPLIFETIME(APrototype2Character, DizzyComponent);
+	DOREPLIFETIME(APrototype2Character, SoundAttenuationSettings);
+	DOREPLIFETIME(APrototype2Character, ChargeAttackAudioComponent);
 }
 
 void APrototype2Character::BeginPlay()
@@ -122,6 +125,7 @@ void APrototype2Character::BeginPlay()
 	}
 	
 	ChargeAttackAudioComponent->SetSound(ChargeCue);
+	ChargeAttackAudioComponent->SetIsReplicated(true);
 
 	Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
 	Weapon->Mesh->SetHiddenInGame(true);
@@ -288,7 +292,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	AttackChargeAmount = 0.0f;
 
 	// audio
-	ChargeAttackAudioComponent->Stop();
+	Server_ToggleChargeSound(false);
 	PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
 
 	// Stop the player Interacting while "executing attack"
@@ -447,6 +451,18 @@ void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent*
 	_object->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	
 	_object->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(_socket));
+}
+
+void APrototype2Character::Multi_ToggleChargeSound_Implementation(bool _soundEnabled)
+{
+	if (_soundEnabled)
+	{
+		ChargeAttackAudioComponent->Play();
+	}
+	else
+	{
+		ChargeAttackAudioComponent->Stop();
+	}	
 }
 
 void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -673,7 +689,7 @@ void APrototype2Character::Server_StartAttack_Implementation()
 			Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
 		}
 
-		ChargeAttackAudioComponent->Play();
+		Server_ToggleChargeSound(true);
 	}
 }
 
@@ -1019,10 +1035,12 @@ void APrototype2Character::Server_FireDizzySystem_Implementation()
 
 void APrototype2Character::Multi_FireParticleSystem_Implementation()
 {
-	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DizzySystem, InteractSystem->GetComponentLocation());
-	NiagaraComponent->SetIsReplicated(true);
-	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
-	NiagaraComponent->SetAutoDestroy(true);
-	NiagaraComponent->Activate();
-	NiagaraComponent->AttachToComponent(DizzyComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	DizzyComponent->SetAsset(DizzySystem);
+    DizzyComponent->Activate();
+    DizzyComponent->SetAutoDestroy(false);
+}
+
+void APrototype2Character::Server_ToggleChargeSound_Implementation(bool _soundEnabled)
+{
+	Multi_ToggleChargeSound(_soundEnabled);
 }

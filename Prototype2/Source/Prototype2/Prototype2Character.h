@@ -157,6 +157,14 @@ protected: /* Protected Networking functions */
 	void Multi_FireParticleSystem();
 	void Multi_FireParticleSystem_Implementation();
 
+	UFUNCTION(Server, Reliable)
+	void Server_ToggleChargeSound(bool _soundEnabled);
+	void Server_ToggleChargeSound_Implementation(bool _soundEnabled);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ToggleChargeSound(bool _soundEnabled);
+	void Multi_ToggleChargeSound_Implementation(bool _soundEnabled);
+
 protected: /* Protected non-network Functions */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -205,7 +213,8 @@ public: /* Public variables */
 	/* Audio */
 	UPROPERTY(EditAnywhere, Replicated)
 	USoundAttenuation* SoundAttenuationSettings;
-	
+
+	UPROPERTY(EditAnywhere, Replicated)
 	UAudioComponent* ChargeAttackAudioComponent;
 	
 	UPROPERTY(EditAnywhere)
@@ -276,11 +285,13 @@ public: /* Public variables */
 	UPROPERTY(EditAnywhere)
 	class UNiagaraComponent* InteractSystem;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	class UNiagaraComponent* DizzyComponent;
 	
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* DizzySystem;
+	
+	bool bIsHoldingGold;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
@@ -373,8 +384,6 @@ private: /* Private variables */
 	float WalkSpeed = 500.f;
 
 	float GoldPlantSpeed = 300.0f;
-
-	bool bIsHoldingGold;
 	
 	UPROPERTY(EditAnywhere)
 	float SprintSpeed = 750.0f;
