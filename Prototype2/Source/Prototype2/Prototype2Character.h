@@ -290,7 +290,8 @@ public: /* Public variables */
 	
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* DizzySystem;
-	
+
+	UPROPERTY(Replicated, EditAnywhere)
 	bool bIsHoldingGold;
 	
 protected:

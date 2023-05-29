@@ -110,6 +110,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, DizzyComponent);
 	DOREPLIFETIME(APrototype2Character, SoundAttenuationSettings);
 	DOREPLIFETIME(APrototype2Character, ChargeAttackAudioComponent);
+	DOREPLIFETIME(APrototype2Character, bIsHoldingGold);
 }
 
 void APrototype2Character::BeginPlay()
