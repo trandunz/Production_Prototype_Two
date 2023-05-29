@@ -298,6 +298,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	AttackChargeAmount = 0.0f;
 
 	// audio
+
+	ChargeAttackAudioComponent->Stop();
 	Server_ToggleChargeSound(false);
 	PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
 
@@ -547,9 +549,9 @@ void APrototype2Character::UpdateAllPlayerIDs()
 {
 }
 
-void APrototype2Character::PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay)
+void APrototype2Character::PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay, USoundAttenuation* _attenation)
 {
-	Server_PlaySoundAtLocation(Location,SoundToPlay );
+	Server_PlaySoundAtLocation(Location,SoundToPlay, _attenation );
 }
 
 void APrototype2Character::Ragdoll(bool _ragdoll)
@@ -762,14 +764,16 @@ void APrototype2Character::Multi_ReleaseAttack_Implementation()
 {
 }
 
-void APrototype2Character::Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue)
+void APrototype2Character::Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue, USoundAttenuation* _attenation)
 {
-	Multi_PlaySoundAtLocation(_location, _soundQueue);
+	Multi_PlaySoundAtLocation(_location, _soundQueue, _attenation);
 }
 
-void APrototype2Character::Multi_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue)
+void APrototype2Character::Multi_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue, USoundAttenuation* _attenation)
 {
-	if (SoundAttenuationSettings)
+	if (_attenation)
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), _soundQueue, _location, 1, 1, 0, _attenation);
+	else
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), _soundQueue, _location, 1, 1, 0, SoundAttenuationSettings);
 }
 
