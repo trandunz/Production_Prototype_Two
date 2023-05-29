@@ -82,6 +82,8 @@ APrototype2Character::APrototype2Character()
 	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	ChargeAttackAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ChargeAttackAudioComponent"));
+	ChargeAttackAudioComponent->SetIsReplicated(true);
+	ChargeAttackAudioComponent->SetupAttachment(RootComponent);
 
 	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
 	InteractSystem->SetupAttachment(RootComponent);
@@ -123,9 +125,13 @@ void APrototype2Character::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	
 	
 	ChargeAttackAudioComponent->SetSound(ChargeCue);
 	ChargeAttackAudioComponent->SetIsReplicated(true);
+	ChargeAttackAudioComponent->SetVolumeMultiplier(1.0f);
+	ChargeAttackAudioComponent->AttenuationSettings = SoundAttenuationSettings;
 
 	Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
 	Weapon->Mesh->SetHiddenInGame(true);
@@ -455,7 +461,7 @@ void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent*
 
 void APrototype2Character::Multi_ToggleChargeSound_Implementation(bool _soundEnabled)
 {
-	if (_soundEnabled)
+	if (_soundEnabled && !ChargeAttackAudioComponent->IsPlaying())
 	{
 		ChargeAttackAudioComponent->Play();
 	}
@@ -765,8 +771,6 @@ void APrototype2Character::Multi_PlaySoundAtLocation_Implementation(FVector _loc
 {
 	if (SoundAttenuationSettings)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), _soundQueue, _location, 1, 1, 0, SoundAttenuationSettings);
-	else
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), _soundQueue, _location, 0.5f);
 }
 
 void APrototype2Character::Client_AddHUD_Implementation()
