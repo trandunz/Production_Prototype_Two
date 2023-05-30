@@ -14,25 +14,7 @@ APlant::APlant()
 void APlant::BeginPlay()
 {
 	Super::BeginPlay();
-	int x = rand() % 100;
-	if (x < chanceOfGold)
-	{
-		ItemComponent->gold = true;
-	}
-
-	if (ItemComponent->gold)
-	{
-		// change the plant material to gold
-		if (goldMaterial)
-		{
-			ItemComponent->Mesh->SetMaterial(0, goldMaterial);
-		}
-		if (goldMaterial2)
-		{
-			//ItemComponent->Mesh->SetMaterial(0, goldMaterial2);
-		}
-		ItemComponent->CropValue *= goldMultiplier;
-	}
+	Server_ToggleGold();
 }
 
 
@@ -49,5 +31,36 @@ void APlant::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, clas
 	if (!owner->HeldItem)
 	{
 		_invokingWiget->SetHUDInteractText("Pick Up");
+	}
+}
+
+void APlant::Server_ToggleGold_Implementation()
+{
+	Multi_ToggleGold();
+}
+
+void APlant::Multi_ToggleGold_Implementation()
+{
+	/*int x = rand() % 100;
+	if (x < chanceOfGold)
+	{
+		
+	}*/
+
+	ItemComponent->gold = true;
+	
+
+	if (ItemComponent->gold)
+	{
+		// change the plant material to gold
+		if (goldMaterial)
+		{
+			ItemComponent->Mesh->SetMaterial(0, goldMaterial);
+		}
+		if (goldMaterial2)
+		{
+			//ItemComponent->Mesh->SetMaterial(0, goldMaterial2);
+		}
+		ItemComponent->CropValue *= goldMultiplier;
 	}
 }

@@ -80,15 +80,15 @@ public:
 	void Client_AddHUD_Implementation();
 
 	// Audio
-	void PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay);
+	void PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay, USoundAttenuation* _attenation = nullptr);
 	
 	UFUNCTION(Server, Reliable)
-	void Server_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue);
-	void Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue);
+	void Server_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue, USoundAttenuation* _attenation);
+	void Server_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue, USoundAttenuation* _attenation);
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void Multi_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue);
-	void Multi_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue);
+	void Multi_PlaySoundAtLocation(FVector _location, USoundCue* _soundQueue, USoundAttenuation* _attenation);
+	void Multi_PlaySoundAtLocation_Implementation(FVector _location, USoundCue* _soundQueue, USoundAttenuation* _attenation);
 	
 	// Ragdoll
 	void Ragdoll(bool _ragdoll);
@@ -293,7 +293,8 @@ public: /* Public variables */
 	
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* DizzySystem;
-	
+
+	UPROPERTY(Replicated, EditAnywhere)
 	bool bIsHoldingGold;
 	
 protected:

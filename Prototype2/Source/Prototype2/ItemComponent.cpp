@@ -4,6 +4,7 @@
 #include "ItemComponent.h"
 #include "Prototype2Character.h"
 #include "PickUpItem.h"
+#include "Net/UnrealNetwork.h"
 
 
 // Sets default values for this component's properties
@@ -57,5 +58,13 @@ void UItemComponent::Interact(APrototype2Character* player, APickUpItem* itemPic
 
 	// Debug
 	UE_LOG(LogTemp, Warning, TEXT("HeldItem attached to hand"));	
+}
+
+void UItemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UItemComponent, gold);
+	DOREPLIFETIME(UItemComponent, bIsGold);
 }
 

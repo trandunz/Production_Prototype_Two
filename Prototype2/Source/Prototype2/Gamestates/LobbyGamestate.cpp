@@ -57,40 +57,31 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 					UE_LOG(LogTemp, Warning, TEXT("Farm: %d"), Farm);
 					UE_LOG(LogTemp, Warning, TEXT("WinterFarm: %d"), WinterFarm);
 
-					//int totalVotes = Farm + WinterFarm;
-					//if (totalVotes == Server_Players.Num())
-					//{
-						if (Farm >= 1)
+					int totalVotes = Farm + WinterFarm;
+					if (totalVotes == Server_Players.Num())
+					{
+						if (Farm > WinterFarm)
 						{
 							MapChoice = "Level_Main";
-							GetWorld()->ServerTravel(MapChoice, false, false); // Start level
 						}
-						else if (WinterFarm >= 1)
+						else if (WinterFarm > Farm)
 						{
 							MapChoice = "Level_Winter";
-							GetWorld()->ServerTravel(MapChoice, false, false); // Start level
 						}
-						//else
-						//{
-						//	int randomNum = FMath::RandRange(0, 1);
-						//	if (randomNum == 0)
-						//	{
-						//		MapChoice = "Level_Main";
-						//	}
-						//	else
-						//	{
-						//		MapChoice = "Level_Winter";
-						//	}
-						//}
-
-
-						
-					//}
-					
-					//if (bMapChosen == true)
-					//{
-					//	GetWorld()->ServerTravel(MapChoice, false, false); // Start level
-					//}
+						else
+						{
+							int randomNum = FMath::RandRange(0, 1);
+							if (randomNum == 0)
+							{
+								MapChoice = "Level_Main";
+							}
+							else
+							{
+								MapChoice = "Level_Winter";
+							}
+						}
+						GetWorld()->ServerTravel(MapChoice, false, false); // Start level
+					}
 				}
 				else
 				{
@@ -122,14 +113,26 @@ void ALobbyGamestate::SetIsReady(int _player, bool _isReady)
 	if (isEveryoneReady && Server_Players.Num() >= 1)
 	{
 		ShouldServerTravel = true;
-		LobbyLengthSeconds = 7.0f;
+		LobbyLengthSeconds = 2.0f;
 	}
 	else
 	{
 		ShouldServerTravel = false;
 		IsCountingDown = false;
 		PreviousServerTravel = false;
-		LobbyLengthSeconds = 7.0f;
+		LobbyLengthSeconds = 2.0f;
+	}
+}
+
+void ALobbyGamestate::VoteMap(int _player, EFarm _level)
+{
+	if (_level == EFarm::FARM)
+	{
+		Farm = Farm + 1;
+	}
+	else if (_level == EFarm::WINTERFARM)
+	{
+		WinterFarm = WinterFarm + 1;
 	}
 }
 

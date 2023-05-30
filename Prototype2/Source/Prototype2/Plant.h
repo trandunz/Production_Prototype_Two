@@ -26,5 +26,13 @@ public:
 	int goldMultiplier = 3;
 	//UPROPERTY(EditAnywhere)
 	//float value; // Moved to ItemComponent
+
+	UFUNCTION(Server, Reliable)
+	void Server_ToggleGold();
+	void Server_ToggleGold_Implementation();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ToggleGold();
+	void Multi_ToggleGold_Implementation();
 	
 };
