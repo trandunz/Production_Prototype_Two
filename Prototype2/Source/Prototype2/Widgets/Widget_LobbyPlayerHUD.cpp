@@ -135,6 +135,16 @@ void UWidget_LobbyPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDel
 				MapChoiceWidget->WinterFarm_Counter->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
+		// Show timer
+		if (GameStateRef->bMapChosen)
+		{
+			MapChoiceWidget->MapChoiceTimer->SetVisibility(ESlateVisibility::Visible);
+			MapChoiceWidget->MapChoiceTimer->SetText(FText::FromString(FString::FromInt(GameStateRef->MapChoiceLengthSeconds)));
+		}
+		if (GameStateRef->MapChoiceLengthSeconds < 0)
+		{
+			MapChoiceWidget->MapChoiceTimer->SetText(FText::FromString(FString("Loading Level...")));
+		}
 	}
 }
 

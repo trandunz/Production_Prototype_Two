@@ -27,7 +27,8 @@ public:
 	void VoteMap(int _player, EFarm _level);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
+
+	// Server travelling
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool ShouldServerTravel{false};
 
@@ -36,7 +37,8 @@ public:
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 	bool bHasCountedDown{};
-	
+
+	// Time between players being ready and map choice showing up
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
 	int LobbyLengthMinutes{0};
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
@@ -47,6 +49,12 @@ public:
 	bool bShowMapChoice{false};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString MapChoice{"Level_Main"};
+
+	// Timer between map choice and starting gameplay
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
+	float MapChoiceLengthSeconds{5.0f};
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
+	bool bMapChosen{false};
 
 	// Maps
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
