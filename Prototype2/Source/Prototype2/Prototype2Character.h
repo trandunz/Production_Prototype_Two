@@ -63,6 +63,9 @@ public:
 	void Multi_ReleaseAttack();
 	void Multi_ReleaseAttack_Implementation();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void TriggerAttackVFX(FVector Position, float Radius, float Charge);
+
 	// HUD
 	UFUNCTION(Server, Reliable)
 	void Server_AddHUD();
