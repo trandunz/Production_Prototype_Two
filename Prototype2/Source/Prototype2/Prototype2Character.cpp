@@ -253,7 +253,11 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	// create a collision sphere
 	FCollisionShape colSphere = FCollisionShape::MakeSphere(AttackSphereRadius);
 	
-	UE_LOG(LogTemp, Warning, TEXT("Sphere Radius = %s"), *FString::SanitizeFloat(AttackSphereRadius));
+	FVector downVector = {inFrontOfPlayer.X, inFrontOfPlayer.Y, GetMesh()->GetComponentLocation().Z};
+	TriggerAttackVFX(downVector, AttackSphereRadius, AttackChargeAmount);	
+	
+	// For Debugging
+	// UE_LOG(LogTemp, Warning, TEXT("Sphere Radius = %s"), *FString::SanitizeFloat(AttackSphereRadius));
 	
 	// draw collision sphere
 	// DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 2.0f);
@@ -261,6 +265,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	// check if something got hit in the sweep
 	bool isHit = GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Pawn, colSphere);
 
+	bool isPlayerHit = false;
+	
 	if (isHit)
 	{
 		// loop through TArray
@@ -271,24 +277,29 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 				if (hitPlayer != this)
 				{
 					// screen log information on what was hit
-					UE_LOG(LogTemp, Warning, TEXT(" %s  was hit by an attack!"), *hit.GetActor()->GetName());
+					// UE_LOG(LogTemp, Warning, TEXT(" %s  was hit by an attack!"), *hit.GetActor()->GetName());
 
 					FVector attackerLocation = GetActorLocation();
 					hitPlayer->GetHit(AttackChargeAmount, attackerLocation);
+
+					isPlayerHit = true;
 				}
 			}
 		}
 	}
 
 	// Lower weapon durability
-	WeaponCurrentDurability--;
-	PlayerHUDRef->SetWeaponDurability(WeaponCurrentDurability);
-	if (WeaponCurrentDurability <= 0)
+	if (isPlayerHit)
 	{
-		Multi_DropWeapon();
+		WeaponCurrentDurability--;
+		PlayerHUDRef->SetWeaponDurability(WeaponCurrentDurability);
+		if (WeaponCurrentDurability <= 0)
+		{
+			Multi_DropWeapon();
 
-		//// Update UI
-		//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
+			//// Update UI
+			//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
+		}
 	}
 	
 	// Reset Attack Timer
@@ -720,7 +731,8 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 		{
 			AttackChargeAmount = MaxAttackCharge;
 		}
-		
+
+		// Set the radius of the sphere for attack
 		int32 attackSphereRadius;
 		if (!Weapon->Mesh->bHiddenInGame)
 		{
@@ -734,7 +746,7 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 		}
 
 		// If attack button is clicked without being held
-		if (AttackChargeAmount < InstantAttackThreshold)
+		if (AttackChargeAmount < MaxAttackCharge)//InstantAttackThreshold)
 		{
 			// Animation
 			if(ExecuteAttackMontage_LongerWindUp)
