@@ -48,9 +48,6 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 			{
 				if (LobbyLengthMinutes <= 0)
 				{
-					// End of timer
-					//GetWorld()->ServerTravel(MapChoice, false, false); // Start level
-
 					// Show map choice
 					bShowMapChoice = true;
 					
@@ -60,6 +57,7 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 					int totalVotes = Farm + WinterFarm;
 					if (totalVotes == Server_Players.Num())
 					{
+						bMapChosen = true; // Turned true so that it will change HUD visibility for timer
 						if (Farm > WinterFarm)
 						{
 							MapChoice = "Level_Main";
@@ -80,7 +78,13 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 								MapChoice = "Level_Winter";
 							}
 						}
-						GetWorld()->ServerTravel(MapChoice, false, false); // Start level
+
+						// Countdown between all players choosing map and actually starting
+						MapChoiceLengthSeconds -= DeltaSeconds;
+						if (MapChoiceLengthSeconds <= 0)
+						{
+							GetWorld()->ServerTravel(MapChoice, false, false); // Start level
+						}
 					}
 				}
 				else
@@ -148,5 +152,10 @@ void ALobbyGamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 	DOREPLIFETIME(ALobbyGamestate, Farm);
 	DOREPLIFETIME(ALobbyGamestate, WinterFarm);
+
+	DOREPLIFETIME(ALobbyGamestate, MapChoiceLengthSeconds);
+	DOREPLIFETIME(ALobbyGamestate, bMapChosen);
+	
+	
 }
 
