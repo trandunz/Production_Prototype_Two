@@ -40,7 +40,7 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
 	int LobbyLengthMinutes{0};
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
-	float LobbyLengthSeconds{10.0f};
+	float LobbyLengthSeconds{3.0f};
 	
 	// Map choice
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))

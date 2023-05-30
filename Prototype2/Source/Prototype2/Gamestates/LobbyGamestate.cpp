@@ -63,12 +63,10 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 						if (Farm > WinterFarm)
 						{
 							MapChoice = "Level_Main";
-							//GetWorld()->ServerTravel(MapChoice, false, false); // Start level
 						}
 						else if (WinterFarm > Farm)
 						{
 							MapChoice = "Level_Winter";
-							//GetWorld()->ServerTravel(MapChoice, false, false); // Start level
 						}
 						else
 						{
@@ -83,7 +81,6 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 							}
 						}
 						GetWorld()->ServerTravel(MapChoice, false, false); // Start level
-
 					}
 				}
 				else
@@ -116,14 +113,14 @@ void ALobbyGamestate::SetIsReady(int _player, bool _isReady)
 	if (isEveryoneReady && Server_Players.Num() >= 1)
 	{
 		ShouldServerTravel = true;
-		LobbyLengthSeconds = 7.0f;
+		LobbyLengthSeconds = 2.0f;
 	}
 	else
 	{
 		ShouldServerTravel = false;
 		IsCountingDown = false;
 		PreviousServerTravel = false;
-		LobbyLengthSeconds = 7.0f;
+		LobbyLengthSeconds = 2.0f;
 	}
 }
 
