@@ -196,6 +196,18 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	if (bIsChargingAttack)
 	{
 		AttackChargeAmount += DeltaSeconds;
+		
+		// Cap attack charge
+		if (AttackChargeAmount > MaxAttackCharge)
+		{
+			AttackChargeAmount = MaxAttackCharge;
+		}
+
+		// Stretch mesh
+		FVector newScale = {3.0f - AttackChargeAmount/5,
+							3.0f - AttackChargeAmount/5,
+							AttackChargeAmount/2 + 3.0f};
+		Weapon->Mesh->SetWorldScale3D(newScale);
 	}
 
 	if (InteractTimer < 0.0f)
@@ -319,6 +331,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	InteractTimer = InteractTimerTime;
 
 	bCanAttack = true;
+
+	Weapon->Mesh->SetWorldScale3D({3.0f, 3.0f, 3.0f});
 }
 
 void APrototype2Character::Interact()
@@ -725,12 +739,6 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 	if (bIsChargingAttack && bCanAttack)
 	{
 		bCanAttack = false;
-		
-		// Cap attack charge
-		if (AttackChargeAmount > MaxAttackCharge)
-		{
-			AttackChargeAmount = MaxAttackCharge;
-		}
 
 		// Set the radius of the sphere for attack
 		int32 attackSphereRadius;

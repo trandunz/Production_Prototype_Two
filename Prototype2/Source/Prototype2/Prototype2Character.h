@@ -63,9 +63,15 @@ public:
 	void Multi_ReleaseAttack();
 	void Multi_ReleaseAttack_Implementation();
 
+	// VFX events
 	UFUNCTION(BlueprintImplementableEvent)
 	void TriggerAttackVFX(FVector Position, float Radius, float Charge);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void StretchWeapon();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SquashWeapon();
 	// HUD
 	UFUNCTION(Server, Reliable)
 	void Server_AddHUD();
