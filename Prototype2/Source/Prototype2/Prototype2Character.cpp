@@ -34,6 +34,8 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "GrowableWeapon.h"
+#include "SellBin_Winter.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 APrototype2Character::APrototype2Character()
@@ -163,6 +165,8 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	GetMesh()->SetMaterial(0, PlayerMat);
 	
 	UpdateAllPlayerIDs();
+
+	CheckForFloorSurface();
 	
 	// Stun
 	//if (bIsStunned)
@@ -276,6 +280,11 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 					FVector attackerLocation = GetActorLocation();
 					hitPlayer->GetHit(AttackChargeAmount, attackerLocation);
 				}
+			}
+			else if (auto* hitSellBin = Cast<ASellBin_Winter>(hit.GetActor()))
+			{
+				FVector attackerLocation = GetActorLocation();
+				hitSellBin->GetHit(AttackChargeAmount, MaxAttackCharge ,attackerLocation);
 			}
 		}
 	}
@@ -548,6 +557,54 @@ void APrototype2Character::OpenIngameMenu()
 
 void APrototype2Character::UpdateAllPlayerIDs()
 {
+}
+
+bool APrototype2Character::IsSprinting()
+{
+	return FMath::RoundToInt(GetMovementComponent()->GetMaxSpeed()) == FMath::RoundToInt(SprintSpeed);
+}
+
+void APrototype2Character::CheckForFloorSurface()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Ground Check"));
+	
+	FVector StartLocation = GetActorLocation() + FVector{0,0,100}; // The start location of the line trace
+	FVector EndLocation = GetActorLocation() + FVector{0,0,-100}; // The end location of the line trace
+
+	TArray<FHitResult> HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.bTraceComplex = true; // Enable complex tracing for accurate physics material retrieval
+	QueryParams.bReturnPhysicalMaterial = true;
+
+	GetCharacterMovement()->bUseSeparateBrakingFriction = true;
+	GetCharacterMovement()->BrakingFriction = 2.0f;
+	GetCharacterMovement()->MaxAcceleration = 2048.0f;
+	GetCharacterMovement()->GroundFriction = 8.0f;
+
+	
+	// Perform the line trace
+	if (GetWorld()->LineTraceMultiByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams))
+	{
+		for(auto& result : HitResult)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Ground Check Hit %s"), *FString(HitResult.Component->GetName()));
+			UPhysicalMaterial* PhysMaterial = result.PhysMaterial.Get();
+			if (PhysMaterial)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Ground Check Hit Physcs Material"));
+				//UKismetSystemLibrary::DrawDebugLine(GetWorld(), StartLocation, result.Location, FColor::Red, 0.1f, 5.0f);
+				float Friction = PhysMaterial->Friction;
+				if (Friction <= 0.5f)
+				{
+					GetCharacterMovement()->BrakingFriction = 0.0f;
+					GetCharacterMovement()->MaxAcceleration = 2048.0f * 0.5f;
+					GetCharacterMovement()->GroundFriction = 0.0f;
+					UE_LOG(LogTemp, Error, TEXT("Ground Check Hit Slippery"));
+					break;
+				}
+			}
+		}
+	}
 }
 
 void APrototype2Character::PlaySoundAtLocation(FVector Location, USoundCue* SoundToPlay, USoundAttenuation* _attenation)
