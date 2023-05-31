@@ -72,6 +72,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SquashWeapon();
+	
 	// HUD
 	UFUNCTION(Server, Reliable)
 	void Server_AddHUD();

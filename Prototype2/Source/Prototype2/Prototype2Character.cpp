@@ -332,7 +332,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 
 	bCanAttack = true;
 
-	Weapon->Mesh->SetWorldScale3D({3.0f, 3.0f, 3.0f});
+	// Now resetting in blueprint
+	//Weapon->Mesh->SetWorldScale3D({3.0f, 3.0f, 3.0f});
 }
 
 void APrototype2Character::Interact()
