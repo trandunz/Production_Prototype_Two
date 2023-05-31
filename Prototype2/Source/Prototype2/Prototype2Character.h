@@ -19,6 +19,10 @@ public:
 	APrototype2Character();	
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	bool IsSprinting();
+
+	void CheckForFloorSurface();
 	
 	UPROPERTY(VisibleAnywhere, Replicated)
 	int PlayerID{-1};
@@ -218,6 +222,8 @@ protected: /* Protected non-network Functions */
 	
 	void UpdateAllPlayerIDs();
 
+
+
 public: /* Public variables */
 
 	/* Audio */
@@ -391,6 +397,9 @@ private: /* Private variables */
 	/* Sprint/Walk/Slow Walk */
 	UPROPERTY(EditAnywhere)
 	UAnimSequence* RunAnimation;
+
+	UPROPERTY(EditAnywhere)
+	float IceFriction{0.1f};
 	
 	float WalkSpeed = 500.f;
 
