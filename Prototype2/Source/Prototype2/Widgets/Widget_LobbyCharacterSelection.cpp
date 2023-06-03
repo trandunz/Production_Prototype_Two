@@ -16,10 +16,12 @@ void UWidget_LobbyCharacterSelection::NativeOnInitialized()
 
 void UWidget_LobbyCharacterSelection::ChangeCharacterLeft()
 {
+	
 }
 
 void UWidget_LobbyCharacterSelection::ChangeCharacterRight()
 {
+	
 }
 
 void UWidget_LobbyCharacterSelection::ChangeCharacterColourLeft()
