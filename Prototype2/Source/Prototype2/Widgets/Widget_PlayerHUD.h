@@ -30,11 +30,14 @@ public:
 	//UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	//class UWidget_InteractionPanel* InteractionPanel;
 
-	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
 	class UWidget_IngameMenu* IngameMenu;
 
-	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
 	class UWidget_EndgameMenu* EndgameMenu;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bEndgame{false};
 
 	// Timer
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
