@@ -280,6 +280,7 @@ void UWidget_PlayerHUD::EnableEndgameMenu()
 {
 	IngameMenu->DisableMenu();
 	EndgameMenu->EnableEndgameMenu();
+	bEndgame = true;
 }
 
 void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
@@ -350,7 +351,6 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 			
 		}
 	}
-	
 }
 
 void UWidget_PlayerHUD::UpdateWeaponUI(EPickup _weapon)
