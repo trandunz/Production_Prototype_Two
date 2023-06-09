@@ -162,7 +162,7 @@ void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	GetMesh()->SetMaterial(0, PlayerMat);
+	//GetMesh()->SetMaterial(0, PlayerMat);
 	
 	UpdateAllPlayerIDs();
 
@@ -876,7 +876,7 @@ void APrototype2Character::Multi_SetPlayerColour_Implementation()
 				UE_LOG(LogTemp, Warning, TEXT("Player Colour Assigned Locally"));
 				if (auto* character = Cast<APrototype2Character>(player->GetPlayerController()->GetCharacter()))
 				{
-					character->GetMesh()->SetMaterial(0, gamemode->PlayerMaterials[Cast<APrototype2PlayerState>(player)->Player_ID]);
+					//character->GetMesh()->SetMaterial(0, gamemode->PlayerMaterials[Cast<APrototype2PlayerState>(player)->Player_ID]);
 				}
 			}
 		}

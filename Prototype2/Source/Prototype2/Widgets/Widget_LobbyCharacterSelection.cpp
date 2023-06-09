@@ -8,12 +8,12 @@
 #include "Prototype2/LobbyCharacter.h"
 #include "Prototype2/LobbyPlayerState.h"
 #include "Prototype2/Prototype2PlayerController.h"
-#include "Prototype2/PrototypeGameInstance.h"
 #include "Prototype2/Gamestates/Prototype2Gamestate.h"
 
 void UWidget_LobbyCharacterSelection::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	
 	PlayerImage->SetBrushFromTexture(Texture_CowRed);
 	PlayerColourImage->SetColorAndOpacity(FLinearColor(0.427083f, 0.100098f, 0.100098f, 1.0f));
 }
@@ -88,7 +88,7 @@ void UWidget_LobbyCharacterSelection::UpdateCharacterImage()
 	{
 		if (auto playerState = playerController->GetPlayerState<ALobbyPlayerState>())
 		{
-			switch(playerState->CharacterColour)
+			switch(IdealCharacterColour)
 			{
 			case ECharacterColours::RED:
 				PlayerImage->SetBrushFromTexture(Texture_CowRed);
@@ -117,38 +117,53 @@ void UWidget_LobbyCharacterSelection::UpdateCharacterImage()
 
 void UWidget_LobbyCharacterSelection::ChangeCharacterColour(bool _right)
 {
-		UpdateCharacterImage();
-		if (auto playerController = Cast<APrototype2PlayerController>(GetOwningPlayer()))
+	if (auto playerController = Cast<APrototype2PlayerController>(GetOwningPlayer()))
+	{
+		if (auto playerState = playerController->GetPlayerState<ALobbyPlayerState>())
 		{
-			if (auto playerState = playerController->GetPlayerState<ALobbyPlayerState>())
+			int newColour = (int)IdealCharacterColour;
+			if (_right)
 			{
-				int newColour{};
+				newColour ++;
+			
+			}
+			else
+			{
+				newColour --;
+			}
+	
+			if (newColour > 3)
+			{
+				newColour = 0;
+			}
+			else
+			{
+				if (newColour < 0)
+				{
+					newColour = 3;
+				}
+			}
+			
+			IdealCharacter = ECharacters::COW;
+			IdealCharacterColour = (ECharacterColours)newColour;
+		}
+	}
+	UpdateCharacterImage();
+}
 
-				if (_right)
-				{
-					newColour = (int)playerState->CharacterColour + 1;
-				
-				}
-				else
-				{
-					newColour = (int)playerState->CharacterColour - 1;
-				}
-		
-				if (newColour > 3)
-				{
-					newColour = 0;
-				}
-				else
-				{
-					if (newColour < 0)
-					{
-						newColour = 3;
-					}
-				}
-				
+void UWidget_LobbyCharacterSelection::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (auto playerController = Cast<APrototype2PlayerController>(GetOwningPlayer()))
+	{
+		if (auto playerState = playerController->GetPlayerState<ALobbyPlayerState>())
+		{
+			if (playerState->Character != IdealCharacter || playerState->CharacterColour != IdealCharacterColour)
+			{
 				auto playerID = playerState->Player_ID;
-				playerController->UpdateCharacterMaterial(playerID, ECharacters::COW, (ECharacterColours)newColour);
+				playerController->UpdateCharacterMaterial(playerID, IdealCharacter, IdealCharacterColour);
 			}
 		}
-	
+	}
 }

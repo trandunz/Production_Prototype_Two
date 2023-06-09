@@ -29,9 +29,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(Server, Reliable)
+	void Server_UpdatePlayerMaterial();
+	void Server_UpdatePlayerMaterial_Implementation();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_UpdatePlayerMaterial();
+	void Multi_UpdatePlayerMaterial_Implementation();
+
 	UPROPERTY(VisibleAnywhere, Replicated)
 	UMaterialInstance* PlayerMat;
-
-	
-
 };

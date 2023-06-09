@@ -163,28 +163,13 @@ void ALobbyGamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void ALobbyGamestate::UpdateCharacterMaterial(int _player, ECharacters _character, ECharacterColours _characterColour)
 {
-	if (_player < Server_Players.Num())
+	
+	if (Server_Players.Num() >= _player)
 	{
-		Server_Players[_player]->CharacterColour = _characterColour;
-		
-		if(auto gamemode = Cast<ALobbyGamemode>(GetDefaultGameMode()))
+		if (auto playerState = Server_Players[_player])
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Got gamemode"));
-			if ((int)_characterColour < gamemode->PlayerMaterials.Num())
-			{
-				if (auto character = Cast<ALobbyCharacter>(Server_Players[_player]->GetPlayerController()->GetCharacter()))
-				{
-					Multi_UpdatePlayerMaterial(character, gamemode->PlayerMaterials[(int)_characterColour]);
-				}
-			}
+			playerState->UpdateCharacterMaterial(_character, _characterColour);
 		}
 	}
-}
-
-void ALobbyGamestate::Multi_UpdatePlayerMaterial_Implementation(ALobbyCharacter* _lobbyCharacter, UMaterialInstance* _material)
-{
-	_lobbyCharacter->PlayerMat = _material;
-
-	_lobbyCharacter->GetMesh()->SetMaterial(0, _material);
 }
 

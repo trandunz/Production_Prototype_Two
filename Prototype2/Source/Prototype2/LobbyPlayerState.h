@@ -21,6 +21,8 @@ public:
 	
 	void SetIsReady(bool _isReady);
 
+	void UpdateCharacterMaterial(ECharacters _character, ECharacterColours _characterColour);
+
 	// Character & Colour
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	ECharacters Character{ECharacters::COW};

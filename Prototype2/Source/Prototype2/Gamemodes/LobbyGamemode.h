@@ -16,6 +16,7 @@ class PROTOTYPE2_API ALobbyGamemode : public AGameModeBase
 	virtual void Tick(float DeltaSeconds) override;
 	
 public:
+	
 	UPROPERTY(EditAnywhere)
 	TArray<UMaterialInstance*> PlayerMaterials{{},{},{},{}};
 };
