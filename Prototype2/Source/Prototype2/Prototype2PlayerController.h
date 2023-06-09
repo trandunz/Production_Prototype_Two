@@ -30,6 +30,11 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_VoteMap(int _player, EFarm _level);
 	void Server_VoteMap_Implementation(int _player, EFarm _level);
+
+	void UpdateCharacterMaterial(int _player, ECharacters _character, ECharacterColours _characterColour);
+	UFUNCTION(Server, Reliable)
+	void Server_UpdateCharacterMaterial(int _player, ECharacters _character, ECharacterColours _characterColour);
+	void Server_UpdateCharacterMaterial_Implementation(int _player, ECharacters _character, ECharacterColours _characterColour);
 	
 	UFUNCTION(BlueprintCallable)
 	void KickFromLobby();

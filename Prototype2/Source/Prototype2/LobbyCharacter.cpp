@@ -2,6 +2,8 @@
 
 
 #include "LobbyCharacter.h"
+
+#include "Gamemodes/LobbyGamemode.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
@@ -29,7 +31,7 @@ void ALobbyCharacter::BeginPlay()
 void ALobbyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	GetMesh()->SetMaterial(0, PlayerMat);
+	//GetMesh()->SetMaterial(0, PlayerMat);
 }
 
 // Called to bind functionality to input
@@ -38,4 +40,6 @@ void ALobbyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+
 

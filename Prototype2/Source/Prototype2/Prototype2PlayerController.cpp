@@ -5,6 +5,7 @@
 
 #include "Prototype2GameMode.h"
 #include "Blueprint/UserWidget.h"
+#include "Gamemodes/LobbyGamemode.h"
 #include "Gamestates/LobbyGamestate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/Widget_PlayerHUD.h"
@@ -40,6 +41,20 @@ void APrototype2PlayerController::Server_VoteMap_Implementation(int _player, EFa
 	if (auto* gameState = Cast<ALobbyGamestate>(UGameplayStatics::GetGameState(GetWorld())))
 	{
 		gameState->VoteMap(_player, _level);
+	}
+}
+
+void APrototype2PlayerController::UpdateCharacterMaterial(int _player, ECharacters _character, ECharacterColours _characterColour)
+{
+	Server_UpdateCharacterMaterial_Implementation(_player, _character, _characterColour);
+}
+
+void APrototype2PlayerController::Server_UpdateCharacterMaterial_Implementation(int _player, ECharacters _character,
+	ECharacterColours _characterColour)
+{
+	if (auto* gameState = Cast<ALobbyGamestate>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		gameState->UpdateCharacterMaterial(_player, _character, _characterColour);
 	}
 }
 

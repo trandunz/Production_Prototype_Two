@@ -2,8 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
+#include "Prototype2/PrototypeGameInstance.h"
 #include "LobbyGamestate.generated.h"
 
+
+class ALobbyCharacter;
 UENUM(BlueprintType)
 enum class EFarm : uint8 
 {
@@ -65,6 +68,12 @@ public:
 	
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
 	TArray<TObjectPtr<class ALobbyPlayerState>> Server_Players;
+
+	void UpdateCharacterMaterial(int _player, ECharacters _character, ECharacterColours _characterColour);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_UpdatePlayerMaterial(ALobbyCharacter* _lobbyCharacter, UMaterialInstance* _material);
+	void Multi_UpdatePlayerMaterial_Implementation(ALobbyCharacter* _lobbyCharacter, UMaterialInstance* _material);
 private:
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))

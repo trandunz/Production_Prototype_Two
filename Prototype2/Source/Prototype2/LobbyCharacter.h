@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PrototypeGameInstance.h"
 #include "GameFramework/Character.h"
 #include "LobbyCharacter.generated.h"
 
@@ -30,4 +31,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Replicated)
 	UMaterialInstance* PlayerMat;
+
+	
+
 };

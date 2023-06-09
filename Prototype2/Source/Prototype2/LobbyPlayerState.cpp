@@ -8,6 +8,8 @@ void ALobbyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ALobbyPlayerState, IsReady);
 	DOREPLIFETIME(ALobbyPlayerState, Player_ID);
+	DOREPLIFETIME(ALobbyPlayerState, Character);
+	DOREPLIFETIME(ALobbyPlayerState, CharacterColour);
 }
 
 void ALobbyPlayerState::SetIsReady(bool _isReady)

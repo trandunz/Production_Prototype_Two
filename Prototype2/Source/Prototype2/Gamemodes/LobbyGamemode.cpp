@@ -3,6 +3,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Prototype2/LobbyCharacter.h"
 #include "Prototype2/LobbyPlayerState.h"
+#include "Prototype2/Prototype2Character.h"
+#include "Prototype2/PrototypeGameInstance.h"
 #include "Prototype2/Gamestates/LobbyGamestate.h"
 
 
@@ -34,8 +36,9 @@ void ALobbyGamemode::PostLogin(APlayerController* NewPlayer)
 
 				if (auto* character = Cast<ALobbyCharacter>(NewPlayer->GetCharacter()))
 				{
-					character->PlayerMat = PlayerMaterials[playerState->Player_ID];
+					//character->PlayerMat = PlayerMaterials[playerState->Player_ID];
 
+										
 					switch(playerState->Player_ID)
 					{
 					case 0:
@@ -68,6 +71,49 @@ void ALobbyGamemode::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 	}
+}
+
+void ALobbyGamemode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	//if (HasAuthority())
+	//{
+	//	if (auto gameInstance = Cast<UPrototypeGameInstance>(GetGameInstance()))
+	//	{
+	//		if (auto gamestate = GetGameState<ALobbyGamestate>())
+	//		{
+	//			for(auto i = 0; i < gamestate->Server_Players.Num(); i++)
+	//			{
+	//				auto character = Cast<ALobbyCharacter>(gamestate->Server_Players[i]->GetPlayerController()->GetCharacter());
+	//
+	//				if (character)
+	//				{
+	//					switch(gameInstance->CharacterColour)
+	//					{
+	//					case ECharacterColours::RED:
+	//						character->PlayerMat = PlayerMaterials[0];
+	//						break;
+	//					case ECharacterColours::BLUE:
+	//						character->PlayerMat = PlayerMaterials[1];
+	//						break;
+	//					case ECharacterColours::GREEN:
+	//						character->PlayerMat = PlayerMaterials[2];
+	//						break;
+	//					case ECharacterColours::YELLOW:
+	//						character->PlayerMat = PlayerMaterials[3];
+	//						break;
+	//					default:
+	//						character->PlayerMat = PlayerMaterials[0];
+	//						break;
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	//
+
 }
 
 

@@ -20,5 +20,11 @@ public:
 	int Player_ID{};
 	
 	void SetIsReady(bool _isReady);
-	
+
+	// Character & Colour
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	ECharacters Character{ECharacters::COW};
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	ECharacterColours CharacterColour{ECharacterColours::RED};
 };
