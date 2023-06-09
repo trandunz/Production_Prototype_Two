@@ -22,6 +22,7 @@
 #include "Prototype2/Prototype2PlayerController.h"
 #include "Widgets/SOverlay.h"
 #include "Layout/Margin.h"
+#include "Prototype2/PrototypeGameInstance.h"
 
 void UWidget_PlayerHUD::NativeOnInitialized()
 {
@@ -39,6 +40,20 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 	InteractionUI->SetVisibility(ESlateVisibility::Hidden);
 	InteractionText->SetVisibility(ESlateVisibility::Visible);
 	interactionButtonTimer = interactionButtonMaxTime;
+
+	//UWorld* World = GetWorld();
+	//if (World != nullptr)
+	//{
+	//	UGameInstance* GameInstance = World->GetGameInstance();
+	//	if (GameInstance != nullptr)
+	//	{
+	//		IOnlineSessionPtr OnlineSessionPtr = GameInstance->GetSubsystem<IOnlineSubsystem>()->GetSessionInterface();
+	//		if (OnlineSessionPtr.IsValid())
+	//		{
+	//			OnlineSessionPtr->GetSessionSettings()->m
+	//		}
+	//	}
+	//}
 	
 }
 
