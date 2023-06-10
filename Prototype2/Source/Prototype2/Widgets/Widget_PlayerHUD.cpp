@@ -41,35 +41,55 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 	InteractionText->SetVisibility(ESlateVisibility::Visible);
 	interactionButtonTimer = interactionButtonMaxTime;
 
-	//auto playerNum{0};
-	//UWorld* World = GetWorld();
-	//if (World != nullptr)
-	//{
-	//	auto GameInstance = World->GetGameInstance();
-	//	if (GameInstance != nullptr)
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("Got game instance"));
-	//		auto OnlineSubsystem = IOnlineSubsystem::Get();
-	//		if (OnlineSubsystem != nullptr)
-	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("Got online subsystem"));
-	//			IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
-	//			if (OnlineSessionPtr.IsValid())
-	//			{
-	//				if (auto settings = OnlineSessionPtr->GetSessionSettings(NAME_GameSession))
-	//				{
-	//					playerNum = settings->NumPublicConnections +
-	//						settings->NumPrivateConnections;
-	//				}
-	//				else
-	//				{
-	//					// Failed to retrieve session settings
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
+	
+	// Set number of UI shown on screen
+	if (GameStateRef->MaxPlayersOnServer <= 4)
+	{
+		Overlay_P1->SetVisibility(ESlateVisibility::Visible);
+		Overlay_P2->SetVisibility(ESlateVisibility::Visible);
+		Overlay_P3->SetVisibility(ESlateVisibility::Visible);
+		Overlay_P4->SetVisibility(ESlateVisibility::Visible);
+			
+		if (GameStateRef->MaxPlayersOnServer <= 3)
+		{
+			Overlay_P4->SetVisibility(ESlateVisibility::Hidden);
 
+			if (GameStateRef->MaxPlayersOnServer <= 2)
+			{
+				Overlay_P3->SetVisibility(ESlateVisibility::Hidden);
+					
+				if (GameStateRef->MaxPlayersOnServer == 2)
+				{
+					Overlay_P2->SetVisibility(ESlateVisibility::Visible);
+
+				}
+				else if (GameStateRef->MaxPlayersOnServer == 1)
+				{
+					Overlay_P2->SetVisibility(ESlateVisibility::Hidden);
+				}
+				Overlay_P1->SetVisibility(ESlateVisibility::Visible);
+			
+				UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]);
+				overlaySlot->SetPadding(FMargin(0,0,0,0));
+			}
+		}
+	}
+
+	// Set positions of slots
+	if (GameStateRef->MaxPlayersOnServer == 4 || GameStateRef->MaxPlayersOnServer == 3)
+	{
+		UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]); // Change position of player 1
+		overlaySlot->SetPadding(FMargin(0,0,650,0));
+		overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[1]); // Change position of player 2
+		overlaySlot->SetPadding(FMargin(0,0,300,0));
+	}
+	else
+	{
+		UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]); // Change position of player 1
+		overlaySlot->SetPadding(FMargin(0,0,400,0));
+		overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[1]); // Change position of player 2
+		overlaySlot->SetPadding(FMargin(400,0,0,0));
+	}
 
 }
 
@@ -89,54 +109,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		else
 			Seconds->SetText(FText::FromString(FString::FromInt(seconds)));
 
-		// Set number of UI shown on screen
-		if (GameStateRef->Server_Players.Num() <= 4)
-		{
-			Overlay_P1->SetVisibility(ESlateVisibility::Visible);
-			Overlay_P2->SetVisibility(ESlateVisibility::Visible);
-			Overlay_P3->SetVisibility(ESlateVisibility::Visible);
-			Overlay_P4->SetVisibility(ESlateVisibility::Visible);
-			
-			if (GameStateRef->Server_Players.Num() <= 3)
-			{
-				Overlay_P4->SetVisibility(ESlateVisibility::Hidden);
-
-				if (GameStateRef->Server_Players.Num() <= 2)
-				{
-					Overlay_P3->SetVisibility(ESlateVisibility::Hidden);
-					
-					if (GameStateRef->Server_Players.Num() == 2)
-					{
-						Overlay_P2->SetVisibility(ESlateVisibility::Visible);
-
-					}
-					else if (GameStateRef->Server_Players.Num() == 1)
-					{
-						Overlay_P2->SetVisibility(ESlateVisibility::Hidden);
-					}
-					Overlay_P1->SetVisibility(ESlateVisibility::Visible);
-			
-					UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]);
-					overlaySlot->SetPadding(FMargin(0,0,0,0));
-				}
-			}
-		}
-
-		// Set positions of slots
-		if (GameStateRef->Server_Players.Num() == 4 || GameStateRef->Server_Players.Num() == 3)
-		{
-			UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]); // Change position of player 1
-			overlaySlot->SetPadding(FMargin(0,0,650,0));
-			overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[1]); // Change position of player 2
-			overlaySlot->SetPadding(FMargin(0,0,300,0));
-		}
-		else
-		{
-			UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]); // Change position of player 1
-			overlaySlot->SetPadding(FMargin(0,0,400,0));
-			overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[1]); // Change position of player 2
-			overlaySlot->SetPadding(FMargin(400,0,0,0));
-		}
+		
 		
 		// Updating points/coins
 		//if (!GetOwningPlayerPawn()->HasAuthority())
