@@ -86,6 +86,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxPlayersOnServer{0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int FinalConnectionCount{0};
 	
 protected:
 	bool HostSession(FUniqueNetIdRepl UserId, FName SessionName, bool bIsLAN = true, bool bIsPresence = true, int32  = 12);

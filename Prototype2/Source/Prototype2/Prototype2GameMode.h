@@ -17,6 +17,7 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
 	TArray<UMaterialInstance*> PlayerMaterials{{},{},{},{}};

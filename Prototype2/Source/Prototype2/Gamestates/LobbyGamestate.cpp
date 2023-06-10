@@ -26,7 +26,6 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 	
 	if (HasAuthority())
 	{
-		
 		if (PreviousServerTravel != ShouldServerTravel)
 		{
 			PreviousServerTravel = ShouldServerTravel;
@@ -87,6 +86,14 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 						MapChoiceLengthSeconds -= DeltaSeconds;
 						if (MapChoiceLengthSeconds <= 0)
 						{
+							IsCountingDown = false;
+							if (auto gamestate = Cast<ALobbyGamestate>(UGameplayStatics::GetGameState(GetWorld())))
+							{
+								if (auto gameInstance = Cast<UPrototypeGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+								{
+									gameInstance->FinalConnectionCount = gamestate->Server_Players.Num();
+								}
+							}
 							GetWorld()->ServerTravel(MapChoice, false, false); // Start level
 						}
 					}
@@ -161,7 +168,6 @@ void ALobbyGamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(ALobbyGamestate, bMapChosen);
 	
 	DOREPLIFETIME(ALobbyGamestate, MaxPlayersOnServer);
-	
 }
 
 void ALobbyGamestate::UpdateCharacterMaterial(int _player, ECharacters _character, ECharacterColours _characterColour)

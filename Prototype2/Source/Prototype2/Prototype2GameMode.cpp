@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Prototype2/Prototype2PlayerState.h"
 #include "Prototype2/Gamestates/Prototype2Gamestate.h"
+#include "Prototype2/Gamestates/LobbyGamestate.h"
 
 class ALobbyGamestate;
 
@@ -26,6 +27,12 @@ APrototype2GameMode::APrototype2GameMode()
 void APrototype2GameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (auto gamestate = GetGameState<APrototype2Gamestate>())
+	{
+		gamestate->FinalConnectionCount = GetGameInstance<UPrototypeGameInstance>()->FinalConnectionCount;
+		UE_LOG(LogTemp, Warning, TEXT("Final Connection Count : %s"), *FString::FromInt(gamestate->FinalConnectionCount));
+	}
 }
 
 void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
@@ -48,7 +55,8 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 					//character->PlayerMat = PlayerMaterials[playerState->Player_ID];
 					character->PlayerID = playerState->Player_ID;
 					gamestate->MaxPlayersOnServer = GetGameInstance<UPrototypeGameInstance>()->MaxPlayersOnServer;
-					UE_LOG(LogTemp, Warning, TEXT("Public Connection Count (InGame): %s"), *FString::FromInt(gamestate->MaxPlayersOnServer));
+					gamestate->FinalConnectionCount = GetGameInstance<UPrototypeGameInstance>()->FinalConnectionCount;
+					UE_LOG(LogTemp, Warning, TEXT("Final Connection Count: %s"), *FString::FromInt(gamestate->FinalConnectionCount));
 					//character->Client_AddHUD();
 					switch(playerState->Player_ID)
 					{
@@ -80,5 +88,12 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 	}
+}
+
+void APrototype2GameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+
 }
 

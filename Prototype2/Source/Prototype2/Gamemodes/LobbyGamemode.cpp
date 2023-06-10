@@ -40,6 +40,7 @@ void ALobbyGamemode::PostLogin(APlayerController* NewPlayer)
 					NewPlayer->Possess(character);
 					character->SetOwner(NewPlayer);
 					gamestate->MaxPlayersOnServer = GetGameInstance<UPrototypeGameInstance>()->MaxPlayersOnServer;
+
 					UE_LOG(LogTemp, Warning, TEXT("Public Connection Count (Lobby): %s"), *FString::FromInt(gamestate->MaxPlayersOnServer));
 					switch(playerState->Player_ID)
 					{
@@ -91,10 +92,11 @@ void ALobbyGamemode::Tick(float DeltaSeconds)
 							character->PlayerMat = PlayerMaterials[(int)playerState->CharacterColour];
 					}
 				}
-				
 			}
-					
 		}
+
+		
+		
 	}
 }
 

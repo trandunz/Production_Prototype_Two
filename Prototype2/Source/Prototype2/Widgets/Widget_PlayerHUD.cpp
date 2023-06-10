@@ -43,27 +43,27 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 
 	
 	// Set number of UI shown on screen
-	if (GameStateRef->MaxPlayersOnServer <= 4)
+	if (GameStateRef->FinalConnectionCount <= 4)
 	{
 		Overlay_P1->SetVisibility(ESlateVisibility::Visible);
 		Overlay_P2->SetVisibility(ESlateVisibility::Visible);
 		Overlay_P3->SetVisibility(ESlateVisibility::Visible);
 		Overlay_P4->SetVisibility(ESlateVisibility::Visible);
 			
-		if (GameStateRef->MaxPlayersOnServer <= 3)
+		if (GameStateRef->FinalConnectionCount <= 3)
 		{
 			Overlay_P4->SetVisibility(ESlateVisibility::Hidden);
 
-			if (GameStateRef->MaxPlayersOnServer <= 2)
+			if (GameStateRef->FinalConnectionCount <= 2)
 			{
 				Overlay_P3->SetVisibility(ESlateVisibility::Hidden);
 					
-				if (GameStateRef->MaxPlayersOnServer == 2)
+				if (GameStateRef->FinalConnectionCount == 2)
 				{
 					Overlay_P2->SetVisibility(ESlateVisibility::Visible);
 
 				}
-				else if (GameStateRef->MaxPlayersOnServer == 1)
+				else if (GameStateRef->FinalConnectionCount == 1)
 				{
 					Overlay_P2->SetVisibility(ESlateVisibility::Hidden);
 				}
@@ -76,7 +76,7 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 	}
 
 	// Set positions of slots
-	if (GameStateRef->MaxPlayersOnServer == 4 || GameStateRef->MaxPlayersOnServer == 3)
+	if (GameStateRef->FinalConnectionCount == 4 || GameStateRef->FinalConnectionCount == 3)
 	{
 		UOverlaySlot* overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[0]); // Change position of player 1
 		overlaySlot->SetPadding(FMargin(0,0,650,0));
