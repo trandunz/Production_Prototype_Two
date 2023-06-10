@@ -41,26 +41,42 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 	InteractionText->SetVisibility(ESlateVisibility::Visible);
 	interactionButtonTimer = interactionButtonMaxTime;
 
+	//auto playerNum{0};
 	//UWorld* World = GetWorld();
 	//if (World != nullptr)
 	//{
-	//	UGameInstance* GameInstance = World->GetGameInstance();
+	//	auto GameInstance = World->GetGameInstance();
 	//	if (GameInstance != nullptr)
 	//	{
-	//		IOnlineSessionPtr OnlineSessionPtr = GameInstance->GetSubsystem<IOnlineSubsystem>()->GetSessionInterface();
-	//		if (OnlineSessionPtr.IsValid())
+	//		UE_LOG(LogTemp, Warning, TEXT("Got game instance"));
+	//		auto OnlineSubsystem = IOnlineSubsystem::Get();
+	//		if (OnlineSubsystem != nullptr)
 	//		{
-	//			OnlineSessionPtr->GetSessionSettings()->m
+	//			UE_LOG(LogTemp, Warning, TEXT("Got online subsystem"));
+	//			IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
+	//			if (OnlineSessionPtr.IsValid())
+	//			{
+	//				if (auto settings = OnlineSessionPtr->GetSessionSettings(NAME_GameSession))
+	//				{
+	//					playerNum = settings->NumPublicConnections +
+	//						settings->NumPrivateConnections;
+	//				}
+	//				else
+	//				{
+	//					// Failed to retrieve session settings
+	//				}
+	//			}
 	//		}
 	//	}
 	//}
-	
+
+
 }
 
 void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
+	
 	if (GameStateRef)
 	{
 		Minutes->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthMinutes)));
@@ -68,51 +84,10 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		
 		int seconds = (int)GameStateRef->MatchLengthSeconds;
 
-		if (seconds == 1)
-		{
-			Seconds->SetText(FText::FromString("01"));
-		}
-		else if (seconds == 2)
-		{
-			Seconds->SetText(FText::FromString("02"));
-		}
-		else if (seconds == 3)
-		{
-			Seconds->SetText(FText::FromString("03"));
-		}
-		else if (seconds == 4)
-		{
-			Seconds->SetText(FText::FromString("04"));
-		}
-		else if (seconds == 5)
-		{
-			Seconds->SetText(FText::FromString("05"));
-		}
-		else if (seconds == 6)
-		{
-			Seconds->SetText(FText::FromString("06"));
-		}
-		else if (seconds == 7)
-		{
-			Seconds->SetText(FText::FromString("07"));
-		}
-		else if (seconds == 8)
-		{
-			Seconds->SetText(FText::FromString("08"));
-		}
-		else if (seconds == 9)
-		{
-			Seconds->SetText(FText::FromString("09"));
-		}
-		else if (seconds == 0)
-		{
-			Seconds->SetText(FText::FromString("00"));
-		}
+		if (seconds < 10)
+			Seconds->SetText(FText::FromString("0" + FString::FromInt(seconds)));
 		else
-		{
 			Seconds->SetText(FText::FromString(FString::FromInt(seconds)));
-			//Seconds->SetText(FText::FromString(FString::FromInt(GameStateRef->MatchLengthSeconds)));
-		}
 
 		// Set number of UI shown on screen
 		if (GameStateRef->Server_Players.Num() <= 4)

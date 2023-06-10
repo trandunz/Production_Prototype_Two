@@ -21,6 +21,8 @@ void ALobbyGamestate::BeginPlay()
 void ALobbyGamestate::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	
 	
 	if (HasAuthority())
 	{
@@ -53,8 +55,8 @@ void ALobbyGamestate::Tick(float DeltaSeconds)
 					// Show map choice
 					bShowMapChoice = true;
 					
-					UE_LOG(LogTemp, Warning, TEXT("Farm: %d"), Farm);
-					UE_LOG(LogTemp, Warning, TEXT("WinterFarm: %d"), WinterFarm);
+					//UE_LOG(LogTemp, Warning, TEXT("Farm: %d"), Farm);
+					//UE_LOG(LogTemp, Warning, TEXT("WinterFarm: %d"), WinterFarm);
 
 					int totalVotes = Farm + WinterFarm;
 					if (totalVotes == Server_Players.Num())
@@ -158,12 +160,12 @@ void ALobbyGamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(ALobbyGamestate, MapChoiceLengthSeconds);
 	DOREPLIFETIME(ALobbyGamestate, bMapChosen);
 	
+	DOREPLIFETIME(ALobbyGamestate, MaxPlayersOnServer);
 	
 }
 
 void ALobbyGamestate::UpdateCharacterMaterial(int _player, ECharacters _character, ECharacterColours _characterColour)
 {
-	
 	if (Server_Players.Num() >= _player)
 	{
 		if (auto playerState = Server_Players[_player])

@@ -39,7 +39,7 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 		{
 			if (auto* gamestate = GetGameState<APrototype2Gamestate>())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
+				//UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
 				playerState->Player_ID = gamestate->Server_Players.Add(playerState);
 
 				if (auto* character = Cast<APrototype2Character>(NewPlayer->GetCharacter()))
@@ -47,6 +47,8 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 					//character->GetMesh()->SetMaterial(0, PlayerMaterials[playerState->Player_ID]);
 					//character->PlayerMat = PlayerMaterials[playerState->Player_ID];
 					character->PlayerID = playerState->Player_ID;
+					gamestate->MaxPlayersOnServer = GetGameInstance<UPrototypeGameInstance>()->MaxPlayersOnServer;
+					UE_LOG(LogTemp, Warning, TEXT("Public Connection Count (InGame): %s"), *FString::FromInt(gamestate->MaxPlayersOnServer));
 					//character->Client_AddHUD();
 					switch(playerState->Player_ID)
 					{
