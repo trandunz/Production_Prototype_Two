@@ -5,6 +5,7 @@
 
 #include "Widget_EndgameMenu.h"
 #include "Widget_IngameMenu.h"
+#include "Widget_StartAndEndMenu.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
@@ -109,7 +110,10 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		else
 			Seconds->SetText(FText::FromString(FString::FromInt(seconds)));
 
-		
+		if (GameStateRef->GameHasStarted)
+			StartAndEndMenu->SetVisibility(ESlateVisibility::Hidden);
+		else
+			StartAndEndMenu->SetVisibility(ESlateVisibility::HitTestInvisible);
 		
 		// Updating points/coins
 		//if (!GetOwningPlayerPawn()->HasAuthority())
