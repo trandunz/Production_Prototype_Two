@@ -2,6 +2,8 @@
 
 
 #include "Prototype2/Widgets/Widget_StartAndEndMenu.h"
+
+#include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Prototype2/Gamestates/Prototype2Gamestate.h"
@@ -27,9 +29,11 @@ void UWidget_StartAndEndMenu::UpdateTimerText()
 	{
 		TimerText->SetText(FText::FromString(FString::FromInt((int)GameStateRef->CountdownLengthSeconds)));
 		TimerText->SetVisibility(ESlateVisibility::HitTestInvisible);
+		BackgroundBorder->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 	else if (TimerText)
 	{
 		TimerText->SetVisibility(ESlateVisibility::Hidden);
+		BackgroundBorder->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

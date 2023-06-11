@@ -30,6 +30,7 @@ void APrototype2GameMode::BeginPlay()
 
 	if (auto gamestate = GetGameState<APrototype2Gamestate>())
 	{
+		GameStateRef = gamestate;
 		gamestate->FinalConnectionCount = GetGameInstance<UPrototypeGameInstance>()->FinalConnectionCount;
 		UE_LOG(LogTemp, Warning, TEXT("Final Connection Count : %s"), *FString::FromInt(gamestate->FinalConnectionCount));
 	}
@@ -93,7 +94,50 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 void APrototype2GameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	
+}
 
+void APrototype2GameMode::DisableControllerInput(APlayerController* PlayerController)
+{
+	if (PlayerController != nullptr)
+	{
+		PlayerController->DisableInput(PlayerController);
+		PlayerController->SetIgnoreMoveInput(true);
+		PlayerController->SetIgnoreLookInput(true);
+	}
+}
 
+void APrototype2GameMode::EnableControllerInput(APlayerController* PlayerController)
+{
+	if (PlayerController != nullptr)
+	{
+		PlayerController->EnableInput(PlayerController);
+		PlayerController->SetIgnoreMoveInput(false);
+		PlayerController->SetIgnoreLookInput(false);
+	}
+}
+
+void APrototype2GameMode::DisableControllerInputForAll()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (PlayerController != nullptr)
+		{
+			DisableControllerInput(PlayerController);
+		}
+	}
+}
+
+void APrototype2GameMode::EnableControllerInputForAll()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (PlayerController != nullptr)
+		{
+			EnableControllerInput(PlayerController);
+		}
+	}
 }
 

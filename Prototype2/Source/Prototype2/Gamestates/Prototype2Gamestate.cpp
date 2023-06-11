@@ -22,45 +22,18 @@ void APrototype2Gamestate::Tick(float DeltaSeconds)
 	{
 		if (Server_Players.Num() < FinalConnectionCount && !GameHasStarted)
 		{
-			// Show and update UI
-			// Disable All Input
-			for(auto player : Server_Players)
-			{
-				if (auto controller = Cast<APrototype2PlayerController>(player.Get()->GetPlayerController()))
-				{
-					controller->DisableInput(controller);
-				}
-			}
 		}
 		else if (Server_Players.Num() >= FinalConnectionCount && !GameHasStarted)
 		{
 			if (CountdownLengthSeconds > 0)
 			{
 				CountdownLengthSeconds -= DeltaSeconds;
-
-				// Show and update UI
-				// Disable All Input
-				for(auto player : Server_Players)
-				{
-					if (auto controller = Cast<APrototype2PlayerController>(player.Get()->GetPlayerController()))
-					{
-						controller->DisableInput(controller);
-					}
-				}
+				
 			}
 			else
 			{
-				if (CountdownLengthMinutes <= 0)
+				if (CountdownLengthSeconds <= 7.0f)
 				{
-					// Hide UI
-					// Enable All Input
-					for(auto player : Server_Players)
-					{
-						if (auto controller = Cast<APrototype2PlayerController>(player.Get()->GetPlayerController()))
-						{
-							controller->EnableInput(controller);
-						}
-					}
 					GameHasStarted = true;
 				}
 				else
@@ -74,6 +47,10 @@ void APrototype2Gamestate::Tick(float DeltaSeconds)
 
 	if (HasAuthority() && GameHasStarted)
 	{
+		if (CountdownLengthSeconds > 0)
+		{
+			CountdownLengthSeconds -= DeltaSeconds;
+		}
 		if (PreviousServerTravel != ShouldServerTravel)
 		{
 			PreviousServerTravel = ShouldServerTravel;
@@ -119,6 +96,7 @@ void APrototype2Gamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Gamestate, MatchLengthSeconds);
 	DOREPLIFETIME(APrototype2Gamestate, CountdownLengthMinutes);
 	DOREPLIFETIME(APrototype2Gamestate, CountdownLengthSeconds);
+	DOREPLIFETIME(APrototype2Gamestate, GameHasStarted);
 	DOREPLIFETIME(APrototype2Gamestate, IsCountingDown);
 	DOREPLIFETIME(APrototype2Gamestate, PreviousServerTravel);
 	
