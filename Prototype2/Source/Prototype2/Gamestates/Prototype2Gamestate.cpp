@@ -1,6 +1,8 @@
 #include "Prototype2Gamestate.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Prototype2/Prototype2PlayerController.h"
+#include "Prototype2/Prototype2PlayerState.h"
 
 APrototype2Gamestate::APrototype2Gamestate()
 {
@@ -17,6 +19,60 @@ void APrototype2Gamestate::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	if (HasAuthority())
+	{
+		if (Server_Players.Num() < FinalConnectionCount && !GameHasStarted)
+		{
+			// Show and update UI
+			// Disable All Input
+			for(auto player : Server_Players)
+			{
+				if (auto controller = Cast<APrototype2PlayerController>(player.Get()->GetPlayerController()))
+				{
+					controller->DisableInput(controller);
+				}
+			}
+		}
+		else if (Server_Players.Num() >= FinalConnectionCount && !GameHasStarted)
+		{
+			if (CountdownLengthSeconds > 0)
+			{
+				CountdownLengthSeconds -= DeltaSeconds;
+
+				// Show and update UI
+				// Disable All Input
+				for(auto player : Server_Players)
+				{
+					if (auto controller = Cast<APrototype2PlayerController>(player.Get()->GetPlayerController()))
+					{
+						controller->DisableInput(controller);
+					}
+				}
+			}
+			else
+			{
+				if (CountdownLengthMinutes <= 0)
+				{
+					// Hide UI
+					// Enable All Input
+					for(auto player : Server_Players)
+					{
+						if (auto controller = Cast<APrototype2PlayerController>(player.Get()->GetPlayerController()))
+						{
+							controller->EnableInput(controller);
+						}
+					}
+					GameHasStarted = true;
+				}
+				else
+				{
+					CountdownLengthMinutes--;
+					CountdownLengthSeconds = 60;
+				}
+			}
+		}
+	}
+
+	if (HasAuthority() && GameHasStarted)
 	{
 		if (PreviousServerTravel != ShouldServerTravel)
 		{
@@ -54,10 +110,6 @@ void APrototype2Gamestate::Tick(float DeltaSeconds)
 			}
 		}
 	}
-	else
-	{
-		
-	}
 }
 
 void APrototype2Gamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -65,6 +117,8 @@ void APrototype2Gamestate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APrototype2Gamestate, MatchLengthMinutes);
 	DOREPLIFETIME(APrototype2Gamestate, MatchLengthSeconds);
+	DOREPLIFETIME(APrototype2Gamestate, CountdownLengthMinutes);
+	DOREPLIFETIME(APrototype2Gamestate, CountdownLengthSeconds);
 	DOREPLIFETIME(APrototype2Gamestate, IsCountingDown);
 	DOREPLIFETIME(APrototype2Gamestate, PreviousServerTravel);
 	
