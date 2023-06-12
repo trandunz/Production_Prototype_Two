@@ -25,6 +25,14 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
 	float MatchLengthSeconds{0};
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
+	int CountdownLengthMinutes{0};
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
+	float CountdownLengthSeconds{15.0f};
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
+	bool GameHasStarted{};
+
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	int MaxPlayersOnServer{0};
 
