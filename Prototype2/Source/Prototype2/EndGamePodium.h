@@ -29,6 +29,11 @@ public:
 	class UArrowComponent* P2Position;
 	UPROPERTY(EditAnywhere)
 	class UArrowComponent* P3Position;
+
+	UPROPERTY(EditAnywhere)
+	class AEndGameCamera* EndGameCamera;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AEndGameCamera> EndGameCameraPrefab;
 	
 	UPROPERTY(EditAnywhere)
 	TArray<class UStaticMeshComponent*> FirstPlaceMeshes;
