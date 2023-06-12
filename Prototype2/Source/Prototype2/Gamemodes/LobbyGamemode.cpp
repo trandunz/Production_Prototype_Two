@@ -94,9 +94,6 @@ void ALobbyGamemode::Tick(float DeltaSeconds)
 				}
 			}
 		}
-
-		
-		
 	}
 }
 
