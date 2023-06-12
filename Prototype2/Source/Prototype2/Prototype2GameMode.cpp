@@ -94,6 +94,7 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 void APrototype2GameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	LookOutForGameEnd();
 	
 }
 
@@ -137,6 +138,17 @@ void APrototype2GameMode::EnableControllerInputForAll()
 		if (PlayerController != nullptr)
 		{
 			EnableControllerInput(PlayerController);
+		}
+	}
+}
+
+void APrototype2GameMode::LookOutForGameEnd()
+{
+	if (GameStateRef)
+	{
+		if (HasGameFinishedLocal != GameStateRef->HasGameFinished)
+		{
+			// TP everyone to the podium
 		}
 	}
 }

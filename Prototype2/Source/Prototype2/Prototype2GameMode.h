@@ -24,6 +24,10 @@ public:
 	void DisableControllerInputForAll();
 	void EnableControllerInputForAll();
 
+	void LookOutForGameEnd();
+
+	bool HasGameFinishedLocal{};
+
 	UPROPERTY(VisibleAnywhere) 
 	class APrototype2Gamestate* GameStateRef{nullptr};
 	
