@@ -90,7 +90,7 @@ void ALobbyGamemode::PostLogin(APlayerController* NewPlayer)
 						}
 					case 3:
 						{
-							Position7
+							character->SetActorLocation({Position7});
 							break;
 						}
 					default:

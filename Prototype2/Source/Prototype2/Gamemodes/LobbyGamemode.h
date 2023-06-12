@@ -23,7 +23,7 @@ public:
 
 	// Player character lobby positions
 	FVector Position1{567.4f,-143.0f,97.0f}; // Left position for 4 player
-	FVector Position2{446.0f, 187.2f, 97.0f}; // Left position for 3 player
+	FVector Position2{446.0f, -187.2f, 97.0f}; // Left position for 3 player
 	FVector Position3{324.6f,-231.4f,97.0f}; // Left position for 2 player
 	FVector Position4{212.2f, -272.3f, 97.0f}; // Centre position for 3 player
 	FVector Position5{99.8f,-313.2f,97.0f}; // // Right position for 2 player
