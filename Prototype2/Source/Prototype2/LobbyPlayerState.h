@@ -9,6 +9,8 @@ UCLASS()
 class PROTOTYPE2_API ALobbyPlayerState : public APlayerState
 {
 	GENERATED_BODY()
+
+	ALobbyPlayerState();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
