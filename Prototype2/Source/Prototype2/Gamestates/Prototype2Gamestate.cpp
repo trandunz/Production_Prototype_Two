@@ -32,7 +32,7 @@ void APrototype2Gamestate::Tick(float DeltaSeconds)
 			}
 			else
 			{
-				if (CountdownLengthSeconds <= 7.0f)
+				if (CountdownLengthSeconds <= 0.0f)
 				{
 					GameHasStarted = true;
 				}

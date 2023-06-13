@@ -28,7 +28,7 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
 	int CountdownLengthMinutes{0};
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
-	float CountdownLengthSeconds{15.0f};
+	float CountdownLengthSeconds{1.0f};
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly)
 	bool GameHasStarted{};
