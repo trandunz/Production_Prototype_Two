@@ -10,6 +10,12 @@ ALobbyPlayerState::ALobbyPlayerState()
 	CharacterColour = (ECharacterColours)((rand() % 3) + 1);
 }
 
+void ALobbyPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
 void ALobbyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
