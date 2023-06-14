@@ -351,10 +351,11 @@ void APrototype2Character::Interact()
 		// Reset the Interact Timer when Player Interacts
 		InteractTimer = InteractTimerTime;
 
-		if(!HeldItem)
-		{
-			PlayerHUDRef->UpdatePickupUI(EPickup::None);
-		}
+		//if(!HeldItem)
+		//{
+		//	PlayerHUDRef->UpdatePickupUI(EPickup::None);
+		//}
+
 		
 		if (!bIsChargingAttack)
 		{
@@ -366,7 +367,9 @@ void APrototype2Character::Interact()
 		{
 			PlayerHUDRef->UpdatePickupUI(EPickup::None);
 		}
-
+		EnableStencil(false);
+		ClosestInteractableActor = nullptr;
+		ClosestInteractableItem = nullptr;
 	}
 	
 	// Debug draw collision sphere
@@ -403,21 +406,21 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 
 void APrototype2Character::CheckForInteractables()
 {
-	if (ClosestInteractableActor)
-	{
-		if (FVector::Distance(ClosestInteractableActor->GetActorLocation(), GetActorLocation()) >= InteractRadius)
-		{
-			if (auto component = ClosestInteractableActor->GetComponentByClass(UItemComponent::StaticClass()))
-			{
-				if (auto itemComponent = Cast<UItemComponent>(component))
-				{
-					itemComponent->Mesh->SetRenderCustomDepth(false);
-					//UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
-				}
-			}
-			ClosestInteractableActor = nullptr;
-		}
-	}
+	//if (ClosestInteractableActor)
+	//{
+	//	if (FVector::Distance(ClosestInteractableActor->GetActorLocation(), GetActorLocation()) >= InteractRadius)
+	//	{
+	//		if (auto component = ClosestInteractableActor->GetComponentByClass(UItemComponent::StaticClass()))
+	//		{
+	//			if (auto itemComponent = Cast<UItemComponent>(component))
+	//			{
+	//				itemComponent->Mesh->SetRenderCustomDepth(false);
+	//				//UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
+	//			}
+	//		}
+	//		ClosestInteractableActor = nullptr;
+	//	}
+	//}
 	
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
@@ -427,7 +430,7 @@ void APrototype2Character::CheckForInteractables()
 	FVector sweepEnd = GetActorLocation();
 
 	// create a collision sphere
-	FCollisionShape colSphere = FCollisionShape::MakeSphere(InteractRadius);
+	FCollisionShape colSphere = FCollisionShape::MakeSphere(InteractRadius * 1.5f);
 
 	// draw collision sphere
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), colSphere.GetSphereRadius(), 50, FColor::Purple, false, 0.1f);
@@ -451,38 +454,44 @@ void APrototype2Character::CheckForInteractables()
 
 		float distanceToClosest;
 		auto nearestActor = UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest);
-		if (nearestActor)
+		if (nearestActor && distanceToClosest <= InteractRadius)
 		{
 			if (ClosestInteractableActor && ClosestInteractableActor != nearestActor)
 			{
-				if (auto component = ClosestInteractableActor->GetComponentByClass(UItemComponent::StaticClass()))
-				{
-					if (auto itemComponent = Cast<UItemComponent>(component))
-					{
-						itemComponent->Mesh->SetRenderCustomDepth(false);
-						//UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
-					}
-				}
+				EnableStencil(false);
 			}
 		
 			ClosestInteractableActor = nearestActor;
-			if (auto component = nearestActor->GetComponentByClass(UItemComponent::StaticClass()))
-			{
-				if (auto itemComponent = Cast<UItemComponent>(component))
-				{
-					itemComponent->Mesh->SetRenderCustomDepth(true);
-					//UE_LOG(LogTemp, Warning, TEXT("Enable Stenciling"))
-				}
-			}
+			//EnableStencil(true);
+			
 			ClosestInteractableItem = Cast<IInteractInterface>(nearestActor);
-			ClosestInteractableActor = nearestActor;
+		}
+		else
+		{
+			EnableStencil(false);
+			ClosestInteractableItem = nullptr;
+			ClosestInteractableActor = nullptr;
 		}
 	}
 	else
 	{
-		
 		// null both references
 		ClosestInteractableItem = nullptr;
+		ClosestInteractableActor = nullptr;
+	}
+}
+
+void APrototype2Character::EnableStencil(bool _on)
+{
+	if (ClosestInteractableActor)
+	{
+		if (auto component = ClosestInteractableActor->GetComponentByClass(UItemComponent::StaticClass()))
+		{
+			if (auto itemComponent = Cast<UItemComponent>(component))
+			{
+				itemComponent->Mesh->SetRenderCustomDepth(_on);
+			}
+		}
 	}
 }
 

@@ -115,6 +115,9 @@ public:
 	
 	class UWidget_PlayerHUD* GetPlayerHUD();
 
+	/* Stencil - on/off */
+	void EnableStencil(bool _on);
+
 protected: /* Protected Networking functions */
 	void PlayNetworkMontage(UAnimMontage* _montage);
 	
@@ -215,6 +218,7 @@ protected: /* Protected non-network Functions */
 	
 	/* Create a sphere collider which calculates nearest item */
 	void CheckForInteractables();
+	
 
 	/* Called when hit by another player */
 	UFUNCTION(BlueprintCallable)

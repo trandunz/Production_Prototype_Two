@@ -296,6 +296,8 @@ void AGrowSpot::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, c
 				if(owner->HeldItem && !Cast<APlant>(owner->HeldItem))
 				{
 					_invokingWiget->SetHUDInteractText("Grow");
+
+					owner->EnableStencil(true);
 				}
 				break;
 			}

@@ -22,7 +22,11 @@ void ASeed::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class
 	if (!owner->HeldItem)
 	{
 		_invokingWiget->SetHUDInteractText("Pick Up");
+
+		owner->EnableStencil(true);
 	}
+
+	
 }
 
 void ASeed::Grow()

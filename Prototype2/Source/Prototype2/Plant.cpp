@@ -36,6 +36,8 @@ void APlant::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, clas
 	if (!owner->HeldItem)
 	{
 		_invokingWiget->SetHUDInteractText("Pick Up");
+
+		owner->EnableStencil(true);
 	}
 }
 
