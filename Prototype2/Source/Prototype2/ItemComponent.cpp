@@ -22,7 +22,7 @@ UItemComponent::UItemComponent()
 	}
 
 	Mesh->SetRenderCustomDepth(false);
-	//Mesh->CustomDepthStencilValue = 1;
+	Mesh->CustomDepthStencilValue = 1;
 }
 
 // Called when the game starts
@@ -46,7 +46,7 @@ void UItemComponent::BeginPlay()
 		Mesh->BodyInstance.bLockYTranslation = true;
 	}
 
-	Mesh->CustomDepthStencilValue = 0;
+	Mesh->SetRenderCustomDepth(false);
 }
 
 // Called every frame

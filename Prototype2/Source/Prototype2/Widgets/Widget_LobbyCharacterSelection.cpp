@@ -183,7 +183,7 @@ void UWidget_LobbyCharacterSelection::CheckForTakenSkin(bool _right)
 						IdealCharacterColour = (ECharacterColours)newColour;
 					}
 				}
-				UE_LOG(LogTemp, Warning, TEXT("Number of desired Character Colours: %s"), *FString::FromInt(numOfDesiredCharacterColours));
+				//UE_LOG(LogTemp, Warning, TEXT("Number of desired Character Colours: %s"), *FString::FromInt(numOfDesiredCharacterColours));
 
 				auto playerID = playerState->Player_ID;
 				playerController->UpdateCharacterMaterial(playerID, IdealCharacter, IdealCharacterColour);

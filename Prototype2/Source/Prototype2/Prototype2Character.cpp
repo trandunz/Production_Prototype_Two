@@ -403,6 +403,22 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 
 void APrototype2Character::CheckForInteractables()
 {
+	if (ClosestInteractableActor)
+	{
+		if (FVector::Distance(ClosestInteractableActor->GetActorLocation(), GetActorLocation()) >= InteractRadius)
+		{
+			if (auto component = ClosestInteractableActor->GetComponentByClass(UItemComponent::StaticClass()))
+			{
+				if (auto itemComponent = Cast<UItemComponent>(component))
+				{
+					itemComponent->Mesh->SetRenderCustomDepth(false);
+					UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
+				}
+			}
+			ClosestInteractableActor = nullptr;
+		}
+	}
+	
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
 	
@@ -435,24 +451,36 @@ void APrototype2Character::CheckForInteractables()
 
 		float distanceToClosest;
 		auto nearestActor = UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest);
-		ClosestInteractableItem = Cast<IInteractInterface>(nearestActor);
-		ClosestInteractableActor = nearestActor;
+		if (nearestActor)
+		{
+			if (ClosestInteractableActor && ClosestInteractableActor != nearestActor)
+			{
+				if (auto component = ClosestInteractableActor->GetComponentByClass(UItemComponent::StaticClass()))
+				{
+					if (auto itemComponent = Cast<UItemComponent>(component))
+					{
+						itemComponent->Mesh->SetRenderCustomDepth(false);
+						UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
+					}
+				}
+			}
+		
+			ClosestInteractableActor = nearestActor;
+			if (auto component = nearestActor->GetComponentByClass(UItemComponent::StaticClass()))
+			{
+				if (auto itemComponent = Cast<UItemComponent>(component))
+				{
+					itemComponent->Mesh->SetRenderCustomDepth(true);
+					UE_LOG(LogTemp, Warning, TEXT("Enable Stenciling"))
+				}
+			}
+		}
 	}
 	else
 	{
-		// Disable stenciling
-		if (ClosestInteractableActor)
-		{
-			if (auto* itemComponent = Cast<UItemComponent>(ClosestInteractableActor))
-			{
-				itemComponent->Mesh->SetRenderCustomDepth(false);
-				UE_LOG(LogTemp, Warning, TEXT("Render depth not turned off"));	
-				itemComponent->Mesh->CustomDepthStencilValue = 0;
-			}
-		}
 		
+		// null both references
 		ClosestInteractableItem = nullptr;
-		ClosestInteractableActor = nullptr;
 	}
 }
 

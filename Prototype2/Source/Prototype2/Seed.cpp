@@ -23,10 +23,6 @@ void ASeed::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class
 	{
 		_invokingWiget->SetHUDInteractText("Pick Up");
 	}
-	
-
-	ItemComponent->Mesh->SetRenderCustomDepth(true);
-	ItemComponent->Mesh->CustomDepthStencilValue = 1;
 }
 
 void ASeed::Grow()

@@ -69,7 +69,7 @@ void ALobbyGamemode::PostLogin(APlayerController* NewPlayer)
 					character->SetOwner(NewPlayer);
 					gamestate->MaxPlayersOnServer = GetGameInstance<UPrototypeGameInstance>()->MaxPlayersOnServer;
 					
-					UE_LOG(LogTemp, Warning, TEXT("Public Connection Count (Lobby): %s"), *FString::FromInt(gamestate->MaxPlayersOnServer));
+					//UE_LOG(LogTemp, Warning, TEXT("Public Connection Count (Lobby): %s"), *FString::FromInt(gamestate->MaxPlayersOnServer));
 					switch(playerState->Player_ID)
 					{
 					case 0:
