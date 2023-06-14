@@ -412,7 +412,7 @@ void APrototype2Character::CheckForInteractables()
 				if (auto itemComponent = Cast<UItemComponent>(component))
 				{
 					itemComponent->Mesh->SetRenderCustomDepth(false);
-					UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
+					//UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
 				}
 			}
 			ClosestInteractableActor = nullptr;
@@ -460,7 +460,7 @@ void APrototype2Character::CheckForInteractables()
 					if (auto itemComponent = Cast<UItemComponent>(component))
 					{
 						itemComponent->Mesh->SetRenderCustomDepth(false);
-						UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
+						//UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
 					}
 				}
 			}
@@ -471,9 +471,11 @@ void APrototype2Character::CheckForInteractables()
 				if (auto itemComponent = Cast<UItemComponent>(component))
 				{
 					itemComponent->Mesh->SetRenderCustomDepth(true);
-					UE_LOG(LogTemp, Warning, TEXT("Enable Stenciling"))
+					//UE_LOG(LogTemp, Warning, TEXT("Enable Stenciling"))
 				}
 			}
+			ClosestInteractableItem = Cast<IInteractInterface>(nearestActor);
+			ClosestInteractableActor = nearestActor;
 		}
 	}
 	else
