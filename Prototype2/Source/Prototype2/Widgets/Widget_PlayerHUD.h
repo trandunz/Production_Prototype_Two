@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Prototype2/InteractInterface.h"
 #include "Widget_PlayerHUD.generated.h"
 
 UENUM(BlueprintType)
@@ -92,7 +93,8 @@ public:
 	class UImage* PickupImage;
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))
 	class UOverlay* OverlayPickup;
-	
+
+	IInteractInterface* lastInteract{};
 
 	// Weapon UI
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget))

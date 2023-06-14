@@ -243,6 +243,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 			{
 				closestInteractable->OnDisplayInteractText(this, owner, owner->PlayerID);
 			}
+			
 		}
 	}
 

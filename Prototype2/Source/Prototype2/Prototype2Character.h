@@ -298,6 +298,9 @@ public: /* Public variables */
 
 	class IInteractInterface* ClosestInteractableItem;
 
+	UPROPERTY(VisibleAnywhere)
+	AActor* ClosestInteractableActor;
+
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* ParticleSystem;
 
