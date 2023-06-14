@@ -13,6 +13,8 @@ ASeed::ASeed()
 void ASeed::Interact(APrototype2Character* player)
 {
 	ItemComponent->Interact(player, this);
+
+	
 }
 
 void ASeed::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID)
@@ -21,6 +23,10 @@ void ASeed::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class
 	{
 		_invokingWiget->SetHUDInteractText("Pick Up");
 	}
+	
+
+	ItemComponent->Mesh->SetRenderCustomDepth(true);
+	ItemComponent->Mesh->CustomDepthStencilValue = 1;
 }
 
 void ASeed::Grow()

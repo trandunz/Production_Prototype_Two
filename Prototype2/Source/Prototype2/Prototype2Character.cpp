@@ -434,11 +434,25 @@ void APrototype2Character::CheckForInteractables()
 		}
 
 		float distanceToClosest;
-		ClosestInteractableItem = Cast<IInteractInterface>(UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest));
+		auto nearestActor = UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest);
+		ClosestInteractableItem = Cast<IInteractInterface>(nearestActor);
+		ClosestInteractableActor = nearestActor;
 	}
 	else
 	{
+		// Disable stenciling
+		if (ClosestInteractableActor)
+		{
+			if (auto* itemComponent = Cast<UItemComponent>(ClosestInteractableActor))
+			{
+				itemComponent->Mesh->SetRenderCustomDepth(false);
+				UE_LOG(LogTemp, Warning, TEXT("Render depth not turned off"));	
+				itemComponent->Mesh->CustomDepthStencilValue = 0;
+			}
+		}
+		
 		ClosestInteractableItem = nullptr;
+		ClosestInteractableActor = nullptr;
 	}
 }
 
