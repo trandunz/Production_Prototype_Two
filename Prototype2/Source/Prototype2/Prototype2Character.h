@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "SellBin.h"
 #include "Prototype2Character.generated.h"
 
 class UAudioComponent;
@@ -118,6 +119,10 @@ public:
 	/* Stencil - on/off */
 	void EnableStencil(bool _on);
 
+	/* Decal Arrow */
+	void UpdateDecalDirection(bool _on);
+	void UpdateDecalDirection(bool _on, bool _targetShippingBin);
+
 protected: /* Protected Networking functions */
 	void PlayNetworkMontage(UAnimMontage* _montage);
 	
@@ -229,7 +234,8 @@ protected: /* Protected non-network Functions */
 	
 	void UpdateAllPlayerIDs();
 
-
+	/* Update decal direction */
+	void UpdateDecalAngle();
 
 public: /* Public variables */
 
@@ -319,6 +325,25 @@ public: /* Public variables */
 
 	UPROPERTY(Replicated, EditAnywhere)
 	bool bIsHoldingGold;
+
+	/* Decal component */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* DecalArmSceneComponent;
+	
+	UPROPERTY(EditAnywhere)
+	UDecalComponent* DecalComponent;
+
+	UPROPERTY(EditAnywhere)
+	FVector StartPosition{};
+
+	UPROPERTY(EditAnywhere)
+	bool bDecalOn{false};
+
+	UPROPERTY(EditAnywhere)
+	bool bDecalTargetShippingBin{false};
+
+	UPROPERTY(EditAnywhere)
+	ASellBin* SellBin;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
@@ -377,9 +402,7 @@ private: /* Private variables */
 	/* Interact radius for checking closest item */
 	UPROPERTY(EditAnywhere)
 	float InteractRadius = 200.0f;
-
-
-
+	
 	/* Amount of knockback applied which is multiplied by charge */
 	UPROPERTY(EditAnywhere, Category = KnockBack)
 	float KnockBackAmount = 1000.0f;
@@ -423,12 +446,6 @@ private: /* Private variables */
 
 	UPROPERTY(Replicated)
 	float SprintTimer;
-	
-	//UPROPERTY(EditAnywhere)
-	//float CanSprintTime = 5.0f;
-//
-	//UPROPERTY(Replicated)
-	//float CanSprintTimer;
 
 	/* Attack */
 	UPROPERTY(EditAnywhere)

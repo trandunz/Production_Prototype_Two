@@ -35,6 +35,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "GrowableWeapon.h"
 #include "SellBin_Winter.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -92,6 +93,16 @@ APrototype2Character::APrototype2Character()
 
 	DizzyComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Dizzy Component"));
 	DizzyComponent->SetupAttachment(GetMesh(), FName("Base-HumanHead"));
+
+	// Decal component
+	DecalArmSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DecalArrowArm"));
+	DecalArmSceneComponent->SetupAttachment(RootComponent);
+	DecalArmSceneComponent->SetIsReplicated(false);
+	
+	DecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("DecalArrow"));
+	DecalComponent->AttachToComponent(DecalArmSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	DecalComponent->SetIsReplicated(false);
+	
 }
 
 void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -128,8 +139,6 @@ void APrototype2Character::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
-	
 	
 	ChargeAttackAudioComponent->SetSound(ChargeCue);
 	ChargeAttackAudioComponent->SetIsReplicated(true);
@@ -156,6 +165,26 @@ void APrototype2Character::BeginPlay()
 	// Clamp the viewing angle of the camera
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -40.0f;
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 0.0f;
+
+	// Set start position - for decal arrow
+	StartPosition = GetActorLocation();
+	UpdateDecalDirection(false);
+
+	// Find and store sell bin
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASellBin::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 0)
+	{
+		SellBin = Cast<ASellBin>(FoundActors[0]);
+		UE_LOG(LogTemp, Warning, TEXT("Found shipping bin and allocated"));
+
+		UE_LOG(LogTemp, Warning, TEXT("SellBin Location: %s"), *SellBin->GetActorLocation().ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No shipping bin found"));
+	}
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -245,6 +274,12 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		{
 			GetMovementComponent()->SetActive(false);
 		}
+	}
+
+	// Update decal rotation
+	if (bDecalOn)
+	{
+		UpdateDecalAngle();
 	}
 }
 
@@ -342,6 +377,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	InteractTimer = InteractTimerTime;
 
 	bCanAttack = true;
+
+	UpdateDecalDirection(false); // Turn off decal as dropped any item
 }
 
 void APrototype2Character::Interact()
@@ -366,6 +403,7 @@ void APrototype2Character::Interact()
 		if(!HeldItem)
 		{
 			PlayerHUDRef->UpdatePickupUI(EPickup::None);
+			UpdateDecalDirection(false);
 		}
 		EnableStencil(false);
 		ClosestInteractableActor = nullptr;
@@ -494,6 +532,8 @@ void APrototype2Character::EnableStencil(bool _on)
 		}
 	}
 }
+
+
 
 void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
@@ -635,6 +675,51 @@ void APrototype2Character::OpenIngameMenu()
 
 void APrototype2Character::UpdateAllPlayerIDs()
 {
+}
+
+void APrototype2Character::UpdateDecalAngle()
+{
+	FVector playerPos = FVector(GetActorLocation().X, GetActorLocation().Y, 0);
+	FRotator newRotation{};
+	
+	if (bDecalTargetShippingBin)
+	{
+		FVector sellPos = FVector(SellBin->GetActorLocation().X, SellBin->GetActorLocation().Y, 0);
+		
+		newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, sellPos);
+
+		UE_LOG(LogTemp, Warning, TEXT("Rotating towards shipping bin"));
+	}
+	else
+	{
+		FVector plotPos = FVector(StartPosition.X, StartPosition.Y, 0);
+		
+		newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, plotPos);
+
+		UE_LOG(LogTemp, Warning, TEXT("Rotating towards shipping bin"));
+	}
+
+	DecalArmSceneComponent->SetWorldRotation(newRotation);
+}
+
+void APrototype2Character::UpdateDecalDirection(bool _on)
+{
+	DecalComponent->SetVisibility(_on);
+}
+
+void APrototype2Character::UpdateDecalDirection(bool _on, bool _targetShippingBin)
+{
+	DecalComponent->SetVisibility(_on);
+
+	if (_on)
+	{
+		bDecalOn = true;
+		bDecalTargetShippingBin = _targetShippingBin;
+	}
+	else
+	{
+		bDecalOn = false;
+	}
 }
 
 bool APrototype2Character::IsSprinting()

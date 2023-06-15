@@ -28,6 +28,10 @@ void APlant::Interact(APrototype2Character* player)
 	if (isGrown)
 	{
 		ItemComponent->Interact(player, this);
+		
+		player->UpdateDecalDirection(true, true);
+
+		UE_LOG(LogTemp, Warning, TEXT("Picked up plant"));
 	}
 }
 
@@ -38,6 +42,8 @@ void APlant::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, clas
 		_invokingWiget->SetHUDInteractText("Pick Up");
 
 		owner->EnableStencil(true);
+
+		
 	}
 }
 

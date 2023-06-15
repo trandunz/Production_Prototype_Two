@@ -14,7 +14,7 @@ void ASeed::Interact(APrototype2Character* player)
 {
 	ItemComponent->Interact(player, this);
 
-	
+	player->UpdateDecalDirection(true, false);
 }
 
 void ASeed::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID)

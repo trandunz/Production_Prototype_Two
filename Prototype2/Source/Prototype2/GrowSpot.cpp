@@ -252,6 +252,8 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						growTimer = 0.0f;
 						GrowSpotState = EGrowSpotState::Empty;
 
+						player->UpdateDecalDirection(true, true);
+						
 						// Special sound for mandrake when picked up
 						if (player->HeldItem)
 						{
@@ -275,6 +277,8 @@ void AGrowSpot::Interact(APrototype2Character* player)
 				else if (player->HeldItem)
 				{
 					player->Server_DropItem();
+
+					player->UpdateDecalDirection(true, true);
 				}
 			}
 		}
