@@ -13,6 +13,11 @@ ASeed::ASeed()
 void ASeed::Interact(APrototype2Character* player)
 {
 	ItemComponent->Interact(player, this);
+}
+
+void ASeed::ClientInteract(APrototype2Character* player)
+{
+	IInteractInterface::ClientInteract(player);
 
 	player->UpdateDecalDirection(true, false);
 }

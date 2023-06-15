@@ -178,13 +178,14 @@ void APrototype2Character::BeginPlay()
 	{
 		SellBin = Cast<ASellBin>(FoundActors[0]);
 		UE_LOG(LogTemp, Warning, TEXT("Found shipping bin and allocated"));
-
-		UE_LOG(LogTemp, Warning, TEXT("SellBin Location: %s"), *SellBin->GetActorLocation().ToString());
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No shipping bin found"));
 	}
+
+	DecalArmSceneComponent->SetIsReplicated(false);
+	DecalComponent->SetIsReplicated(false);
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -687,16 +688,12 @@ void APrototype2Character::UpdateDecalAngle()
 		FVector sellPos = FVector(SellBin->GetActorLocation().X, SellBin->GetActorLocation().Y, 0);
 		
 		newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, sellPos);
-
-		UE_LOG(LogTemp, Warning, TEXT("Rotating towards shipping bin"));
 	}
 	else
 	{
 		FVector plotPos = FVector(StartPosition.X, StartPosition.Y, 0);
 		
 		newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, plotPos);
-
-		UE_LOG(LogTemp, Warning, TEXT("Rotating towards shipping bin"));
 	}
 
 	DecalArmSceneComponent->SetWorldRotation(newRotation);
