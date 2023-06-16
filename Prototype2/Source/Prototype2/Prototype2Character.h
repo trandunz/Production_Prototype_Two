@@ -418,7 +418,7 @@ private: /* Private variables */
 	float AttackTimerTime = 1.0f;
 	float AttackTimer{};
 	UPROPERTY(EditAnywhere)
-	float InstantAttackDelay = 0.5f;
+	float InstantAttackDelay = 0.2f;
 	UPROPERTY(EditAnywhere)
 	float ItemLaunchStrength = 500000.0f;
 	

@@ -298,9 +298,19 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 {
 	// create tarray for hit results
 	TArray<FHitResult> outHits;
+
+	FVector inFrontOfPlayer;
 	
 	// start and end locations
-	FVector inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * 30.0f);
+	if (!Weapon->Mesh->bHiddenInGame)
+	{
+		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * 100.0f);
+	}
+	else
+	{
+		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * 30.0f);
+	}
+	
 	FVector sweepStart = inFrontOfPlayer;
 	FVector sweepEnd = inFrontOfPlayer;
 
@@ -380,6 +390,8 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	bCanAttack = true;
 
 	UpdateDecalDirection(false); // Turn off decal as dropped any item
+
+	Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
 }
 
 void APrototype2Character::Interact()
@@ -917,7 +929,9 @@ void APrototype2Character::Server_StartAttack_Implementation()
 
 		if (Weapon)
 		{
-			Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
+			//Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
+					
+			Server_SocketItem(Weapon->Mesh, FName("WeaponAttackingSocket"));
 		}
 
 		Server_ToggleChargeSound(true);
@@ -936,9 +950,10 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 	if (bIsChargingAttack && bCanAttack)
 	{
 		bCanAttack = false;
-		
-		Server_SocketItem(Weapon->Mesh, FName("WeaponAttackingSocket"));
 
+		// Socket Weapon back to held
+		Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
+		
 		// Set the radius of the sphere for attack
 		int32 attackSphereRadius;
 		if (!Weapon->Mesh->bHiddenInGame)
