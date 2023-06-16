@@ -186,12 +186,20 @@ void APrototype2Character::BeginPlay()
 
 	DecalArmSceneComponent->SetIsReplicated(false);
 	DecalComponent->SetIsReplicated(false);
+
+	// assign player sttate ref
+	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
+
+	if (PlayerMeshes.Num() > 0)
+		GetMesh()->SetSkeletalMeshAsset(PlayerMeshes[(int)PlayerStateRef->Character]);
+	
 	GetMesh()->SetMaterial(0, PlayerMat);
 	
 	UpdateAllPlayerIDs();
