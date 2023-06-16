@@ -197,6 +197,9 @@ void APrototype2Character::Tick(float DeltaSeconds)
 
 	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
 
+	if (PlayerMeshes.Num() > 0)
+		GetMesh()->SetSkeletalMeshAsset(PlayerMeshes[(int)PlayerStateRef->Character]);
+	
 	GetMesh()->SetMaterial(0, PlayerMat);
 	
 	UpdateAllPlayerIDs();

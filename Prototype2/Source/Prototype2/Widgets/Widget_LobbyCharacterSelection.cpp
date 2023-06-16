@@ -90,7 +90,9 @@ void UWidget_LobbyCharacterSelection::UpdateCharacterImage()
 	case ECharacters::COW:
 		{
 			if (CowTextures.Num() > 0)
+			{
 				PlayerImage->SetBrushFromTexture(CowTextures[(int)IdealCharacterColour]);
+			}
 			break;
 		}
 	case ECharacters::CHICKEN:
@@ -117,6 +119,25 @@ void UWidget_LobbyCharacterSelection::UpdateCharacterImage()
 				PlayerImage->SetBrushFromTexture(CowTextures[(int)IdealCharacterColour]);
 			break;
 		}
+	}
+
+	switch(IdealCharacterColour)
+	{
+	case ECharacterColours::RED:
+		PlayerColourImage->SetColorAndOpacity(FLinearColor(0.427083f, 0.100098f, 0.100098f, 1.0f));
+		break;
+	case ECharacterColours::BLUE:
+		PlayerColourImage->SetColorAndOpacity(FLinearColor(0.034125f, 0.118703f, 0.192708f, 1.0f));
+		break;
+	case ECharacterColours::GREEN:
+		PlayerColourImage->SetColorAndOpacity(FLinearColor(0.078957f, 0.192708f, 0.056207f, 1.0f));
+		break;
+	case ECharacterColours::YELLOW:
+		PlayerColourImage->SetColorAndOpacity(FLinearColor(0.317708f, 0.180145, 0.033095, 1.0f));
+		break;
+	default:
+		PlayerColourImage->SetColorAndOpacity(FLinearColor(0.427083f, 0.100098f, 0.100098f, 1.0f));
+		break;
 	}
 }
 

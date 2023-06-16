@@ -238,6 +238,9 @@ protected: /* Protected non-network Functions */
 
 public: /* Public variables */
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<USkeletalMesh*> PlayerMeshes;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     class APrototype2PlayerState* PlayerStateRef;
 

@@ -118,8 +118,8 @@ void APrototype2GameMode::Tick(float DeltaSeconds)
 						if (PlayerMaterials.Num() > (int)playerState->CharacterColour)
 						{
 							//UE_LOG(LogTemp, Warning, TEXT("Gamemode: Set Player Material"));
-							if (PlayerMaterials.Num() > (int)playerState->Character * 3 + (int)playerState->CharacterColour)
-								character->PlayerMat = PlayerMaterials[(int)playerState->Character * 3 + (int)playerState->CharacterColour];
+							if (PlayerMaterials.Num() > (int)playerState->Character * 4 + (int)playerState->CharacterColour)
+								character->PlayerMat = PlayerMaterials[(int)playerState->Character * 4 + (int)playerState->CharacterColour];
 							else
 								character->PlayerMat = PlayerMaterials[(int)playerState->CharacterColour];
 						}

@@ -58,14 +58,11 @@ void APlant::Server_ToggleGold_Implementation()
 
 void APlant::Multi_ToggleGold_Implementation()
 {
-	/*int x = rand() % 100;
+	int x = rand() % 100;
 	if (x < chanceOfGold)
 	{
-		
-	}*/
-
-	ItemComponent->gold = true;
-	
+		ItemComponent->gold = true;
+	}
 
 	if (ItemComponent->gold)
 	{
