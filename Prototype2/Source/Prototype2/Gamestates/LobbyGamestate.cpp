@@ -21,8 +21,6 @@ void ALobbyGamestate::BeginPlay()
 void ALobbyGamestate::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	
 	
 	if (HasAuthority())
 	{
