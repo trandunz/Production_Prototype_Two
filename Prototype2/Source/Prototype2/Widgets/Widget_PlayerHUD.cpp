@@ -35,7 +35,7 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 	}
 
 	// Set starting pickup item
-	UpdatePickupUI(None);
+	UpdatePickupUI(None, false);
 
 	// Set interaction text to be hidden on start
 	InteractionUI->SetVisibility(ESlateVisibility::Hidden);
@@ -261,7 +261,7 @@ void UWidget_PlayerHUD::EnableEndgameMenu()
 	bEndgame = true;
 }
 
-void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
+void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup, bool _isGold)
 {
 	if (_pickup != None)
 	{
@@ -286,12 +286,14 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 		}
 	case Carrot:
 		{
-			PickupImage->SetBrushFromTexture(CarrotTexture);
-			break;
-		}
-	case CarrotGold:
-		{
-			PickupImage->SetBrushFromTexture(CarrotGoldTexture);
+			if (_isGold)
+			{
+				PickupImage->SetBrushFromTexture(CarrotGoldTexture);
+			}
+			else
+			{
+				PickupImage->SetBrushFromTexture(CarrotTexture);
+			}
 			break;
 		}
 	case CarrotSeed:
@@ -301,12 +303,15 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 		}
 	case Cabbage:
 		{
-			PickupImage->SetBrushFromTexture(CabbageTexture);
-			break;
-		}
-	case CabbageGold:
-		{
-			PickupImage->SetBrushFromTexture(CabbageGoldTexture);
+			if (_isGold)
+			{
+				PickupImage->SetBrushFromTexture(CabbageGoldTexture);
+			}
+			else
+			{
+				PickupImage->SetBrushFromTexture(CabbageTexture);
+			}
+			
 			break;
 		}
 	case CabbageSeed:
@@ -316,12 +321,15 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 		}
 	case Mandrake:
 		{
-			PickupImage->SetBrushFromTexture(MandrakeTexture);
-			break;
-		}
-	case MandrakeGold:
-		{
-			PickupImage->SetBrushFromTexture(MandrakeGoldTexture);
+			if (_isGold)
+			{
+				PickupImage->SetBrushFromTexture(MandrakeGoldTexture);
+			}
+			else
+			{
+				PickupImage->SetBrushFromTexture(MandrakeTexture);
+			}
+			
 			break;
 		}
 	case MandrakeSeed:
@@ -331,12 +339,15 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 		}
 	case Broccoli:
 		{
-			PickupImage->SetBrushFromTexture(BroccoliTexture);
-			break;
-		}
-	case BroccoliGold:
-		{
-			PickupImage->SetBrushFromTexture(BroccoliGoldTexture);
+			if (_isGold)
+			{
+				PickupImage->SetBrushFromTexture(BroccoliGoldTexture);
+			}
+			else
+			{
+				PickupImage->SetBrushFromTexture(BroccoliTexture);
+			}
+			
 			break;
 		}
 	case BroccoliSeed:
@@ -346,12 +357,15 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 		}
 	case Daikon:
 		{
-			PickupImage->SetBrushFromTexture(DaikonTexture);
-			break;
-		}
-	case DaikonGold:
-		{
-			PickupImage->SetBrushFromTexture(DaikonGoldTexture);
+			if (_isGold)
+			{
+				PickupImage->SetBrushFromTexture(DaikonGoldTexture);
+			}
+			else
+			{
+				PickupImage->SetBrushFromTexture(DaikonTexture);
+			}
+			
 			break;
 		}
 	case DaikonSeed:
@@ -361,12 +375,15 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup)
 		}
 	case Radish:
 		{
-			PickupImage->SetBrushFromTexture(RadishTexture);
-			break;
-		}
-	case RadishGold:
-		{
-			PickupImage->SetBrushFromTexture(RadishGoldTexture);
+			if (_isGold)
+			{
+				PickupImage->SetBrushFromTexture(RadishGoldTexture);
+			}
+			else
+			{
+				PickupImage->SetBrushFromTexture(RadishTexture);
+			}
+			
 			break;
 		}
 	case RadishSeed:

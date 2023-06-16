@@ -12,22 +12,16 @@ enum EPickup
 {
 	None,
 	Carrot,
-	CarrotGold,
 	CarrotSeed,
 	Cabbage,
-	CabbageGold,
 	CabbageSeed,
 	Mandrake,
-	MandrakeGold,
 	MandrakeSeed,
 	Broccoli,
-	BroccoliGold,
 	BroccoliSeed,
 	Daikon,
-	DaikonGold,
 	DaikonSeed,
 	Radish,
-	RadishGold,
 	RadishSeed,
 	Weapon,
 	NoWeapon
@@ -188,7 +182,7 @@ public:
 	//void UpdateWeaponUI();
 
 	UFUNCTION(BlueprintCallable)
-	void UpdatePickupUI(EPickup _pickup);
+	void UpdatePickupUI(EPickup _pickup, bool _isGold);
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdateWeaponUI(EPickup _weapon);
