@@ -403,7 +403,7 @@ void APrototype2Character::Interact()
 
 		if(!HeldItem)
 		{
-			PlayerHUDRef->UpdatePickupUI(EPickup::None);
+			PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
 			UpdateDecalDirection(false);
 		}
 		EnableStencil(false);
@@ -1174,7 +1174,7 @@ void APrototype2Character::Multi_DropItem_Implementation()
 	// Set HUD image
 	if (PlayerHUDRef)
 	{
-		PlayerHUDRef->UpdatePickupUI(EPickup::None);
+		PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
 	}
 	PlaySoundAtLocation(GetActorLocation(), DropCue);
 }
@@ -1228,7 +1228,7 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 		}
 		
 		if (PlayerHUDRef && HeldItem)
-			PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType);
+			PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType, bIsHoldingGold);
 	}
 }
 

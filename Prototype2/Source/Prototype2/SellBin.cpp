@@ -178,7 +178,10 @@ void ASellBin::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, cl
 	{
 		if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
 			heldItem->ItemComponent->PickupType == EPickup::Carrot ||
-			heldItem->ItemComponent->PickupType == EPickup::Mandrake)
+			heldItem->ItemComponent->PickupType == EPickup::Mandrake ||
+			heldItem->ItemComponent->PickupType == EPickup::Broccoli ||
+			heldItem->ItemComponent->PickupType == EPickup::Daikon ||
+			heldItem->ItemComponent->PickupType == EPickup::Radish)
 		{
 			_invokingWiget->SetHUDInteractText("Sell");
 
