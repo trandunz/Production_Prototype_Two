@@ -186,11 +186,16 @@ void APrototype2Character::BeginPlay()
 
 	DecalArmSceneComponent->SetIsReplicated(false);
 	DecalComponent->SetIsReplicated(false);
+
+	// assign player sttate ref
+	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
 
 	GetMesh()->SetMaterial(0, PlayerMat);
 	

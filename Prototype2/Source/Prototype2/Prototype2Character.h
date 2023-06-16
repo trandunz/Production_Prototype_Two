@@ -238,6 +238,9 @@ protected: /* Protected non-network Functions */
 
 public: /* Public variables */
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    class APrototype2PlayerState* PlayerStateRef;
+
 	/* Audio */
 	UPROPERTY(EditAnywhere, Replicated)
 	USoundAttenuation* SoundAttenuationSettings;

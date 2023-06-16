@@ -64,7 +64,8 @@ void ALobbyGamemode::PostLogin(APlayerController* NewPlayer)
 
 				if (auto* character = Cast<ALobbyCharacter>(NewPlayer->GetCharacter()))
 				{
-					character->PlayerMat = PlayerMaterials[(int)playerState->CharacterColour];
+					if (PlayerMaterials.Num() > (int)playerState->Character * 3 + (int)playerState->CharacterColour)
+						character->PlayerMat = PlayerMaterials[(int)playerState->Character * 3 + (int)playerState->CharacterColour];
 					NewPlayer->Possess(character);
 					character->SetOwner(NewPlayer);
 					gamestate->MaxPlayersOnServer = GetGameInstance<UPrototypeGameInstance>()->MaxPlayersOnServer;
