@@ -91,7 +91,7 @@ void UWidget_PlayerHUD::NativeOnInitialized()
 		overlaySlot = CastChecked<UOverlaySlot>(TopOverlayUI->GetSlots()[1]); // Change position of player 2
 		overlaySlot->SetPadding(FMargin(400,0,0,0));
 	}
-
+	
 }
 
 void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -137,9 +137,6 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 				
 				//UE_LOG(LogTemp, Warning, TEXT("Player [%s] ID = %s"), *FString::FromInt(i), *FString::FromInt(player->Player_ID));
 				
-				//P2Icon->SetBrushFromTexture(PlayerIcons[4]);
-				//P3Icon->SetBrushFromTexture(PlayerIcons[4]);
-				//P4Icon->SetBrushFromTexture(PlayerIcons[4]);
 				switch(i)
 				{
 				case 0:
@@ -161,6 +158,8 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						
 						//if (GameStateRef->Server_Players.Num() >= 1)
 						//	P1Icon->SetBrushFromTexture(PlayerIcons[0]);
+						SetPlayerIcons(1, player);
+						
 						break;
 					}
 				case 1:
@@ -182,6 +181,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						
 						//if (GameStateRef->Server_Players.Num() >= 2)
 						//	P2Icon->SetBrushFromTexture(PlayerIcons[1]);
+						SetPlayerIcons(2, player);
 						break;
 					}
 				case 2:
@@ -202,6 +202,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						}
 						//if (GameStateRef->Server_Players.Num() >= 3)
 						//	P3Icon->SetBrushFromTexture(PlayerIcons[2]);
+						SetPlayerIcons(3, player);
 						break;
 					}
 				case 3:
@@ -222,6 +223,7 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 						}
 						//if (GameStateRef->Server_Players.Num() >= 4)
 						//	P4Icon->SetBrushFromTexture(PlayerIcons[3]);
+						SetPlayerIcons(4, player);
 						break;
 					}
 				default:
@@ -484,5 +486,145 @@ void UWidget_PlayerHUD::SetWeaponDurability(int _durability)
 {
 }
 
+void UWidget_PlayerHUD::SetPlayerIcons(int _iconNum, APrototype2PlayerState* _player)
+{
+	int playerNum = _iconNum - 1;
+	if (playerNum <= 0)
+		playerNum = 0;
+	
+	switch (playerNum)
+	{
+	case 0: // Player 1 Icon
+		P1Icon->SetBrushFromTexture(SetIcon(_player));
+		//UE_LOG(LogTemp, Warning, TEXT("P1"));
+		//UE_LOG(LogTemp, Warning, TEXT("Character %d"), _player->Character);
+		//UE_LOG(LogTemp, Warning, TEXT("CharacterColour %d"), _player->CharacterColour);
+		break;
+	case 1:
+		P2Icon->SetBrushFromTexture(SetIcon(_player));
+		//UE_LOG(LogTemp, Warning, TEXT("P2"));
+		//UE_LOG(LogTemp, Warning, TEXT("Character %d"), _player->Character);
+		//UE_LOG(LogTemp, Warning, TEXT("CharacterColour %d"), _player->CharacterColour);
+		break;
+	case 2:
+		P3Icon->SetBrushFromTexture(SetIcon(_player));
+		//UE_LOG(LogTemp, Warning, TEXT("P3"));
+		//UE_LOG(LogTemp, Warning, TEXT("Character %d"), _player->Character);
+		//UE_LOG(LogTemp, Warning, TEXT("CharacterColour %d"), _player->CharacterColour);
+		break;
+	case 3:
+		P4Icon->SetBrushFromTexture(SetIcon(_player));
+		//UE_LOG(LogTemp, Warning, TEXT("P4"));
+		//UE_LOG(LogTemp, Warning, TEXT("Character %d"), _player->Character);
+		//UE_LOG(LogTemp, Warning, TEXT("CharacterColour %d"), _player->CharacterColour);
+		break;
+	default:
+		//UE_LOG(LogTemp, Warning, TEXT("NONE"));
+		break;
+	}
+}
 
+UTexture2D* UWidget_PlayerHUD::SetIcon(APrototype2PlayerState* _player)
+{
+	switch (_player->Character)
+	{
+	case ECharacters::COW:
+		{
+			switch (_player->CharacterColour)
+			{
+			case ECharacterColours::RED:
+				//UE_LOG(LogTemp, Warning, TEXT("RED COW"));
+				return Cow_Red_Texture;
+				break;
+			case ECharacterColours::BLUE:
+				//UE_LOG(LogTemp, Warning, TEXT("BLUE COW"));
+				return Cow_Blue_Texture;
+				break;
+			case ECharacterColours::GREEN:
+				//UE_LOG(LogTemp, Warning, TEXT("GREEN COW"));
+				return Cow_Green_Texture;
+				break;
+			case ECharacterColours::YELLOW:
+				//UE_LOG(LogTemp, Warning, TEXT("YELLOW COW"));
+				return Cow_Yellow_Texture;
+				break;
+			default:
+				//UE_LOG(LogTemp, Warning, TEXT("DEFAULT COW"));
+				return Cow_Red_Texture;
+				break;
+			}
+			break;
+		}
+	case ECharacters::PIG:
+		{
+			switch (_player->CharacterColour)
+			{
+			case ECharacterColours::RED:
+				return Pig_Red_Texture;
+				break;
+			case ECharacterColours::BLUE:
+				return Pig_Blue_Texture;
+				break;
+			case ECharacterColours::GREEN:
+				return Pig_Green_Texture;
+				break;
+			case ECharacterColours::YELLOW:
+				return Pig_Yellow_Texture;
+				break;
+			default:
+				return Pig_Red_Texture;
+				break;
+			}
+			break;
+		}
+	case ECharacters::CHICKEN:
+		{
+			switch (_player->CharacterColour)
+			{
+			case ECharacterColours::RED:
+				return Chicken_Red_Texture;
+				break;
+			case ECharacterColours::BLUE:
+				return Chicken_Blue_Texture;
+				break;
+			case ECharacterColours::GREEN:
+				return Chicken_Green_Texture;
+				break;
+			case ECharacterColours::YELLOW:
+				return Chicken_Yellow_Texture;
+				break;
+			default:
+				return Chicken_Red_Texture;
+				break;
+			}
+			break;
+		}
+	case ECharacters::DUCK:
+		{
+			switch (_player->CharacterColour)
+			{
+			case ECharacterColours::RED:
+				return Duck_Red_Texture;
+				break;
+			case ECharacterColours::BLUE:
+				return Duck_Blue_Texture;
+				break;
+			case ECharacterColours::GREEN:
+				return Duck_Green_Texture;
+				break;
+			case ECharacterColours::YELLOW:
+				return Duck_Yellow_Texture;
+				break;
+			default:
+				return Duck_Red_Texture;
+				break;
+			}
+			break;
+		}
+	default:
+		//UE_LOG(LogTemp, Warning, TEXT("CHARACTER DEFAULT"));
+		return Cow_Red_Texture;
+		break;
+	}
+}
 
