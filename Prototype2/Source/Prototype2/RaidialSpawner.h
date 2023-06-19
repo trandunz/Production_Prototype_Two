@@ -22,6 +22,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere)
+	bool changePlayerCount = true;
 	
 	UPROPERTY(EditAnywhere)
 	AActor* initialSpawn;

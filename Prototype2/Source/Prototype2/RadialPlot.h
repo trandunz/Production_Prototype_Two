@@ -18,6 +18,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<AGrowSpot*> growSpots;
+	UPROPERTY(VisibleAnywhere)
+	int Player_ID;
 
 protected:
 	// Called when the game starts or when spawned

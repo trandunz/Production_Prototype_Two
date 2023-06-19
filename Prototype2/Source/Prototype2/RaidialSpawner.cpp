@@ -35,7 +35,10 @@ void ARaidialSpawner::SetUp()
 {
 	if (auto* gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
 	{
-		playercount = gamestate->FinalConnectionCount;
+		if (changePlayerCount)
+		{
+			playercount = gamestate->FinalConnectionCount;
+		}
 	}
 	
 	FVector ReferenceLocation = FVector();

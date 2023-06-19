@@ -38,9 +38,11 @@ void ARadialPlot::Tick(float DeltaTime)
 
 void ARadialPlot::SetPlayerID(int ID)
 {
+	Player_ID = ID; 
 	for (int i = 0; i < growSpots.Num(); i++)
 	{
 		growSpots[i]->Player_ID = ID;
+		growSpots[i]->InterfaceType = EInterfaceType::GrowSpot;
 	}
 }
 
