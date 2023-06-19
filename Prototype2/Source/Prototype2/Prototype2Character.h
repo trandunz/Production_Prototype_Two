@@ -223,7 +223,7 @@ protected: /* Protected non-network Functions */
 	void Sprint();
 
 	/* Handle character speed */
-	void UpdateCharacterSpeed(float _WalkSpeed, float _SprintSpeed, float MaxAnimationRateScale);
+	void UpdateCharacterSpeed(float _WalkSpeed, float _SprintSpeed, float _BaseAnimationRateScale);
 	
 	/* Create a sphere collider which calculates nearest item */
 	void CheckForInteractables();
@@ -313,7 +313,7 @@ public: /* Public variables */
 	int WeaponCurrentDurability;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int WeaponMaxDurability;
+	int WeaponMaxDurability = 5;
 
 	
 	class IInteractInterface* ClosestInteractableItem;
@@ -442,7 +442,10 @@ private: /* Private variables */
 	/* Reference to change speed: Sprint/Walk/Slow Walk */
 	UPROPERTY(EditAnywhere, Category = Animation)
 	UAnimSequence* RunAnimation;
-
+	
+	UPROPERTY(EditAnywhere, Category = Animation)
+	TArray<UAnimSequence*> RunAnimations;
+	
 	UPROPERTY(EditAnywhere)
 	float IceFriction{0.1f};
 	
@@ -458,6 +461,13 @@ private: /* Private variables */
 
 	UPROPERTY(Replicated , VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float SprintTimer;
+
+	UPROPERTY(EditAnywhere, Category = RateScale)
+	float WalkRateScale = 1.5f;
+	UPROPERTY(EditAnywhere, Category = RateScale)
+	float GoldSlowRateScale = 0.7f;
+	UPROPERTY(EditAnywhere, Category = RateScale)
+	float SprintRateScaleScalar = 1.5f;
 
 	/* Attack */
 	UPROPERTY(EditAnywhere)

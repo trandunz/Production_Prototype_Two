@@ -197,6 +197,12 @@ void APrototype2Character::BeginPlay()
 
 	// assign player sttate ref
 	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
+
+	// Set the reference to the run animation based on the skin (Cow, Pig, etc)
+	if (RunAnimations[(int32)PlayerStateRef->Character])
+	{		
+		RunAnimation = RunAnimations[(int32)PlayerStateRef->Character];	
+	}
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -236,11 +242,11 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	// Sprint
 	if (bIsHoldingGold)
 	{
-		UpdateCharacterSpeed(GoldPlantSpeed, WalkSpeed, 1.25f);
+		UpdateCharacterSpeed(GoldPlantSpeed, WalkSpeed, GoldSlowRateScale);
 	}
 	else
 	{
-		UpdateCharacterSpeed(WalkSpeed, SprintSpeed, 2.5f);
+		UpdateCharacterSpeed(WalkSpeed, SprintSpeed, WalkRateScale);
 	}
 	
 	// Attack
@@ -450,7 +456,7 @@ void APrototype2Character::Sprint()
 	Server_Sprint();
 }
 
-void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintSpeed, float MaxAnimationRateScale)
+void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintSpeed, float _BaseAnimationRateScale)
 {
 	if (SprintTimer < 0.0f)
 	{
@@ -459,7 +465,7 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 		// Speed up animation
 		if (RunAnimation)
 		{
-			RunAnimation->RateScale = MaxAnimationRateScale/2;
+			RunAnimation->RateScale = _BaseAnimationRateScale;
 		}
 	}
 	else
@@ -467,7 +473,7 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 		GetCharacterMovement()->MaxWalkSpeed = _SprintSpeed;
 		if(RunAnimation)
 		{
-			RunAnimation->RateScale = MaxAnimationRateScale;
+			RunAnimation->RateScale = _BaseAnimationRateScale * SprintRateScaleScalar;
 		}
 	}
 }
@@ -1028,7 +1034,7 @@ void APrototype2Character::TryInteract()
 {
 	if (ClosestInteractableItem)
 	{
-		ClosestInteractableItem->ClientInteract(this);		
+		ClosestInteractableItem->ClientInteract(this);
 	}
 }
 
@@ -1060,11 +1066,6 @@ void APrototype2Character::Server_TryInteract_Implementation()
 	{
 		InteractTimer = InteractTimerTime;
 		Multi_DropItem();
-
-		if (PickupMontage)
-		{
-			PlayNetworkMontage(PickupMontage);
-		}
 	}
 }
 
