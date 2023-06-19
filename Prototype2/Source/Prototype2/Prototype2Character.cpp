@@ -1112,10 +1112,10 @@ void APrototype2Character::Multi_DropItem_Implementation()
 
 void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
-	if (HeldItem)
-	{
-		Server_DropItem();
-	}
+	//if (HeldItem)
+	//{
+	//	Multi_DropItem();
+	//}
 
 	Multi_PickupItem(itemComponent, _item);
 }
@@ -1154,6 +1154,7 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	}
 		
 	_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
+
 	HeldItem = _item;
 	
 	if (HeldItem->ItemComponent->gold)

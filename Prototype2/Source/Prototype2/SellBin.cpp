@@ -53,6 +53,11 @@ void ASellBin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	ItemComponent->Mesh->SetSimulatePhysics(false);
+	ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	
 	MoveUIComponent(DeltaTime);
 }
 
@@ -125,8 +130,6 @@ void ASellBin::ClientInteract(APrototype2Character* player)
 void ASellBin::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ASellBin, bWidgetVisible);
 }
 
 void ASellBin::MoveUIComponent(float _dt)
@@ -148,7 +151,7 @@ void ASellBin::Interact(APrototype2Character* player)
 {
 	if (player->HeldItem)
 	{
-		if (auto* plant = Cast<APlant>(player->HeldItem))
+		if (auto plant = Cast<APlant>(player->HeldItem))
 		{
 			// Audio
 			if (player->SellCue)
@@ -172,7 +175,7 @@ void ASellBin::Interact(APrototype2Character* player)
 	}
 }
 
-void ASellBin::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID)
+void ASellBin::OnDisplayInteractText(UWidget_PlayerHUD* _invokingWiget,APrototype2Character* owner, int _playerID)
 {
 	if(auto heldItem = owner->HeldItem)
 	{

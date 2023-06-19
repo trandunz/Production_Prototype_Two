@@ -20,17 +20,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	UPROPERTY(EditAnywhere)
 	bool changePlayerCount = true;
-	
-	UPROPERTY(EditAnywhere)
-	AActor* initialSpawn;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> plot;
+	TSubclassOf<class ARadialPlot> PlotPrefab;
 
 	UPROPERTY(EditAnywhere)
 	int playercount = 12;

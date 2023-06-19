@@ -20,35 +20,30 @@ ARaidialSpawner::ARaidialSpawner()
 void ARaidialSpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	SetUp();
-	
-}
 
-// Called every frame
-void ARaidialSpawner::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	if (PlotPrefab)
+		SetUp();
 }
 
 void ARaidialSpawner::SetUp()
 {
-	if (auto* gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
+	if (auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
 	{
 		if (changePlayerCount)
 		{
 			playercount = gamestate->FinalConnectionCount;
 		}
 	}
-	
-	FVector ReferenceLocation = FVector();
-	if (initialSpawn)
+	if (playercount <= 0)
 	{
-		ReferenceLocation = initialSpawn->GetActorLocation();
+		playercount = UGameplayStatics::GetGameMode(GetWorld())->GetNumPlayers();
 	}
-	FVector OwningLocation = GetActorLocation();
-	//FVector OwningLocation = FVector();
-	float SpawnRadius = FVector::Dist(ReferenceLocation, OwningLocation);
+	if (playercount <= 0)
+	{
+		return;
+	}
+	
+	float SpawnRadius = 3000;
 
 	float AngleStep = 360.0f / playercount; // Calculate the angle between each object
 
@@ -63,20 +58,15 @@ void ARaidialSpawner::SetUp()
 		// Calculate the spawn position offset based on angle and radius
 		float OffsetX = SpawnRadius * FMath::Cos(Radians);
 		float OffsetY = SpawnRadius * FMath::Sin(Radians);
-
-		// Calculate the final spawn position
-		FVector SpawnLocation = OwningLocation;
-		FVector ObjectSpawnPosition = SpawnLocation + FVector(OffsetX, OffsetY, 0.0f);
+		
+		FVector ObjectSpawnPosition = GetActorLocation() + FVector(OffsetX, OffsetY, -1337.0f /*XD this value does nothing real one is in RadialPlot.cpp*/);
 
 		// Spawn the object at the calculated position
-		AActor* SpawnedObject = GetWorld()->SpawnActor<AActor>(plot, ObjectSpawnPosition, FRotator(0, Angle + 90, 0));
+		auto spawnedRadialPlot = GetWorld()->SpawnActor<ARadialPlot>(PlotPrefab, ObjectSpawnPosition, FRotator(0, Angle + 90, 0));
 		
-		if (SpawnedObject)
+		if (spawnedRadialPlot)
 		{
-			if (ARadialPlot* RadialPlot = Cast<ARadialPlot>(SpawnedObject))
-			{
-				RadialPlot->SetPlayerID(Index);
-			}
+			spawnedRadialPlot->SetPlayerID(Index);
 		}
 	}
 	
