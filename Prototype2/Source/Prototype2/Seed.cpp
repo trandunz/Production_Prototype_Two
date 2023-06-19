@@ -31,8 +31,6 @@ void ASeed::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class
 
 		owner->EnableStencil(true);
 	}
-
-	
 }
 
 void ASeed::Grow()

@@ -47,7 +47,7 @@ public:
 	int32 WeaponDurability;
 
 	// For HUD changing icons
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated ,EditAnywhere, BlueprintReadWrite)
 	TEnumAsByte<EPickup> PickupType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

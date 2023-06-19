@@ -42,6 +42,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_GrowOnTick(float _deltaTime);
+	void Multi_GrowOnTick_Implementation(float _deltaTime);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_UpdateState(EGrowSpotState _newState);
+	void Multi_UpdateState_Implementation(EGrowSpotState _newState);
+
 	UPROPERTY(EditAnywhere)
 	UItemComponent* ItemComponent;
 
@@ -52,7 +60,7 @@ public:
 	void SetWeapon(AGrowableWeapon* _weapon, float _growTime);
 
 	UPROPERTY(Replicated, VisibleAnywhere)
-	EGrowSpotState GrowSpotState = EGrowSpotState::Default;
+	EGrowSpotState GrowSpotState = EGrowSpotState::Empty;
 
 	UPROPERTY(Replicated, VisibleAnywhere)
 	APlant* plant = nullptr;

@@ -236,16 +236,27 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		if (GameStateRef->GameReadyForVote)
 		{
 			EnableEndgameMenu();
+			SetHUDInteractText("");
 		}
-
-		SetHUDInteractText("");
 		
 		if (auto owner = Cast<APrototype2Character>(GetOwningPlayer()->GetCharacter()))
 		{
 			if (auto closestInteractable = owner->ClosestInteractableItem)
 			{
+				
 				closestInteractable->OnDisplayInteractText(this, owner, owner->PlayerID);
 			}
+			else
+			{
+				SetHUDInteractText("");
+			}
+		}
+	}
+	else
+	{
+		if (auto gameState = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
+		{
+			GameStateRef = gameState;
 		}
 	}
 
@@ -406,7 +417,7 @@ void UWidget_PlayerHUD::UpdatePickupUI(EPickup _pickup, bool _isGold)
 	//	}
 	default:
 		{
-			
+			 
 		}
 	}
 }

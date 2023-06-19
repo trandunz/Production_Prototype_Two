@@ -419,31 +419,26 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 
 void APrototype2Character::Interact()
 {
-	if (InteractTimer < 0.0f)
+	// check if i can interact
+	if (InteractTimer <= 0.0f)
 	{
-		// Reset the Interact Timer when Player Interacts
-		InteractTimer = InteractTimerTime;
-
-		//if(!HeldItem)
-		//{
-		//	PlayerHUDRef->UpdatePickupUI(EPickup::None);
-		//}
-
+		if(!HeldItem)
+		{
+			PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
+			UpdateDecalDirection(false);
+		}
+		if (!Weapon)
+		{
+			PlayerHUDRef->UpdateWeaponUI(EPickup::None);
+		}
 		
 		if (!bIsChargingAttack)
 		{
 			TryInteract();
 			Server_TryInteract();
 		}
-
-		if(!HeldItem)
-		{
-			PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
-			UpdateDecalDirection(false);
-		}
+		
 		EnableStencil(false);
-		ClosestInteractableActor = nullptr;
-		ClosestInteractableItem = nullptr;
 	}
 	
 	// Debug draw collision sphere
@@ -492,13 +487,9 @@ void APrototype2Character::CheckForInteractables()
 		TArray<AActor*> interactableActors;
 		for (auto& hit : outHits)
 		{
-			if (hit.GetActor() != HeldItem && !hit.GetActor()->IsA<APrototype2Character>())
+			if (Cast<IInteractInterface>(hit.GetActor()))
 			{
-				if (Cast<IInteractInterface>(hit.GetActor()))
-				{
-				
-					interactableActors.Add(hit.GetActor());
-				}
+				interactableActors.Add(hit.GetActor());
 			}
 		}
 
@@ -631,7 +622,7 @@ void APrototype2Character::SetupPlayerInputComponent(class UInputComponent* Play
 		EnhancedInputComponent->BindAction(ReleaseAttackAction, ETriggerEvent::Triggered, this, &APrototype2Character::ReleaseAttack);
 
 		// Interact
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APrototype2Character::Interact);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &APrototype2Character::Interact);
 
 		// Sprint
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &APrototype2Character::Sprint);
@@ -1046,33 +1037,10 @@ void APrototype2Character::Server_TryInteract_Implementation()
 {
 	if (ClosestInteractableItem)
 	{
-		if (HeldItem)
-		{
-			if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
-			{
-				ClosestInteractableItem->Interact(this);
-			}
-			else if (ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin)
-			{
-				ClosestInteractableItem->Interact(this);
-			}
-			
-			Multi_DropItem();
+		InteractTimer = InteractTimerTime;
 
-			if (PickupMontage)
-			{
-				PlayNetworkMontage(PickupMontage);
-			}
-
-			return;
-		}
-		else if (!HeldItem)
-		{
-			if (ClosestInteractableItem->InterfaceType == EInterfaceType::Default && ClosestInteractableActor != HeldItem)
-			{
-				ClosestInteractableItem->Interact(this);
-			}
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Attempted to Interact!"));
+		ClosestInteractableItem->Interact(this);
 		
 		if (HeldItem)
 		{
@@ -1089,8 +1057,9 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			}
 		}
 	}
-	else if (HeldItem)
+	else if (HeldItem && !ClosestInteractableItem)
 	{
+		InteractTimer = InteractTimerTime;
 		Multi_DropItem();
 
 		if (PickupMontage)
@@ -1098,70 +1067,11 @@ void APrototype2Character::Server_TryInteract_Implementation()
 			PlayNetworkMontage(PickupMontage);
 		}
 	}
-	
-	/* old */
-	/*if (ClosestInteractableItem && !HeldItem)
-	{
-		// If player is holding nothing, and there is something to pickup in range
-		if (PickupMontage &&
-			ClosestInteractableItem->InterfaceType != EInterfaceType::SellBin &&
-			ClosestInteractableItem->InterfaceType != EInterfaceType::GrowSpot)
-		{
-			// Animation
-			PlayNetworkMontage(PickupMontage);
-			
-			// Call the InteractInterface interact function
-			ClosestInteractableItem->Interact(this);					// ClosestInteractableItem->Interact(this);
-
-			// Put weapon on back
-			Multi_SocketItem(Weapon->Mesh,  FName("WeaponHolsterSocket"));
-		}
-		else if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot) // If the player is trying to pick up a plant from grow plot
-		{
-			// Call the InteractInterface interact function
-			ClosestInteractableItem->Interact(this);					// ClosestInteractableItem->Interact(this);
-
-			if (HeldItem)
-			{
-				if (HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
-				{
-					if (MandrakeScreamCue)
-					{
-						PlaySoundAtLocation(GetActorLocation(), MandrakeScreamCue);
-					}
-				}
-			}
-		}
-	}
-	else if (HeldItem) // If holding item
-	{
-		// If Sell Bin or Grow Patch close, interact
-		if (ClosestInteractableItem &&
-			(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin ||
-			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot))
-		{
-			ClosestInteractableItem->Interact(this);				// ClosestInteractableItem->Interact(this);
-
-			if(ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin && !HeldItem)
-			{
-				PlaySoundAtLocation(GetActorLocation(), SellCue);
-			}
-			if(ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot && !HeldItem)
-			{
-				PlaySoundAtLocation(GetActorLocation(), PlantCue);
-			}
-		}
-		else
-		{
-			Multi_DropItem();
-		}
-	}*/
 }
 
 void APrototype2Character::Server_DropItem_Implementation()
 {
 	Multi_DropItem();
-	
 }
 
 void APrototype2Character::Multi_DropItem_Implementation()

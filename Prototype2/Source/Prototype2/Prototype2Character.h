@@ -285,7 +285,7 @@ public: /* Public variables */
 	class UWeapon* Weapon;
 	
 	/* Currently held item */
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class APickUpItem* HeldItem;
 
 	/* Is player holding down attack */
@@ -303,7 +303,7 @@ public: /* Public variables */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CanSprintTime = 5.0f;
 
-	UPROPERTY(Replicated, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite, VisibleAnywhere)
 	float CanSprintTimer;
 
 	/* Weapon degrading */
@@ -313,6 +313,7 @@ public: /* Public variables */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int WeaponMaxDurability;
 
+	
 	class IInteractInterface* ClosestInteractableItem;
 
 	UPROPERTY(VisibleAnywhere)
@@ -417,17 +418,17 @@ private: /* Private variables */
 	float MaxKnockBackVelocity = 10000.0f;
 	
 	/* Interact timer */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float InteractTimerTime = 1.0f;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float InteractTimer{};
 	
 	/* Attack timer */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float AttackTimerTime = 1.0f;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float AttackTimer{};
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float InstantAttackDelay = 0.2f;
 	UPROPERTY(EditAnywhere)
 	float ItemLaunchStrength = 500000.0f;
@@ -447,13 +448,13 @@ private: /* Private variables */
 
 	float GoldPlantSpeed = 300.0f;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float SprintSpeed = 750.0f;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float SprintTime = 2.0f;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated , VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float SprintTimer;
 
 	/* Attack */
@@ -462,10 +463,10 @@ private: /* Private variables */
 	
 	bool bCanAttack = true;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	bool bIsStunned;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated , VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	float StunTimer;
 		
 	UPROPERTY(EditAnywhere, Category=Attack)
