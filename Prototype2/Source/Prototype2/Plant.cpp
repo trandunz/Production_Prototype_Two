@@ -11,6 +11,8 @@ APlant::APlant()
 	bReplicates = true;
 	LeavesMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Leaves Mesh"));
 	LeavesMesh->SetupAttachment(RootComponent);
+
+	InterfaceType = EInterfaceType::Default;
 }
 
 void APlant::BeginPlay()

@@ -190,6 +190,10 @@ protected: /* Protected Networking functions */
 	void Multi_ToggleChargeSound(bool _soundEnabled);
 	void Multi_ToggleChargeSound_Implementation(bool _soundEnabled);
 
+	UFUNCTION(Server, Reliable)
+	void Server_CountdownTimers(float DeltaSeconds);
+	void Server_CountdownTimers_Implementation(float DeltaSeconds);
+
 protected: /* Protected non-network Functions */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -231,8 +235,6 @@ protected: /* Protected non-network Functions */
 	/* UI */
 	void OpenIngameMenu();
 	
-	void UpdateAllPlayerIDs();
-
 	/* Update decal direction */
 	void UpdateDecalAngle();
 
@@ -291,17 +293,17 @@ public: /* Public variables */
 	bool bIsChargingAttack;
 
 	/* Maximum amount of Attack Charge */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxAttackCharge = 3.0f;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float AttackChargeAmount;
 
 	/* Sprint */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CanSprintTime = 5.0f;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float CanSprintTimer;
 
 	/* Weapon degrading */
@@ -417,11 +419,13 @@ private: /* Private variables */
 	/* Interact timer */
 	UPROPERTY(EditAnywhere)
 	float InteractTimerTime = 1.0f;
+	UPROPERTY(Replicated)
 	float InteractTimer{};
 	
 	/* Attack timer */
 	UPROPERTY(EditAnywhere)
 	float AttackTimerTime = 1.0f;
+	UPROPERTY(Replicated)
 	float AttackTimer{};
 	UPROPERTY(EditAnywhere)
 	float InstantAttackDelay = 0.2f;

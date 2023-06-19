@@ -80,6 +80,13 @@ void APrototype2PlayerController::Tick(float DeltaSeconds)
 			UpdateCharacterMaterial(playerState->Player_ID, gameInstance->Character, gameInstance->CharacterColour);
 		}
 	}
+	if (auto gameInstance = GetGameInstance<UPrototypeGameInstance>())
+	{
+		if (auto playerState = GetPlayerState<ALobbyPlayerState>())
+		{
+			UpdateCharacterMaterial(playerState->Player_ID, gameInstance->Character, gameInstance->CharacterColour);
+		}
+	}
 }
 
 void APrototype2PlayerController::SetIsReady(int _player, bool _isReady)

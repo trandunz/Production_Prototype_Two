@@ -45,13 +45,12 @@ void APrototype2GameMode::BeginPlay()
 void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	//if (GetLocalRole() == ROLE_Authority && GetRemoteRole() >= ROLE_AutonomousProxy)
 	
-	if (HasAuthority())
+	if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
 	{
-		if (auto* playerState = NewPlayer->GetPlayerState<APrototype2PlayerState>())
+		if (auto playerState = NewPlayer->GetPlayerState<APrototype2PlayerState>())
 		{
-			if (auto* gamestate = GetGameState<APrototype2Gamestate>())
+			if (auto gamestate = GetGameState<APrototype2Gamestate>())
 			{
 				//UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
 				playerState->Player_ID = gamestate->Server_Players.Add(playerState);
@@ -59,12 +58,15 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 				if (auto* character = Cast<APrototype2Character>(NewPlayer->GetCharacter()))
 				{
 					if (PlayerMaterials.Num() > (int)playerState->Character * 3 + (int)playerState->CharacterColour)
+					{
 						character->PlayerMat = PlayerMaterials[(int)playerState->Character * 3 + (int)playerState->CharacterColour];
+					}
+
 					character->PlayerID = playerState->Player_ID;
 					gamestate->MaxPlayersOnServer = GetGameInstance<UPrototypeGameInstance>()->MaxPlayersOnServer;
 					gamestate->FinalConnectionCount = GetGameInstance<UPrototypeGameInstance>()->FinalConnectionCount;
-					//UE_LOG(LogTemp, Warning, TEXT("Final Connection Count: %s"), *FString::FromInt(gamestate->FinalConnectionCount));
-					//character->Client_AddHUD();
+					character->PlayerStateRef = playerState;
+					
 					switch(playerState->Player_ID)
 					{
 					case 0:
@@ -100,6 +102,7 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 void APrototype2GameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	
 	LookOutForGameEnd();
 	
 	if (auto gamestate = GetGameState<APrototype2Gamestate>())

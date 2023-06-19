@@ -24,6 +24,8 @@ AGrowSpot::AGrowSpot()
 
 	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
 	InteractSystem->SetupAttachment(RootComponent);
+
+	InterfaceType = EInterfaceType::GrowSpot;
 }
 
 void AGrowSpot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -67,6 +69,17 @@ void AGrowSpot::Multi_Plant_Implementation()
 			}
 		}
 	}
+	if (weapon)
+	{
+		if (weapon->ItemComponent)
+		{
+			if (weapon->ItemComponent->Mesh)
+			{
+				weapon->ItemComponent->Mesh->SetSimulatePhysics(false);
+				weapon->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
+		}
+	}
 }
 
 void AGrowSpot::Multi_FireParticleSystem_Implementation()
@@ -80,28 +93,17 @@ void AGrowSpot::Multi_FireParticleSystem_Implementation()
 
 void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 {
-	if (growingPlant && HasAuthority())
+	if (growTimer > 0 && HasAuthority())
 	{
-		if (growTimer > 0)
-		{
-			GrowSpotState = EGrowSpotState::Growing;
-			growTimer -= _deltaTime;
-
-			if (growTimer <= 0)
-			{
-				Multi_FireParticleSystem();
-				//InteractSystem->Activate();
-				//InteractSystem->ResetSystem();
-				
-				plantGrown = true;
-				growingPlant = false;
-				GrowSpotState = EGrowSpotState::Grown;
-			}
-		}
-			
-		
+		growTimer -= _deltaTime;
 	}
-	
+}
+
+// Called every frame
+void AGrowSpot::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
 	if (plant)
 	{
 		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
@@ -113,7 +115,7 @@ void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 		plant->SetActorLocation(pos);
 		plant->SetActorRotation(FRotator(0,0,0));
 	}
-
+	
 	if (weapon)
 	{
 		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
@@ -125,12 +127,6 @@ void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 		weapon->SetActorLocation(pos);
 		weapon->SetActorRotation(FRotator(0,0,0));
 	}
-}
-
-// Called every frame
-void AGrowSpot::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 	
 	GrowPlantOnTick(DeltaTime);
 
@@ -142,37 +138,61 @@ void AGrowSpot::Tick(float DeltaTime)
 			if (plant)
 				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+			if (growTimer <= 0)
+			{
+				Multi_FireParticleSystem();
+	
+				// deprecated soon
+				plantGrown = true; 
+				growingPlant = false;
+				//
+					
+				GrowSpotState = EGrowSpotState::Grown;
+				InteractSystem->ResetSystem();
+			}
 			break;
 		}
 	case EGrowSpotState::Grown:
 		{
+			InteractSystem->Activate();
 			if (plant)
 			{
 				plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 				plant->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 			}
-				
+			if (weapon)
+			{
+				weapon->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				weapon->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+			}
+	
+			// not too sure about this stuff
 			ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 			ItemComponent->Mesh->SetCollisionProfileName("OverlapAll");
+			//
 			break;
 		}
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
 void AGrowSpot::Interact(APrototype2Character* player)
 {
-	if (HasAuthority())
+	if (auto playerState = player->GetPlayerState<APrototype2PlayerState>())
 	{
-		if (auto* playerState = player->GetPlayerState<APrototype2PlayerState>())
+		if (playerState->Player_ID == Player_ID)
 		{
-			if (playerState->Player_ID == Player_ID)
+			if (auto seed = Cast<ASeed>(player->HeldItem))
 			{
-				if (auto* seed = Cast<ASeed>(player->HeldItem))
+				switch(GrowSpotState)
 				{
-					if (!plant && GrowSpotState == EGrowSpotState::Empty)
+				case EGrowSpotState::Empty:
 					{
+						if (plant)
+							break;
+						// seed has an assigned plant
 						if (seed->plantToGrow)
 						{
 							// Audio
@@ -180,105 +200,112 @@ void AGrowSpot::Interact(APrototype2Character* player)
 							{
 								player->PlaySoundAtLocation(GetActorLocation(), player->PlantCue);
 							}
+							// Set grow time
 							
-							if (seed->isWeapon)
+							if (seed->growtime > 0)
 							{
-								//Multi_FireParticleSystem();
-								growTime = player->HeldItem->ItemComponent->GrowTime;
-								SetWeapon(GetWorld()->SpawnActor<AGrowableWeapon>(seed->plantToGrow), growTime);
-								Multi_Plant();
-						
-								if (seed)
-									seed->Destroy();
-
-								// Seed is now planted so remove from player
-								player->HeldItem = nullptr;
+								growTime = seed->growtime;
+							}
+							else if (seed->ItemComponent->GrowTime > 0)
+							{
+								// deprecated soon
+								growTime = seed->ItemComponent->GrowTime;
 							}
 							else
 							{
-								//Multi_FireParticleSystem();
-								growTime = player->HeldItem->ItemComponent->GrowTime;
-								SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
-								Multi_Plant();
-						
-								if (seed)
-									seed->Destroy();
-
-								// Seed is now planted so remove from player
-								player->HeldItem = nullptr;
+								growTime = 1.0f;
 							}
+							
+							if (seed->isWeapon)
+							{
+								SetWeapon(GetWorld()->SpawnActor<AGrowableWeapon>(seed->plantToGrow), growTime);
+							}
+							else
+							{
+								SetPlant(GetWorld()->SpawnActor<APlant>(seed->plantToGrow), growTime);
+							}
+							
+							Multi_Plant();
+							
+							player->Server_DropItem();
+							
+							if (seed)
+								seed->Destroy();
 						}
+						
+						break;
 					}
-				}
-				else if (weapon)
-				{
-					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
+				case EGrowSpotState::Growing:
 					{
-						// replace here with weapon equip
-						player->Server_PickupItem(weapon->ItemComponent, weapon);
-						player->WeaponCurrentDurability = player->WeaponMaxDurability;
-						
-						//// Change the weapon UI for this player
-						//player->GetPlayerHUD()->UpdateWeaponUI(EPickup::Weapon);
-						
-						Multi_FireParticleSystem();
-						weapon->isGrown = true;
-						
-						// Destroy the growable weapon
-						weapon->Destroy();
-						
-						weapon = nullptr;
-						plantGrown = false;
-						growingPlant = false;
-						growTimer = 0.0f;
-						GrowSpotState = EGrowSpotState::Empty;
-
+						break;
 					}
-				}
-				else if (plant && !player->HeldItem)
-				{
-					if (plantGrown && GrowSpotState == EGrowSpotState::Grown)
+				case EGrowSpotState::Grown:
 					{
-						// Put players weapon on back
-						player->Multi_SocketItem_Implementation(player->Weapon->Mesh, FName("WeaponHolsterSocket"));
-						
-						Multi_FireParticleSystem();
-						player->HeldItem = plant;
-						player->Server_PickupItem(plant->ItemComponent, plant);
-						plant->isGrown = true;
-						plant = nullptr;
-						plantGrown = false;
-						growingPlant = false;
-						growTimer = 0.0f;
-						GrowSpotState = EGrowSpotState::Empty;
-
-						player->UpdateDecalDirection(true, true);
-						
-						// Special sound for mandrake when picked up
 						if (player->HeldItem)
 						{
-							if (player->HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
+							player->Server_DropItem();
+							player->UpdateDecalDirection(true, true);
+							player->HeldItem = nullptr;
+							break;
+						}
+
+						if (weapon)
+						{
+							weapon->isGrown = true;
+							
+							player->Server_PickupItem(weapon->ItemComponent, weapon);
+							player->WeaponCurrentDurability = player->WeaponMaxDurability;
+					
+							//// Change the weapon UI for this player
+							//player->GetPlayerHUD()->UpdateWeaponUI(EPickup::Weapon);
+								
+							
+							weapon->Destroy();
+							weapon = nullptr;
+							GrowSpotState = EGrowSpotState::Empty;
+							break;
+						}
+						else if (plant)
+						{
+							plant->isGrown = true;
+							
+							// Put players weapon on back
+							player->Multi_SocketItem_Implementation(player->Weapon->Mesh, FName("WeaponHolsterSocket"));
+							player->Server_PickupItem(plant->ItemComponent, plant);
+							player->UpdateDecalDirection(true, true);
+					
+							// Special sound for mandrake when picked up
+							if (player->HeldItem)
 							{
-								if (player->MandrakeScreamCue)
+								if (player->HeldItem->ItemComponent->PickupType == EPickup::Mandrake)
 								{
-									if (MandrakeAttenuationSettings)
+									if (player->MandrakeScreamCue)
 									{
-										player->PlaySoundAtLocation(GetActorLocation(), player->MandrakeScreamCue, MandrakeAttenuationSettings);
-									}
-									else
-									{
-										player->PlaySoundAtLocation(GetActorLocation(), player->MandrakeScreamCue); 
+										if (MandrakeAttenuationSettings)
+										{
+											player->PlaySoundAtLocation(GetActorLocation(), player->MandrakeScreamCue, MandrakeAttenuationSettings);
+										}
+										else
+										{
+											player->PlaySoundAtLocation(GetActorLocation(), player->MandrakeScreamCue); 
+										}
 									}
 								}
 							}
+							else
+							{
+								player->HeldItem = plant;
+							}
+							
 						}
+						plantGrown = false;
+						growingPlant = false;
+						growTimer = -1;
+						GrowSpotState = EGrowSpotState::Empty;
+						break;
 					}
-				}
-				else if (player->HeldItem)
-				{
-					player->Server_DropItem();
-
-					player->UpdateDecalDirection(true, true);
+				default:
+					break;
 				}
 			}
 		}
@@ -289,78 +316,75 @@ void AGrowSpot::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, c
 {
 	//UE_LOG(LogTemp, Warning, TEXT("PlayerID: %s"), *FString::FromInt(_playerID))
 	//UE_LOG(LogTemp, Warning, TEXT("GrowSpotID: %s"), *FString::FromInt(Player_ID))
-		
-	if (Player_ID == _playerID)
-	{
-		switch (GrowSpotState)
-		{
-		case EGrowSpotState::Empty:
-			{
-				// Set to "Grow"
-				if(owner->HeldItem && !Cast<APlant>(owner->HeldItem))
-				{
-					_invokingWiget->SetHUDInteractText("Grow");
 
-					owner->EnableStencil(true);
-				}
-				break;
-			}
-		case EGrowSpotState::Growing:
+	if (auto playerState = owner->GetPlayerState<APrototype2PlayerState>())
+	{
+		if (playerState->Player_ID == _playerID)
+		{
+			switch (GrowSpotState)
 			{
-				_invokingWiget->SetHUDInteractText("");
-				break;
-			}
-		case EGrowSpotState::Grown:
-			{
-				if (!owner->HeldItem)
+			case EGrowSpotState::Empty:
 				{
 					// Set to "Grow"
-					_invokingWiget->SetHUDInteractText("Pick Up");
+					if(owner->HeldItem && Cast<ASeed>(owner->HeldItem))
+					{
+						_invokingWiget->SetHUDInteractText("Grow");
+
+						owner->EnableStencil(true);
+					}
+					break;
 				}
-				break;
-			}
-		case EGrowSpotState::Default:
-			{
-				// Pass through
-				break;
-			}
-		default:
-			{
-				// Set to none
-				break;
-			}
-		}						
+			case EGrowSpotState::Growing:
+				{
+					_invokingWiget->SetHUDInteractText("");
+					owner->EnableStencil(false);
+					break;
+				}
+			case EGrowSpotState::Grown:
+				{
+					if (!owner->HeldItem)
+					{
+						// Set to "Grow"
+						_invokingWiget->SetHUDInteractText("Pick Up");
+					}
+					owner->EnableStencil(true);
+					break;
+				}
+			default:
+				{
+					break;
+				}
+			}						
+		}
 	}
 }
 
 void AGrowSpot::SetPlant(APlant* _plant, float _growTime)
 {
-	if (!plant)
+	if (!plant && !weapon)
 	{
-		plantGrown = false;
 		plant = _plant;
 		growTimer = _growTime;
-		growingPlant = true;
 		GrowSpotState = EGrowSpotState::Growing;
-		if (growTimer == 0)
+		
+		if (growTimer <= 0)
 		{
-			growTimer = 1;
+			growTimer = 1.0f;
 		}
 	}
 }
 
 void AGrowSpot::SetWeapon(AGrowableWeapon* _weapon, float _growTime)
 {
-	if (!weapon)
+	if (!weapon && !plant)
 	{
-		plantGrown = false;
 		weapon = _weapon;
 		growTimer = _growTime;
-		growingPlant = true;
 		GrowSpotState = EGrowSpotState::Growing;
-		if (growTimer == 0)
+		
+		if (growTimer <= 0)
 		{
-			growTimer = 1;
+			growTimer = 1.0f;
 		}
 	}
 }

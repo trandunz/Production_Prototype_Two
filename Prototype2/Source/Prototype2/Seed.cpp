@@ -8,6 +8,7 @@
 ASeed::ASeed()
 {
 	bReplicates = true;
+	InterfaceType = EInterfaceType::Default;
 }
 
 void ASeed::Interact(APrototype2Character* player)

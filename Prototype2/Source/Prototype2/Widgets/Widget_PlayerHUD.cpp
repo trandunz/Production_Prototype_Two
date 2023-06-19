@@ -238,10 +238,11 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 			EnableEndgameMenu();
 		}
 
-		if (auto* owner = Cast<APrototype2Character>(GetOwningPlayer()->GetCharacter()))
+		SetHUDInteractText("");
+		
+		if (auto owner = Cast<APrototype2Character>(GetOwningPlayer()->GetCharacter()))
 		{
-			SetHUDInteractText("");
-			if (auto* closestInteractable = owner->ClosestInteractableItem)
+			if (auto closestInteractable = owner->ClosestInteractableItem)
 			{
 				closestInteractable->OnDisplayInteractText(this, owner, owner->PlayerID);
 			}

@@ -124,6 +124,8 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, SoundAttenuationSettings);
 	DOREPLIFETIME(APrototype2Character, ChargeAttackAudioComponent);
 	DOREPLIFETIME(APrototype2Character, bIsHoldingGold);
+	DOREPLIFETIME(APrototype2Character, AttackTimer);
+	DOREPLIFETIME(APrototype2Character, InteractTimer);
 }
 
 void APrototype2Character::BeginPlay()
@@ -148,7 +150,7 @@ void APrototype2Character::BeginPlay()
 	Weapon->Mesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("WeaponHolsterSocket"));
 	Weapon->Mesh->SetHiddenInGame(true);
 	
-	if (PlayerHudPrefab && !PlayerHUDRef)
+	if (PlayerHudPrefab && !PlayerHUDRef && (GetLocalRole() == ROLE_AutonomousProxy || HasAuthority()))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Player HUD Created"));
 		PlayerHUDRef = CreateWidget<UWidget_PlayerHUD>(Cast<APrototype2PlayerController>(Controller), PlayerHudPrefab);
@@ -168,24 +170,30 @@ void APrototype2Character::BeginPlay()
 
 	// Set start position - for decal arrow
 	StartPosition = GetActorLocation();
-	UpdateDecalDirection(false);
+
+	if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
+	{
+		UpdateDecalDirection(false);
+	}
 
 	// Find and store sell bin
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASellBin::StaticClass(), FoundActors);
-
-	if (FoundActors.Num() > 0)
+	if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
 	{
-		SellBin = Cast<ASellBin>(FoundActors[0]);
-		UE_LOG(LogTemp, Warning, TEXT("Found shipping bin and allocated"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No shipping bin found"));
-	}
+		TArray<AActor*> FoundActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASellBin::StaticClass(), FoundActors);
+		if (FoundActors.Num() > 0)
+		{
+			SellBin = Cast<ASellBin>(FoundActors[0]);
+			UE_LOG(LogTemp, Warning, TEXT("Found shipping bin and allocated"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No shipping bin found"));
+		}
 
-	DecalArmSceneComponent->SetIsReplicated(false);
-	DecalComponent->SetIsReplicated(false);
+		DecalArmSceneComponent->SetIsReplicated(false);
+		DecalComponent->SetIsReplicated(false);
+	}
 
 	// assign player sttate ref
 	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
@@ -196,13 +204,14 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
-
-	if (PlayerMeshes.Num() > 0)
-		GetMesh()->SetSkeletalMeshAsset(PlayerMeshes[(int)PlayerStateRef->Character]);
-	
+	if (PlayerStateRef)
+	{
+		if (PlayerMeshes.Num() > (int)PlayerStateRef->Character)
+		{
+			GetMesh()->SetSkeletalMeshAsset(PlayerMeshes[(int)PlayerStateRef->Character]);
+		}
+	}
 	GetMesh()->SetMaterial(0, PlayerMat);
-	
-	UpdateAllPlayerIDs();
 
 	CheckForFloorSurface();
 	
@@ -251,19 +260,11 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		// Check if anything is around to be interacted with
 		CheckForInteractables();
 	}
-
-	// Countdown timers
-	if (InteractTimer >= 0)
-		InteractTimer -= DeltaSeconds;
-	if (AttackTimer >= 0)
-		AttackTimer -= DeltaSeconds;
-	if (SprintTimer >= 0)
-		SprintTimer -= DeltaSeconds;
-	if (CanSprintTimer >= 0)
-		CanSprintTimer -= DeltaSeconds;
 	
 	if (PlayerHUDRef)
 	{
+		Server_CountdownTimers(DeltaSeconds);
+		
 		// Update sprint UI
 		PlayerHUDRef->SetPlayerSprintTimer(CanSprintTimer);
 		
@@ -282,14 +283,28 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		if (gameState->HasGameFinished)
 		{
 			GetMovementComponent()->SetActive(false);
+			GetController()->SetIgnoreLookInput(true);
+			GetController()->SetIgnoreMoveInput(true);
 		}
 	}
 
 	// Update decal rotation
-	if (bDecalOn)
+	if (bDecalOn && GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		UpdateDecalAngle();
 	}
+}
+
+void APrototype2Character::Server_CountdownTimers_Implementation(float DeltaSeconds)
+{
+	if (InteractTimer >= 0)
+		InteractTimer -= DeltaSeconds;
+	if (AttackTimer >= 0)
+		AttackTimer -= DeltaSeconds;
+	if (SprintTimer >= 0)
+		SprintTimer -= DeltaSeconds;
+	if (CanSprintTimer >= 0)
+		CanSprintTimer -= DeltaSeconds;
 }
 
 void APrototype2Character::ChargeAttack()
@@ -465,47 +480,23 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 
 void APrototype2Character::CheckForInteractables()
 {
-	//if (ClosestInteractableActor)
-	//{
-	//	if (FVector::Distance(ClosestInteractableActor->GetActorLocation(), GetActorLocation()) >= InteractRadius)
-	//	{
-	//		if (auto component = ClosestInteractableActor->GetComponentByClass(UItemComponent::StaticClass()))
-	//		{
-	//			if (auto itemComponent = Cast<UItemComponent>(component))
-	//			{
-	//				itemComponent->Mesh->SetRenderCustomDepth(false);
-	//				//UE_LOG(LogTemp, Warning, TEXT("Disabled Stenciling"))
-	//			}
-	//		}
-	//		ClosestInteractableActor = nullptr;
-	//	}
-	//}
-	
-	// create tarray for hit results
 	TArray<FHitResult> outHits;
-	
-	// start and end locations
 	FVector sweepStart = GetActorLocation();
 	FVector sweepEnd = GetActorLocation();
-
-	// create a collision sphere
 	FCollisionShape colSphere = FCollisionShape::MakeSphere(InteractRadius * 1.5f);
-
 	// draw collision sphere
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), colSphere.GetSphereRadius(), 50, FColor::Purple, false, 0.1f);
 	
-	// check if something got hit in the sweep
 	if (GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Visibility, colSphere))
 	{
 		TArray<AActor*> interactableActors;
-
-		// loop through TArray
 		for (auto& hit : outHits)
 		{
-			if (Cast<IInteractInterface>(hit.GetActor()))
+			if (hit.GetActor() != HeldItem && !hit.GetActor()->IsA<APrototype2Character>())
 			{
-				if (hit.GetActor() != HeldItem)
+				if (Cast<IInteractInterface>(hit.GetActor()))
 				{
+				
 					interactableActors.Add(hit.GetActor());
 				}
 			}
@@ -513,24 +504,22 @@ void APrototype2Character::CheckForInteractables()
 
 		float distanceToClosest;
 		auto nearestActor = UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest);
-		if (nearestActor && distanceToClosest <= InteractRadius)
+		
+		if (distanceToClosest <= InteractRadius && nearestActor)
 		{
 			if (ClosestInteractableActor && ClosestInteractableActor != nearestActor)
 			{
 				EnableStencil(false);
 			}
-		
 			ClosestInteractableActor = nearestActor;
-			//EnableStencil(true);
-			
 			ClosestInteractableItem = Cast<IInteractInterface>(nearestActor);
+			return;
 		}
-		else
-		{
-			EnableStencil(false);
-			ClosestInteractableItem = nullptr;
-			ClosestInteractableActor = nullptr;
-		}
+
+		// else
+		EnableStencil(false);
+		ClosestInteractableItem = nullptr;
+		ClosestInteractableActor = nullptr;
 	}
 	else
 	{
@@ -692,10 +681,6 @@ void APrototype2Character::OpenIngameMenu()
 		if (PlayerHUDRef)
 			PlayerHUDRef->EnableDisableMenu();
 	}
-}
-
-void APrototype2Character::UpdateAllPlayerIDs()
-{
 }
 
 void APrototype2Character::UpdateDecalAngle()
@@ -1059,48 +1044,60 @@ void APrototype2Character::TryInteract()
 
 void APrototype2Character::Server_TryInteract_Implementation()
 {
-	if((GetLocalRole() == IdealNetRole || GetLocalRole() == ROLE_Authority))
+	if (ClosestInteractableItem)
 	{
-		// Drop HeldItem
-		if (!ClosestInteractableItem)
+		if (HeldItem)
 		{
-			Multi_DropItem();
-			return;
-		}
-
-		// SellBin or GrowSpot
-		if (ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin ||
-			ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot ||
-			ClosestInteractableItem->InterfaceType == EInterfaceType::Weapon)
-		{			
-			ClosestInteractableItem->Interact(this);			
-			return;
-		}
-
-		// If something to pickup
-		if (ClosestInteractableItem && PickupMontage)
-		{
-			// Drop what they're carrying first
-			if (HeldItem)
+			if (ClosestInteractableItem->InterfaceType == EInterfaceType::GrowSpot)
 			{
-				Multi_DropItem();
+				ClosestInteractableItem->Interact(this);
+			}
+			else if (ClosestInteractableItem->InterfaceType == EInterfaceType::SellBin)
+			{
+				ClosestInteractableItem->Interact(this);
 			}
 			
-			// Animation
-			PlayNetworkMontage(PickupMontage);
-			
-			// Call the InteractInterface interact function
-			ClosestInteractableItem->Interact(this);
+			Multi_DropItem();
 
-			// Put weapon on back
+			if (PickupMontage)
+			{
+				PlayNetworkMontage(PickupMontage);
+			}
+
+			return;
+		}
+		else if (!HeldItem)
+		{
+			if (ClosestInteractableItem->InterfaceType == EInterfaceType::Default && ClosestInteractableActor != HeldItem)
+			{
+				ClosestInteractableItem->Interact(this);
+			}
+		}
+		
+		if (HeldItem)
+		{
+			if (PickupMontage)
+			{
+				PlayNetworkMontage(PickupMontage);
+			}
+		}
+		if (Weapon)
+		{
 			if (!Weapon->Mesh->bHiddenInGame)
 			{
 				Multi_SocketItem(Weapon->Mesh, FName("WeaponHolsterSocket"));
 			}
-			return;
 		}
 	}
+	else if (HeldItem)
+	{
+		Multi_DropItem();
 
+		if (PickupMontage)
+		{
+			PlayNetworkMontage(PickupMontage);
+		}
+	}
 	
 	/* old */
 	/*if (ClosestInteractableItem && !HeldItem)
@@ -1164,6 +1161,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 void APrototype2Character::Server_DropItem_Implementation()
 {
 	Multi_DropItem();
+	
 }
 
 void APrototype2Character::Multi_DropItem_Implementation()
@@ -1204,6 +1202,11 @@ void APrototype2Character::Multi_DropItem_Implementation()
 
 void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
+	if (HeldItem)
+	{
+		Server_DropItem();
+	}
+
 	Multi_PickupItem(itemComponent, _item);
 }
 
@@ -1222,37 +1225,34 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 	// Audio
 	PlaySoundAtLocation(GetActorLocation(), PickUpCue);
 
-	// Check if pick up is a weapon
+	if (itemComponent->Mesh)
+	{
+		itemComponent->Mesh->SetSimulatePhysics(false);
+		itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
+		// So that CheckForInteractables() cant see it while player is holding it
+		itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	}
+	
 	if (itemComponent->PickupType == EPickup::Weapon)
 	{
 		Weapon->Mesh->SetStaticMesh(itemComponent->Mesh->GetStaticMesh());
 		Weapon->Mesh->SetHiddenInGame(false);
 		Weapon->Mesh->SetVisibility(true);
+		HeldItem = nullptr;
+		return;
 	}
-	else // pick up other
+		
+	_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
+	HeldItem = _item;
+	
+	if (HeldItem->ItemComponent->gold)
 	{
-		if (itemComponent->Mesh)
-		{
-			itemComponent->Mesh->SetSimulatePhysics(false);
-			itemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		
-			// So that CheckForInteractables() cant see it while player is holding it
-			itemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-		}
-		
-		_item->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("HeldItemSocket"));
-
-		HeldItem = _item;
-
-		// If item is the gold plant, slow down the player
-		if (HeldItem->ItemComponent->gold)
-		{
-			bIsHoldingGold = true;
-		}
-		
-		if (PlayerHUDRef && HeldItem)
-			PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType, bIsHoldingGold);
+		bIsHoldingGold = true;
 	}
+		
+	if (PlayerHUDRef && HeldItem)
+		PlayerHUDRef->UpdatePickupUI(HeldItem->ItemComponent->PickupType, bIsHoldingGold);
 }
 
 void APrototype2Character::Multi_DropWeapon_Implementation()

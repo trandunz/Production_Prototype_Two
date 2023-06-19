@@ -38,6 +38,8 @@ ASellBin::ASellBin()
 void ASellBin::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	InterfaceType = EInterfaceType::SellBin;
 
 	// Sell UI related
 	startPosition = FVector(0, 0, 0);// SellAmountWidgetComponent->GetComponentLocation(); // Set UI start location variable
@@ -166,8 +168,6 @@ void ASellBin::Interact(APrototype2Character* player)
 			player->HeldItem = nullptr;
 			
 			//Server_FireParticleSystem();
-
-
 		}
 	}
 }

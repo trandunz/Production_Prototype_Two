@@ -215,14 +215,14 @@ void UWidget_LobbyCharacterSelection::ChangeCharacter(bool _right)
 
 	// check for taken sskin
 	CheckForTakenCharacter(_right);
-	
-	UpdateCharacterImage();
 
 	if (auto gameInstance = GetGameInstance<UPrototypeGameInstance>())
 	{
 		gameInstance->Character = IdealCharacter;
 		gameInstance->CharacterColour = IdealCharacterColour;
 	}
+	
+	UpdateCharacterImage();
 }
 
 void UWidget_LobbyCharacterSelection::CheckForTakenSkin(bool _right)
