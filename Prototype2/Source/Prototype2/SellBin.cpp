@@ -27,11 +27,14 @@ ASellBin::ASellBin()
 	SellAmountWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SellAmountWidgetComponent"));
 	SellAmountWidgetComponent->SetupAttachment(RootComponent);
 	SellAmountWidgetComponent->SetIsReplicated(false);
+	SellAmountWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	
 	InterfaceType = EInterfaceType::SellBin;
 
 	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
 	InteractSystem->SetupAttachment(RootComponent);
+	InteractSystem->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +48,9 @@ void ASellBin::BeginPlay()
 	startPosition = FVector(0, 0, 0);// SellAmountWidgetComponent->GetComponentLocation(); // Set UI start location variable
 	movingTimer = movingTime; // Set starting timer to equal max time
 
-	ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	//ItemComponent->Mesh->SetSimulatePhysics(false);
+	ItemComponent->Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+	
 }
 
 // Called every frame
@@ -53,10 +58,8 @@ void ASellBin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ItemComponent->Mesh->SetSimulatePhysics(false);
-	ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	//ItemComponent->Mesh->SetSimulatePhysics(false);
+	ItemComponent->Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 	
 	MoveUIComponent(DeltaTime);
 }
@@ -149,16 +152,20 @@ void ASellBin::MoveUIComponent(float _dt)
 
 void ASellBin::Interact(APrototype2Character* player)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Attempted to sell something!"));
 	if (player->HeldItem)
 	{
 		if (auto plant = Cast<APlant>(player->HeldItem))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Tis A Plant!"));
+			
 			// Audio
 			if (player->SellCue)
 			{
 				player->PlaySoundAtLocation(GetActorLocation(), player->SellCue);
 			}
-			
+
+			UE_LOG(LogTemp, Warning, TEXT("Gimmi %s gold"), *FString::FromInt(plant->ItemComponent->CropValue));
 			//Cast<APrototype2PlayerState>(player->GetPlayerState())->Coins += plant->ItemComponent->CropValue; // Previous way - increased crop value directly
 			Cast<APrototype2PlayerState>(player->GetPlayerState())->ExtraCoins = plant->ItemComponent->CropValue;
 			Cast<APrototype2PlayerState>(player->GetPlayerState())->IsShowingExtraCoins = true; 
@@ -169,6 +176,14 @@ void ASellBin::Interact(APrototype2Character* player)
 			// Destroy the crop the player is holding
 			player->HeldItem->Destroy();
 			player->HeldItem = nullptr;
+
+			if (player->PlayerHUDRef)
+			{
+				player->PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
+				player->PlayerHUDRef->SetHUDInteractText("");
+			}
+			player->EnableStencil(false);
+			ItemComponent->Mesh->SetRenderCustomDepth(false);
 			
 			//Server_FireParticleSystem();
 		}
@@ -177,6 +192,7 @@ void ASellBin::Interact(APrototype2Character* player)
 
 void ASellBin::OnDisplayInteractText(UWidget_PlayerHUD* _invokingWiget,APrototype2Character* owner, int _playerID)
 {
+	
 	if(auto heldItem = owner->HeldItem)
 	{
 		if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
@@ -186,6 +202,7 @@ void ASellBin::OnDisplayInteractText(UWidget_PlayerHUD* _invokingWiget,APrototyp
 			heldItem->ItemComponent->PickupType == EPickup::Daikon ||
 			heldItem->ItemComponent->PickupType == EPickup::Radish)
 		{
+			
 			_invokingWiget->SetHUDInteractText("Sell");
 
 			owner->EnableStencil(true);

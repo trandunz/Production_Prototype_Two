@@ -27,6 +27,9 @@ public:
 	TSubclassOf<class ARadialPlot> PlotPrefab;
 
 	UPROPERTY(EditAnywhere)
+	class USceneComponent* InitialSpawn;
+
+	UPROPERTY(EditAnywhere)
 	int playercount = 12;
 
 	void SetUp();

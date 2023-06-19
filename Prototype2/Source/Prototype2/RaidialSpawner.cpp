@@ -14,6 +14,8 @@ ARaidialSpawner::ARaidialSpawner()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	InitialSpawn = CreateDefaultSubobject<USceneComponent>(TEXT("Initial Spawn"));
+	InitialSpawn->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -43,7 +45,14 @@ void ARaidialSpawner::SetUp()
 		return;
 	}
 	
-	float SpawnRadius = 3000;
+	FVector ReferenceLocation = FVector();
+	if (InitialSpawn)
+	{
+		ReferenceLocation = InitialSpawn->GetComponentLocation();
+	}
+	FVector OwningLocation = GetActorLocation();
+	//FVector OwningLocation = FVector();
+	float SpawnRadius = FVector::Dist(ReferenceLocation, OwningLocation);
 
 	float AngleStep = 360.0f / playercount; // Calculate the angle between each object
 
@@ -59,16 +68,17 @@ void ARaidialSpawner::SetUp()
 		float OffsetX = SpawnRadius * FMath::Cos(Radians);
 		float OffsetY = SpawnRadius * FMath::Sin(Radians);
 		
-		FVector ObjectSpawnPosition = GetActorLocation() + FVector(OffsetX, OffsetY, -1337.0f /*XD this value does nothing real one is in RadialPlot.cpp*/);
+		// Calculate the final spawn position
+		FVector SpawnLocation = OwningLocation;
+		FVector ObjectSpawnPosition = SpawnLocation + FVector(OffsetX, OffsetY, 0.0f);
 
 		// Spawn the object at the calculated position
 		auto spawnedRadialPlot = GetWorld()->SpawnActor<ARadialPlot>(PlotPrefab, ObjectSpawnPosition, FRotator(0, Angle + 90, 0));
-		
 		if (spawnedRadialPlot)
 		{
+			spawnedRadialPlot->SetActorLocation(ObjectSpawnPosition);
 			spawnedRadialPlot->SetPlayerID(Index);
 		}
 	}
-	
 }
 

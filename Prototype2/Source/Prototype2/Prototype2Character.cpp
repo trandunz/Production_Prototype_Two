@@ -419,27 +419,26 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 
 void APrototype2Character::Interact()
 {
-	// check if i can interact
+	if(!HeldItem)
+	{
+		PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
+		UpdateDecalDirection(false);
+	}
+	if (!Weapon)
+	{
+		PlayerHUDRef->UpdateWeaponUI(EPickup::None);
+	}
+	
 	if (InteractTimer <= 0.0f)
 	{
-		if(!HeldItem)
-		{
-			PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
-			UpdateDecalDirection(false);
-		}
-		if (!Weapon)
-		{
-			PlayerHUDRef->UpdateWeaponUI(EPickup::None);
-		}
-		
 		if (!bIsChargingAttack)
 		{
 			TryInteract();
 			Server_TryInteract();
 		}
-		
-		EnableStencil(false);
 	}
+
+	EnableStencil(false);
 	
 	// Debug draw collision sphere
 	//FCollisionShape colSphere = FCollisionShape::MakeSphere(InteractRadius);
@@ -1112,10 +1111,10 @@ void APrototype2Character::Multi_DropItem_Implementation()
 
 void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* itemComponent, APickUpItem* _item)
 {
-	//if (HeldItem)
-	//{
-	//	Multi_DropItem();
-	//}
+	if (HeldItem)
+	{
+		Multi_DropItem();
+	}
 
 	Multi_PickupItem(itemComponent, _item);
 }

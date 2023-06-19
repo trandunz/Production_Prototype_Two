@@ -239,6 +239,8 @@ protected: /* Protected non-network Functions */
 	void UpdateDecalAngle();
 
 public: /* Public variables */
+	UPROPERTY(VisibleAnywhere)
+	UWidget_PlayerHUD* PlayerHUDRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<USkeletalMesh*> PlayerMeshes;
@@ -409,7 +411,7 @@ private: /* Private variables */
 	
 	/* Interact radius for checking closest item */
 	UPROPERTY(EditAnywhere)
-	float InteractRadius = 200.0f;
+	float InteractRadius = 225.0f;
 	
 	/* Amount of knockback applied which is multiplied by charge */
 	UPROPERTY(EditAnywhere, Category = KnockBack)
@@ -435,7 +437,7 @@ private: /* Private variables */
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UWidget_PlayerHUD> PlayerHudPrefab;
-	UWidget_PlayerHUD* PlayerHUDRef;
+
 	
 	/* Reference to change speed: Sprint/Walk/Slow Walk */
 	UPROPERTY(EditAnywhere, Category = Animation)

@@ -23,6 +23,7 @@ void ARadialPlot::BeginPlay()
 			{
 				if (auto newPlot = GetWorld()->SpawnActor<AGrowSpot>(GrowSpotPrefab, {((float)i - 1.5f) * PlotSpread, ((float)j - 1.5f) * PlotSpread, PlotZHeight}, FRotator::ZeroRotator))
 				{
+					newPlot->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 					newPlot->Player_ID = Player_ID;
 					growSpots.Add(newPlot);
 				}

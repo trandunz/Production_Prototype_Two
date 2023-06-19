@@ -24,10 +24,10 @@ public:
 	TSubclassOf<AGrowSpot> GrowSpotPrefab;
 
 	UPROPERTY(EditAnywhere)
-	float PlotSpread {300.0f};
+	float PlotSpread {180.0f};
 
 	UPROPERTY(EditAnywhere)
-	float PlotZHeight {-30.0f};
+	float PlotZHeight {-20.0f};
 	
 protected:
 	// Called when the game starts or when spawned

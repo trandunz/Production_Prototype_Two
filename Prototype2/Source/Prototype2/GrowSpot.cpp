@@ -203,13 +203,18 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						}
 							
 						Multi_Plant();
-							
-						//player->Server_DropItem();
-							
+						
 						if (seed)
 							seed->Destroy();
 
 						player->HeldItem = nullptr;
+
+						if (player->PlayerHUDRef)
+						{
+							player->PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
+							player->PlayerHUDRef->SetHUDInteractText("");
+						}
+						player->EnableStencil(false);
 
 						Multi_UpdateState(EGrowSpotState::Growing);
 						GrowSpotState = EGrowSpotState::Growing;
@@ -231,6 +236,12 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					player->Server_DropItem();
 					player->UpdateDecalDirection(true, true);
 					player->HeldItem = nullptr;
+					if (player->PlayerHUDRef)
+					{
+						player->PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
+						player->PlayerHUDRef->SetHUDInteractText("");
+					}
+					player->EnableStencil(false);
 					break;
 				}
 
@@ -243,13 +254,11 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					player->WeaponCurrentDurability = player->WeaponMaxDurability;
 					
 					//// Change the weapon UI for this player
-					//player->GetPlayerHUD()->UpdateWeaponUI(EPickup::Weapon);
-								
-							
+					player->GetPlayerHUD()->UpdateWeaponUI(EPickup::Weapon);
+					
 					weapon->Destroy();
-					weapon = nullptr;
-					break;
 				}
+				weapon = nullptr;
 				
 				if (plant)
 				{
@@ -284,8 +293,15 @@ void AGrowSpot::Interact(APrototype2Character* player)
 						}
 					}
 				}
-
 				plant = nullptr;
+				
+				if (player->PlayerHUDRef)
+				{
+					player->PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
+					player->PlayerHUDRef->SetHUDInteractText("");
+				}
+				player->EnableStencil(false);
+				ItemComponent->Mesh->SetRenderCustomDepth(false);
 
 				UE_LOG(LogTemp, Warning, TEXT("Empty the plot."));
 				Multi_UpdateState(EGrowSpotState::Empty);
