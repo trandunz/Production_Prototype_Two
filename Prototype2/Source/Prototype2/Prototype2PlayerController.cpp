@@ -54,6 +54,14 @@ void APrototype2PlayerController::Tick(float DeltaSeconds)
 				}
 			}
 		}
+		else if (!GameStateRef->HasGameFinished && GameStateRef->GameHasStarted)
+		{
+			if (bEnableMovement == false)
+			{
+				SetInputMode(FInputModeGameOnly());
+				bEnableMovement = true;
+			}
+		}
 	
 		if (auto gameInstance = GetGameInstance<UPrototypeGameInstance>())
 		{
