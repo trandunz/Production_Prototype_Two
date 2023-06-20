@@ -657,9 +657,10 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	PlaySoundAtLocation(GetActorLocation(), GetHitCue);
 
 	// VFX
-	FVector AttackVFXLocation = GetActorLocation() - AttackerLocation;
+	FVector AttackVFXLocation = AttackerLocation - GetActorLocation();
 	AttackVFXLocation = AttackVFXLocation.GetSafeNormal();
-	AttackVFXLocation*=100.0f;
+	AttackVFXLocation*=50.0f;
+	AttackVFXLocation+=GetActorLocation();
 	Attack_NiagaraComponent->SetWorldLocation(AttackVFXLocation);
 	Attack_NiagaraComponent->Activate();
 }
@@ -1308,7 +1309,7 @@ void APrototype2Character::Multi_ReceiveMaterialsArray_Implementation(
 
 void APrototype2Character::Server_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position)
 {
-	Multi_FireParticleSystem(_NiagaraSystem, _Position);
+	//Multi_FireParticleSystem(_NiagaraSystem, _Position);
 }
 
 void APrototype2Character::Multi_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position)
