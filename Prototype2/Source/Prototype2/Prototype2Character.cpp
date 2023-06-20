@@ -1090,6 +1090,9 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 			}
 			
 			ExecuteAttack(attackSphereRadius);
+
+			// VFX
+			AttackTrail_NiagaraComponent->Activate();
 		}
 	}
 
