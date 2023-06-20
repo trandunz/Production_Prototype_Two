@@ -241,6 +241,8 @@ void UWidget_PlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		
 		if (auto owner = Cast<APrototype2Character>(GetOwningPlayer()->GetCharacter()))
 		{
+			//owner->GetPlayerState<APrototype2PlayerState>()->GrabSkinFromGameInstance();
+			
 			if (auto closestInteractable = owner->ClosestInteractableItem)
 			{
 				

@@ -67,7 +67,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_ReleaseAttack();
 	void Multi_ReleaseAttack_Implementation();
-
+	
 	// VFX events
 	UFUNCTION(BlueprintImplementableEvent)
 	void TriggerAttackVFX(FVector Position, float Radius, float Charge);
@@ -123,8 +123,18 @@ public:
 	void UpdateDecalDirection(bool _on);
 	void UpdateDecalDirection(bool _on, bool _targetShippingBin);
 
+	UFUNCTION(Server, Reliable)
+	void Server_SetMesh(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
+	void Server_SetMesh_Implementation(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_SetMesh(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
+	void Multi_SetMesh_Implementation(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
+
 protected: /* Protected Networking functions */
 	void PlayNetworkMontage(UAnimMontage* _montage);
+
+
 	
 	UFUNCTION(Server, Reliable)
 	void Server_PlayNetworkMontage(UAnimMontage* _montage);
@@ -244,8 +254,7 @@ public: /* Public variables */
 	UPROPERTY(VisibleAnywhere)
 	UWidget_PlayerHUD* PlayerHUDRef;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<USkeletalMesh*> PlayerMeshes;
+
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     class APrototype2PlayerState* PlayerStateRef;
@@ -284,6 +293,9 @@ public: /* Public variables */
 	/* Material */
 	UPROPERTY(VisibleAnywhere, Replicated)
 	UMaterialInstance* PlayerMat;
+
+	UPROPERTY(VisibleAnywhere, Replicated)
+	USkeletalMesh* PlayerMesh;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWeapon* Weapon;
