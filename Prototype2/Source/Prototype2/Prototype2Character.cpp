@@ -128,6 +128,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, Weapon);
 	DOREPLIFETIME(APrototype2Character, HeldItem);
 	DOREPLIFETIME(APrototype2Character, PlayerMat);
+	DOREPLIFETIME(APrototype2Character, PlayerMesh);
 	DOREPLIFETIME(APrototype2Character, PlayerID);
 	DOREPLIFETIME(APrototype2Character, bIsChargingAttack);
 	DOREPLIFETIME(APrototype2Character, AttackChargeAmount);
@@ -218,9 +219,6 @@ void APrototype2Character::BeginPlay()
 		DecalComponent->SetIsReplicated(false);
 	}
 
-	// assign player sttate ref
-	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
-
 	// Particle systems
 	if (WalkPoof_NiagaraSystem)
 	{
@@ -248,22 +246,20 @@ void APrototype2Character::BeginPlay()
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
+	
 	if (PlayerStateRef)
 	{
-		if (PlayerMeshes.Num() > (int)PlayerStateRef->Character)
-		{
-			GetMesh()->SetSkeletalMeshAsset(PlayerMeshes[(int)PlayerStateRef->Character]);
-			
-			// Set the reference to the run animation based on the skin (Cow, Pig, etc)
-			if (RunAnimations[(int32)PlayerStateRef->Character])
-			{		
-				RunAnimation = RunAnimations[(int32)PlayerStateRef->Character];	
-			}
+		// Set the reference to the run animation based on the skin (Cow, Pig, etc)
+		if (RunAnimations[(int32)PlayerStateRef->Character])
+		{		
+			RunAnimation = RunAnimations[(int32)PlayerStateRef->Character];	
 		}
 	}
-	GetMesh()->SetMaterial(0, PlayerMat);
+
+	if (PlayerMesh)
+		GetMesh()->SetSkeletalMeshAsset(PlayerMesh);
+	if (PlayerMat)
+		GetMesh()->SetMaterial(0, PlayerMat);
 
 	CheckForFloorSurface();
 	

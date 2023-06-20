@@ -123,18 +123,8 @@ public:
 	void UpdateDecalDirection(bool _on);
 	void UpdateDecalDirection(bool _on, bool _targetShippingBin);
 
-	UFUNCTION(Server, Reliable)
-	void Server_SetMesh(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
-	void Server_SetMesh_Implementation(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void Multi_SetMesh(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
-	void Multi_SetMesh_Implementation(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh);
-
 protected: /* Protected Networking functions */
 	void PlayNetworkMontage(UAnimMontage* _montage);
-
-
 	
 	UFUNCTION(Server, Reliable)
 	void Server_PlayNetworkMontage(UAnimMontage* _montage);
@@ -295,7 +285,7 @@ public: /* Public variables */
 	UMaterialInstance* PlayerMat;
 
 	UPROPERTY(VisibleAnywhere, Replicated)
-	USkeletalMesh* PlayerMesh;
+	class USkeletalMesh* PlayerMesh;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWeapon* Weapon;
