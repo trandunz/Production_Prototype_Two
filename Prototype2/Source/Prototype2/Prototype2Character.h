@@ -238,6 +238,8 @@ protected: /* Protected non-network Functions */
 	/* Update decal direction */
 	void UpdateDecalAngle();
 
+	void UpdateAOEIndicator();
+
 public: /* Public variables */
 	UPROPERTY(VisibleAnywhere)
 	UWidget_PlayerHUD* PlayerHUDRef;
@@ -354,6 +356,9 @@ public: /* Public variables */
 
 	UPROPERTY(EditAnywhere)
 	ASellBin* SellBin;
+	
+	UPROPERTY(EditAnywhere, Category = VFX)
+	UStaticMeshComponent* AttackAreaIndicatorMesh;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
@@ -483,6 +488,11 @@ private: /* Private variables */
 		
 	UPROPERTY(EditAnywhere, Category=Attack)
 	FVector KnockUp = {1.0f, 1.0f, 100000000.0f};
+
+	float BaseAttackRadius = 75.0f;
+	float WeaponAttackRadiusScalar = 30.0f;
+	float WeaponReach = 100.0f;
+	float MeleeReach = 30.0f;
 	
 	/* Other */
 	bool DoOnce{};
@@ -492,4 +502,5 @@ private: /* Private variables */
 	
 	UPROPERTY(Replicated, VisibleAnywhere)
 	FTransform MeshLocationWhenStunned{};
+
 };

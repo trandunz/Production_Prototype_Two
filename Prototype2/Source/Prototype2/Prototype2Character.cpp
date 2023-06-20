@@ -84,6 +84,12 @@ APrototype2Character::APrototype2Character()
 	Weapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
+	// Area of attack indicator mesh set up
+	AttackAreaIndicatorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttackAreaIndicatorMesh"));
+	AttackAreaIndicatorMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	AttackAreaIndicatorMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	AttackAreaIndicatorMesh->SetHiddenInGame(true);
+	
 	ChargeAttackAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ChargeAttackAudioComponent"));
 	ChargeAttackAudioComponent->SetIsReplicated(true);
 	ChargeAttackAudioComponent->SetupAttachment(RootComponent);
@@ -261,6 +267,11 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		{
 			AttackChargeAmount = MaxAttackCharge;
 		}
+		UpdateAOEIndicator();
+	}
+	else
+	{
+		AttackAreaIndicatorMesh->SetHiddenInGame(true);
 	}
 
 	if (InteractTimer < 0.0f)
@@ -335,11 +346,11 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	// start and end locations
 	if (!Weapon->Mesh->bHiddenInGame)
 	{
-		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * 100.0f);
+		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * WeaponReach);
 	}
 	else
 	{
-		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * 30.0f);
+		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * MeleeReach);
 	}
 	
 	FVector sweepStart = inFrontOfPlayer;
@@ -702,6 +713,42 @@ void APrototype2Character::UpdateDecalAngle()
 	DecalArmSceneComponent->SetWorldRotation(newRotation);
 }
 
+void APrototype2Character::UpdateAOEIndicator()
+{
+	AttackAreaIndicatorMesh->SetHiddenInGame(false);
+
+	float AttackSphereRadius;
+	if (!Weapon->Mesh->bHiddenInGame)
+	{
+		// Create a larger sphere of effect
+		AttackSphereRadius = BaseAttackRadius + AttackChargeAmount * WeaponAttackRadiusScalar;
+	}
+	else
+	{
+		// Create a smaller sphere of effect
+		AttackSphereRadius = BaseAttackRadius;
+	}
+
+	
+	FVector inFrontOfPlayer;
+	
+	// start and end locations
+	if (!Weapon->Mesh->bHiddenInGame)
+	{
+		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * WeaponReach);
+	}
+	else
+	{
+		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * MeleeReach);
+	}
+	
+	FVector downVector = {inFrontOfPlayer.X, inFrontOfPlayer.Y, GetMesh()->GetComponentLocation().Z};
+
+	AttackAreaIndicatorMesh->SetWorldLocation(downVector);
+	TriggerAttackVFX(downVector, AttackSphereRadius, AttackChargeAmount);	
+	
+}
+
 void APrototype2Character::UpdateDecalDirection(bool _on)
 {
 	DecalComponent->SetVisibility(_on);
@@ -950,12 +997,12 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 		if (!Weapon->Mesh->bHiddenInGame)
 		{
 			// Create a larger sphere of effect
-			attackSphereRadius = 75.0f + AttackChargeAmount * 30.0f;
+			attackSphereRadius = BaseAttackRadius + AttackChargeAmount * WeaponAttackRadiusScalar;
 		}
 		else
 		{
 			// Create a smaller sphere of effect
-			attackSphereRadius = 75.0f;
+			attackSphereRadius = BaseAttackRadius;
 		}
 
 		// If attack button is clicked without being held
