@@ -102,7 +102,10 @@ APrototype2Character::APrototype2Character()
 	DecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("DecalArrow"));
 	DecalComponent->AttachToComponent(DecalArmSceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	DecalComponent->SetIsReplicated(false);
+
+	SetReplicates(true);
 	
+	GetMesh()->SetIsReplicated(true);
 }
 
 void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -111,6 +114,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, Weapon);
 	DOREPLIFETIME(APrototype2Character, HeldItem);
 	DOREPLIFETIME(APrototype2Character, PlayerMat);
+	DOREPLIFETIME(APrototype2Character, PlayerMesh);
 	DOREPLIFETIME(APrototype2Character, PlayerID);
 	DOREPLIFETIME(APrototype2Character, bIsChargingAttack);
 	DOREPLIFETIME(APrototype2Character, AttackChargeAmount);
@@ -132,6 +136,10 @@ void APrototype2Character::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	SetReplicates(true);
+	
+	GetMesh()->SetIsReplicated(true);
 
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -194,30 +202,43 @@ void APrototype2Character::BeginPlay()
 		DecalArmSceneComponent->SetIsReplicated(false);
 		DecalComponent->SetIsReplicated(false);
 	}
-
-	// assign player sttate ref
-	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
+	//if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+	//	Server_SetCharacterMesh();
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
+	
 	if (PlayerStateRef)
 	{
-		if (PlayerMeshes.Num() > (int)PlayerStateRef->Character)
+		SetPlayerState(PlayerStateRef);
+		if (RunAnimations.Num() > 0)
 		{
-			GetMesh()->SetSkeletalMeshAsset(PlayerMeshes[(int)PlayerStateRef->Character]);
+			// Set the reference to the run animation based on the skin (Cow, Pig, etc)
+			if (RunAnimations.Num() > (int)PlayerStateRef->Character)
+			{
+				if (RunAnimations[(int)PlayerStateRef->Character])
+				{		
+					RunAnimation = RunAnimations[(int)PlayerStateRef->Character];	
+				}
+			}
 		}
-		
-		// Set the reference to the run animation based on the skin (Cow, Pig, etc)
-		if (RunAnimations[(int32)PlayerStateRef->Character])
-		{		
-			RunAnimation = RunAnimations[(int32)PlayerStateRef->Character];	
-		}
+
+		//if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+		//	Server_SetMesh(PlayerStateRef->Player_ID, PlayerMat, PlayerMesh);
 	}
-	GetMesh()->SetMaterial(0, PlayerMat);
+
+	if (PlayerMesh)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Player %s Material Assigned"), *FString::FromInt(_playerID));
+		GetMesh()->SetSkeletalMesh(PlayerMesh);
+	}
+	if (PlayerMat)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Player %s Mesh Assigned"), *FString::FromInt(_playerID));
+		GetMesh()->SetMaterial(0, PlayerMat);
+	}
 
 	CheckForFloorSurface();
 	
@@ -720,6 +741,11 @@ void APrototype2Character::UpdateDecalDirection(bool _on, bool _targetShippingBi
 	}
 }
 
+void APrototype2Character::Server_SetMesh_Implementation(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh)
+{
+	Multi_SetMesh(_playerID, _matInstance, _mesh);
+}
+
 bool APrototype2Character::IsSprinting()
 {
 	return FMath::RoundToInt(GetMovementComponent()->GetMaxSpeed()) == FMath::RoundToInt(SprintSpeed);
@@ -845,6 +871,26 @@ UWidget_PlayerHUD* APrototype2Character::GetPlayerHUD()
 {
 	// Update UI
 	return PlayerHUDRef;
+}
+
+void APrototype2Character::Multi_SetMesh_Implementation(int _playerID, UMaterialInstance* _matInstance, USkeletalMesh* _mesh)
+{
+	if (PlayerStateRef)
+	{
+		if (PlayerID == _playerID)
+		{
+			if (PlayerMesh)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Player %s Material Assigned"), *FString::FromInt(_playerID));
+				GetMesh()->SetSkeletalMesh(PlayerMesh);
+			}
+			if (PlayerMat)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Player %s Mesh Assigned"), *FString::FromInt(_playerID));
+				GetMesh()->SetMaterial(0, PlayerMat);
+			}
+		}
+	}
 }
 
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
@@ -982,6 +1028,7 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 
 	// empty
 	//Multi_ReleaseAttack();
+	// meshes
 }
 
 void APrototype2Character::Multi_ReleaseAttack_Implementation()
