@@ -198,11 +198,7 @@ void APrototype2Character::BeginPlay()
 	// assign player sttate ref
 	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
 
-	// Set the reference to the run animation based on the skin (Cow, Pig, etc)
-	if (RunAnimations[(int32)PlayerStateRef->Character])
-	{		
-		RunAnimation = RunAnimations[(int32)PlayerStateRef->Character];	
-	}
+
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -215,6 +211,12 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		if (PlayerMeshes.Num() > (int)PlayerStateRef->Character)
 		{
 			GetMesh()->SetSkeletalMeshAsset(PlayerMeshes[(int)PlayerStateRef->Character]);
+			
+			// Set the reference to the run animation based on the skin (Cow, Pig, etc)
+			if (RunAnimations[(int32)PlayerStateRef->Character])
+			{		
+				RunAnimation = RunAnimations[(int32)PlayerStateRef->Character];	
+			}
 		}
 	}
 	GetMesh()->SetMaterial(0, PlayerMat);
