@@ -67,7 +67,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_ReleaseAttack();
 	void Multi_ReleaseAttack_Implementation();
-
+	
 	// VFX events
 	UFUNCTION(BlueprintImplementableEvent)
 	void TriggerAttackVFX(FVector Position, float Radius, float Charge);
@@ -244,8 +244,7 @@ public: /* Public variables */
 	UPROPERTY(VisibleAnywhere)
 	UWidget_PlayerHUD* PlayerHUDRef;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<USkeletalMesh*> PlayerMeshes;
+
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     class APrototype2PlayerState* PlayerStateRef;
@@ -284,6 +283,9 @@ public: /* Public variables */
 	/* Material */
 	UPROPERTY(VisibleAnywhere, Replicated)
 	UMaterialInstance* PlayerMat;
+
+	UPROPERTY(VisibleAnywhere, Replicated)
+	class USkeletalMesh* PlayerMesh;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWeapon* Weapon;
