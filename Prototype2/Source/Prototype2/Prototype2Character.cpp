@@ -480,10 +480,6 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	UpdateDecalDirection(false); // Turn off decal as dropped any item
 
 	Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
-
-	// VFX
-	Attack_NiagaraComponent->Activate();
-
 }
 
 void APrototype2Character::Interact()
@@ -624,7 +620,7 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	//DisableInput(this->GetLocalViewingPlayerController());
 
 	// Fire dizzy particle
-	Server_FireParticleSystem(Dizzy_NiagaraSystem, Dizzy_NiagaraComponent->GetComponentLocation());
+	//Server_FireParticleSystem(Dizzy_NiagaraSystem, Dizzy_NiagaraComponent->GetComponentLocation());
 	
 	//Server_Ragdoll(true);
 	
@@ -663,6 +659,13 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	//StunTimer = 2.0f;
 
 	PlaySoundAtLocation(GetActorLocation(), GetHitCue);
+
+	// VFX
+	FVector AttackVFXLocation = GetActorLocation() - AttackerLocation;
+	AttackVFXLocation = AttackVFXLocation.GetSafeNormal();
+	AttackVFXLocation*=100.0f;
+	Attack_NiagaraComponent->SetWorldLocation(AttackVFXLocation);
+	Attack_NiagaraComponent->Activate();
 }
 
 void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
@@ -1062,6 +1065,9 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 		{
 			// Create a larger sphere of effect
 			attackSphereRadius = BaseAttackRadius + AttackChargeAmount * WeaponAttackRadiusScalar;
+			
+			// VFX
+			AttackTrail_NiagaraComponent->Activate();
 		}
 		else
 		{
@@ -1091,8 +1097,6 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 			
 			ExecuteAttack(attackSphereRadius);
 
-			// VFX
-			AttackTrail_NiagaraComponent->Activate();
 		}
 	}
 
@@ -1313,11 +1317,12 @@ void APrototype2Character::Server_FireParticleSystem_Implementation(UNiagaraSyst
 
 void APrototype2Character::Multi_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position)
 {
-	// Spawn a one-shot emitter at the passed in location
-	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), _NiagaraSystem, _Position);
-	NiagaraComponent->SetIsReplicated(true);
-	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
-	NiagaraComponent->SetAutoDestroy(true);
+	// This crashes
+	//// Spawn a one-shot emitter at the passed in location
+	//UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), _NiagaraSystem, _Position);
+	//NiagaraComponent->SetIsReplicated(true);
+	//// Set the NiagaraComponent to auto-destroy itself after it finishes playing
+	//NiagaraComponent->SetAutoDestroy(true);
 	
 	//DizzyComponent->SetAsset(DizzySystem);
     //DizzyComponent->Activate();

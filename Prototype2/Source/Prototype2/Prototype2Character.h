@@ -368,7 +368,7 @@ public: /* Public variables */
 	// Attack
 	UPROPERTY(EditAnywhere, Category = VFX)
 	class UNiagaraSystem* AttackTrail_NiagaraSystem;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* AttackTrail_NiagaraComponent;
 	UPROPERTY(EditAnywhere, Category = VFX)
 	class UNiagaraSystem* Attack_NiagaraSystem;
