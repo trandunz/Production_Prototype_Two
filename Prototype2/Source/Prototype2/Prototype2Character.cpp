@@ -97,9 +97,20 @@ APrototype2Character::APrototype2Character()
 	InteractSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle System"));
 	InteractSystem->SetupAttachment(RootComponent);
 
-	DizzyComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Dizzy Component"));
-	DizzyComponent->SetupAttachment(GetMesh(), FName("Base-HumanHead"));
-
+	// Niagara Components
+	Dizzy_NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Dizzy Component"));
+	Dizzy_NiagaraComponent->SetupAttachment(GetMesh(), FName("Base-HumanHead"));
+	WalkPoof_NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("WalkPoof Component"));
+	WalkPoof_NiagaraComponent->SetupAttachment(RootComponent);
+	SprintPoof_NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SprintPoof Component"));
+	SprintPoof_NiagaraComponent->SetupAttachment(RootComponent);
+	Sweat_NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Sweat Component"));
+	Sweat_NiagaraComponent->SetupAttachment(RootComponent);
+	AttackTrail_NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("AttackTrail Component"));
+	AttackTrail_NiagaraComponent->SetupAttachment(Weapon->Mesh);
+	Attack_NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Attack Component"));
+	Attack_NiagaraComponent->SetupAttachment(RootComponent);
+	
 	// Decal component
 	DecalArmSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DecalArrowArm"));
 	DecalArmSceneComponent->SetupAttachment(RootComponent);
@@ -126,12 +137,18 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, CanSprintTimer);
 	DOREPLIFETIME(APrototype2Character, SprintTimer);
 	DOREPLIFETIME(APrototype2Character, WeaponCurrentDurability);
-	DOREPLIFETIME(APrototype2Character, DizzyComponent);
 	DOREPLIFETIME(APrototype2Character, SoundAttenuationSettings);
 	DOREPLIFETIME(APrototype2Character, ChargeAttackAudioComponent);
 	DOREPLIFETIME(APrototype2Character, bIsHoldingGold);
 	DOREPLIFETIME(APrototype2Character, AttackTimer);
 	DOREPLIFETIME(APrototype2Character, InteractTimer);
+	// Niagara Components
+	DOREPLIFETIME(APrototype2Character, Dizzy_NiagaraComponent);
+	DOREPLIFETIME(APrototype2Character, WalkPoof_NiagaraComponent);
+	DOREPLIFETIME(APrototype2Character, SprintPoof_NiagaraComponent);
+	DOREPLIFETIME(APrototype2Character, Sweat_NiagaraComponent);
+	DOREPLIFETIME(APrototype2Character, AttackTrail_NiagaraComponent);
+	DOREPLIFETIME(APrototype2Character, Attack_NiagaraComponent);
 }
 
 void APrototype2Character::BeginPlay()
@@ -204,7 +221,28 @@ void APrototype2Character::BeginPlay()
 	// assign player sttate ref
 	PlayerStateRef = GetPlayerState<APrototype2PlayerState>();
 
-
+	// Particle systems
+	if (WalkPoof_NiagaraSystem)
+	{
+		WalkPoof_NiagaraComponent->SetAsset(WalkPoof_NiagaraSystem);
+	}
+	if (SprintPoof_NiagaraSystem)
+	{
+		SprintPoof_NiagaraComponent->SetAsset(SprintPoof_NiagaraSystem);
+	}
+	if (Sweat_NiagaraSystem)
+	{
+		Sweat_NiagaraComponent->SetAsset(Sweat_NiagaraSystem);
+	}	
+	if (AttackTrail_NiagaraSystem)
+	{
+		AttackTrail_NiagaraComponent->SetAsset(AttackTrail_NiagaraSystem);
+	}
+	if (Attack_NiagaraSystem)
+	{
+		Attack_NiagaraComponent->SetAsset(Attack_NiagaraSystem);
+	}
+	
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -311,6 +349,15 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	if (bDecalOn && GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		UpdateDecalAngle();
+	}
+
+	// Walk poof VFX deactivate if not walking
+	if (GetCharacterMovement()->Velocity.Size() < 50.0f)
+	{
+		if (WalkPoof_NiagaraComponent)
+		{
+			WalkPoof_NiagaraComponent->Deactivate();
+		}
 	}
 }
 
@@ -421,7 +468,6 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	AttackChargeAmount = 0.0f;
 
 	// audio
-
 	ChargeAttackAudioComponent->Stop();
 	Server_ToggleChargeSound(false);
 	PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
@@ -434,6 +480,10 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	UpdateDecalDirection(false); // Turn off decal as dropped any item
 
 	Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
+
+	// VFX
+	Attack_NiagaraComponent->Activate();
+
 }
 
 void APrototype2Character::Interact()
@@ -471,6 +521,7 @@ void APrototype2Character::Sprint()
 
 void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintSpeed, float _BaseAnimationRateScale)
 {
+	// If not sprinting
 	if (SprintTimer < 0.0f)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = _WalkSpeed;
@@ -480,14 +531,27 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 		{
 			RunAnimation->RateScale = _BaseAnimationRateScale;
 		}
+
+		// VFX
+		SprintPoof_NiagaraComponent->Deactivate();
 	}
-	else
+	else // If Sprinting
 	{
 		GetCharacterMovement()->MaxWalkSpeed = _SprintSpeed;
 		if(RunAnimation)
 		{
 			RunAnimation->RateScale = _BaseAnimationRateScale * SprintRateScaleScalar;
 		}
+
+		// VFX
+		WalkPoof_NiagaraComponent->Deactivate();
+		Sweat_NiagaraComponent->Activate();
+		SprintPoof_NiagaraComponent->Activate();
+	}
+	
+	if (CanSprintTimer < 0.0f)
+	{
+		Sweat_NiagaraComponent->Deactivate();
 	}
 }
 
@@ -559,7 +623,9 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	// Disable input
 	//DisableInput(this->GetLocalViewingPlayerController());
 
-	Server_FireDizzySystem();
+	// Fire dizzy particle
+	Server_FireParticleSystem(Dizzy_NiagaraSystem, Dizzy_NiagaraComponent->GetComponentLocation());
+	
 	//Server_Ragdoll(true);
 	
 	// Knockback
@@ -668,6 +734,11 @@ void APrototype2Character::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
+
+	if (!WalkPoof_NiagaraComponent->IsActive())
+	{
+		WalkPoof_NiagaraComponent->Activate();
+	}
 }
 
 void APrototype2Character::Look(const FInputActionValue& Value)
@@ -717,34 +788,27 @@ void APrototype2Character::UpdateAOEIndicator()
 {
 	AttackAreaIndicatorMesh->SetHiddenInGame(false);
 
-	float AttackSphereRadius;
-	if (!Weapon->Mesh->bHiddenInGame)
-	{
-		// Create a larger sphere of effect
-		AttackSphereRadius = BaseAttackRadius + AttackChargeAmount * WeaponAttackRadiusScalar;
-	}
-	else
-	{
-		// Create a smaller sphere of effect
-		AttackSphereRadius = BaseAttackRadius;
-	}
-
-	
+	float AttackSphereRadius;	
 	FVector inFrontOfPlayer;
 	
 	// start and end locations
 	if (!Weapon->Mesh->bHiddenInGame)
 	{
+		// Create a larger sphere of effect
+		AttackSphereRadius = BaseAttackRadius + AttackChargeAmount * WeaponAttackRadiusScalar;
 		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * WeaponReach);
 	}
 	else
 	{
+		// Create a smaller sphere of effect
+		AttackSphereRadius = BaseAttackRadius;
 		inFrontOfPlayer = GetActorLocation() + (GetActorForwardVector() * AttackSphereRadius) + (GetActorForwardVector() * MeleeReach);
 	}
 	
 	FVector downVector = {inFrontOfPlayer.X, inFrontOfPlayer.Y, GetMesh()->GetComponentLocation().Z};
 
 	AttackAreaIndicatorMesh->SetWorldLocation(downVector);
+	AttackAreaIndicatorMesh->SetRelativeScale3D({AttackSphereRadius,AttackSphereRadius,AttackChargeAmount * WeaponAttackRadiusScalar});
 	TriggerAttackVFX(downVector, AttackSphereRadius, AttackChargeAmount);	
 	
 }
@@ -1239,16 +1303,22 @@ void APrototype2Character::Multi_ReceiveMaterialsArray_Implementation(
 	}
 }
 
-void APrototype2Character::Server_FireDizzySystem_Implementation()
+void APrototype2Character::Server_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position)
 {
-	Multi_FireParticleSystem();
+	Multi_FireParticleSystem(_NiagaraSystem, _Position);
 }
 
-void APrototype2Character::Multi_FireParticleSystem_Implementation()
+void APrototype2Character::Multi_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position)
 {
-	DizzyComponent->SetAsset(DizzySystem);
-    DizzyComponent->Activate();
-    DizzyComponent->SetAutoDestroy(false);
+	// Spawn a one-shot emitter at the passed in location
+	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), _NiagaraSystem, _Position);
+	NiagaraComponent->SetIsReplicated(true);
+	// Set the NiagaraComponent to auto-destroy itself after it finishes playing
+	NiagaraComponent->SetAutoDestroy(true);
+	
+	//DizzyComponent->SetAsset(DizzySystem);
+    //DizzyComponent->Activate();
+    //DizzyComponent->SetAutoDestroy(false);
 }
 
 void APrototype2Character::Server_ToggleChargeSound_Implementation(bool _soundEnabled)

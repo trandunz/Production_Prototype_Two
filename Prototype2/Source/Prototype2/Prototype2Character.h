@@ -175,12 +175,12 @@ protected: /* Protected Networking functions */
 	ENetRole IdealNetRole{ROLE_AutonomousProxy};
 
 	UFUNCTION(Server, Reliable)
-	void Server_FireDizzySystem();
-	void Server_FireDizzySystem_Implementation();
+	void Server_FireParticleSystem(UNiagaraSystem* _NiagaraSystem, FVector _Position);
+	void Server_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position);
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void Multi_FireParticleSystem();
-	void Multi_FireParticleSystem_Implementation();
+	void Multi_FireParticleSystem(UNiagaraSystem* _NiagaraSystem, FVector _Position);
+	void Multi_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position);
 
 	UFUNCTION(Server, Reliable)
 	void Server_ToggleChargeSound(bool _soundEnabled);
@@ -323,18 +323,6 @@ public: /* Public variables */
 	UPROPERTY(VisibleAnywhere)
 	AActor* ClosestInteractableActor;
 
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* ParticleSystem;
-
-	UPROPERTY(EditAnywhere)
-	class UNiagaraComponent* InteractSystem;
-	
-	UPROPERTY(Replicated, EditAnywhere)
-	class UNiagaraComponent* DizzyComponent;
-	
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* DizzySystem;
-
 	UPROPERTY(Replicated, EditAnywhere)
 	bool bIsHoldingGold;
 
@@ -356,9 +344,48 @@ public: /* Public variables */
 
 	UPROPERTY(EditAnywhere)
 	ASellBin* SellBin;
-	
+
+	/* VFX */
 	UPROPERTY(EditAnywhere, Category = VFX)
 	UStaticMeshComponent* AttackAreaIndicatorMesh;
+
+	// Walk VFX
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* WalkPoof_NiagaraSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* WalkPoof_NiagaraComponent;
+	
+	// Sprint VFX
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* SprintPoof_NiagaraSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* SprintPoof_NiagaraComponent;
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* Sweat_NiagaraSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* Sweat_NiagaraComponent;
+
+	// Attack
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* AttackTrail_NiagaraSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* AttackTrail_NiagaraComponent;
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* Attack_NiagaraSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* Attack_NiagaraComponent;
+
+	// Dizzy
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* Dizzy_NiagaraSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* Dizzy_NiagaraComponent;
+
+	// Todo: Rename?
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* ParticleSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* InteractSystem;
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
@@ -502,5 +529,7 @@ private: /* Private variables */
 	
 	UPROPERTY(Replicated, VisibleAnywhere)
 	FTransform MeshLocationWhenStunned{};
+
+	
 
 };
