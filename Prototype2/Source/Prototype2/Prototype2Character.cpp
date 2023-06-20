@@ -335,15 +335,15 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		}
 	}
 
-	if (auto gameState = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
-	{
-		if (gameState->HasGameFinished)
-		{
-			GetMovementComponent()->SetActive(false);
-			GetController()->SetIgnoreLookInput(true);
-			GetController()->SetIgnoreMoveInput(true);
-		}
-	}
+	//if (auto gameState = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
+	//{
+	//	if (gameState->HasGameFinished)
+	//	{
+	//		GetMovementComponent()->SetActive(false);
+	//		GetController()->SetIgnoreLookInput(true);
+	//		GetController()->SetIgnoreMoveInput(true);
+	//	}
+	//}
 
 	// Update decal rotation
 	if (bDecalOn && GetLocalRole() == ROLE_AutonomousProxy)
