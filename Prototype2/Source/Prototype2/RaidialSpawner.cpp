@@ -5,7 +5,6 @@
 
 #include "GrowSpot.h"
 #include "RadialPlot.h"
-#include "ToolBuilderUtil.h"
 #include "Gamestates/Prototype2Gamestate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
