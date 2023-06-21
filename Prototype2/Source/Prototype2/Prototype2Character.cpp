@@ -451,6 +451,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 		{
 			Multi_DropWeapon();
 
+			AttackTrail_NiagaraComponent->Deactivate();
 			//// Update UI
 			//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
 		}
