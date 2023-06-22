@@ -12,6 +12,7 @@ class PROTOTYPE2_API ALobbyGamemode : public AGameModeBase
 
 	ALobbyGamemode();
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	void Logout(AController* Exiting) override;
 
 	virtual void Tick(float DeltaSeconds) override;
 	

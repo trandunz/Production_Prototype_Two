@@ -20,6 +20,7 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void Logout(AController* Exiting) override;
 	virtual void Tick(float DeltaSeconds) override;
 
 	void DisableControllerInput(APlayerController* PlayerController);

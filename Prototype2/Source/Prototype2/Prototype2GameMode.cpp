@@ -117,43 +117,26 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
+void APrototype2GameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+
+	if (auto gamestate = GetGameState<APrototype2Gamestate>())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Gamemode: Got Gamestate"));
+		if (auto playerState = Exiting->GetPlayerState<APrototype2PlayerState>())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Gamemode: Removing Player %s from Server_Players"), *FString::FromInt(playerState->Player_ID));
+			gamestate->Server_Players.Remove(playerState);
+		}
+	}
+}
+
 void APrototype2GameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
 	LookOutForGameEnd();
-
-	//if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
-	//{
-	//	if (auto gamestate = GetGameState<APrototype2Gamestate>())
-	//	{
-	//		//UE_LOG(LogTemp, Warning, TEXT("Gamemode: Got Gamestate"));
-	//		for(auto i = 0; i < gamestate->Server_Players.Num(); i++)
-	//		{
-	//			if (auto playerState = gamestate->Server_Players[i])
-	//			{
-	//				if (auto controller = playerState->GetPlayerController())
-	//				{
-	//					//UE_LOG(LogTemp, Warning, TEXT("Gamemode: Got Player Controller"));
-	//					if (auto character = Cast<APrototype2Character>(controller->GetCharacter()))
-	//					{
-	//						//UE_LOG(LogTemp, Warning, TEXT("Gamemode: Got Player Character"));
-	//						if (PlayerMaterials.Num() > (int)playerState->CharacterColour)
-	//						{
-	//							//UE_LOG(LogTemp, Warning, TEXT("Gamemode: Set Player Material"));
-	//							if (PlayerMaterials.Num() > (int)playerState->Character * 4 + (int)playerState->CharacterColour
-	//								&& PlayerMeshes.Num() > (int)playerState->Character)
-	//							{
-	//								character->PlayerMat = PlayerMaterials[(int)playerState->Character * 4 + (int)playerState->CharacterColour];
-	//								character->PlayerMesh = PlayerMeshes[(int)playerState->Character];
-	//							}
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
 }
 
 void APrototype2GameMode::DisableControllerInput(APlayerController* PlayerController)
