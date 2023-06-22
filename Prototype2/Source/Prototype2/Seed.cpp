@@ -25,6 +25,7 @@ void ASeed::BeginPlay()
 	ParachuteMesh->SetRelativeLocation(ParachuteMesh->GetRelativeLocation() + (FVector::UpVector * 100));
 	ParachuteMesh->SetRelativeScale3D({2,2,2});
 	ParachuteMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ParachuteMesh->SetIsReplicated(true);
 
 	if (!isWeapon)
 	{
@@ -78,6 +79,12 @@ bool ASeed::IsInteractable(APrototype2PlayerState* player)
 	return true;
 }
 
+void ASeed::Multi_ToggleParachuteVisibility_Implementation(bool _visible)
+{
+	ItemComponent->Mesh->SetSimulatePhysics(!_visible);
+	ParachuteMesh->SetVisibility(_visible);
+}
+
 void ASeed::HandleParachuteMovement()
 {
 	if (!isWeapon)
@@ -94,8 +101,8 @@ void ASeed::HandleParachuteMovement()
 			}
 			else
 			{
-				ItemComponent->Mesh->SetSimulatePhysics(true);
-				ParachuteMesh->SetVisibility(false);
+				Multi_ToggleParachuteVisibility(false);
+				
 			}
 		}
 	}

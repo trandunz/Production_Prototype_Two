@@ -26,6 +26,10 @@ public:
 	virtual bool IsInteractable(APrototype2PlayerState* player) override;
 public:
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_ToggleParachuteVisibility(bool _visible);
+	void Multi_ToggleParachuteVisibility_Implementation(bool _visible);
+	
 	UPROPERTY(EditAnywhere)
 	float BobSpeed{120.0f};
 
