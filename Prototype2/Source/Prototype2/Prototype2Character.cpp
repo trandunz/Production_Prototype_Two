@@ -448,7 +448,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	// audio
 	//ChargeAttackAudioComponent->Stop();
 
-	Server_ToggleChargeSound(false);
+	//Server_ToggleChargeSound(false);
 
 	PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
 
@@ -1045,7 +1045,7 @@ void APrototype2Character::Server_StartAttack_Implementation()
 			Server_SocketItem(Weapon->Mesh, FName("WeaponAttackingSocket"));
 		}
 
-		Server_ToggleChargeSound(true);
+		//Server_ToggleChargeSound(true);
 	}
 }
 
