@@ -6,11 +6,29 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "SellBin.h"
+#include "Containers/Map.h"
 #include "Prototype2Character.generated.h"
 
 class UAudioComponent;
 class USoundCue;
 class UItemComponent;
+
+UENUM()
+enum class PARTICLE_SYSTEM
+{
+	DEFAULT = 0,
+
+	WALKPOOF,
+	SPRINTPOOF,
+	SWEAT,
+	ATTACKTRAIL,
+	ATTACK,
+	TEST,
+
+	END
+};
+
+
 
 UCLASS(config=Game)
 class APrototype2Character : public ACharacter
@@ -361,54 +379,38 @@ public: /* Public variables */
 
 	// Walk VFX
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraSystem* WalkPoof_NiagaraSystem;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* WalkPoof_NiagaraComponent;
 	
 	// Sprint VFX
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraSystem* SprintPoof_NiagaraSystem;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* SprintPoof_NiagaraComponent;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraSystem* Sweat_NiagaraSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* Sweat_NiagaraComponent;
 
 	// Attack
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraSystem* AttackTrail_NiagaraSystem;
 	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* AttackTrail_NiagaraComponent;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraSystem* Attack_NiagaraSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* Attack_NiagaraComponent;
 
 	// Dizzy
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraSystem* Dizzy_NiagaraSystem;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* Dizzy_NiagaraComponent;
-
-	// Todo: Rename?
-	UPROPERTY(EditAnywhere, Category = VFX)
-	class UNiagaraSystem* ParticleSystem;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraComponent* InteractSystem;
-
-	UPROPERTY(EditAnywhere, Category = VFX)
-	class UNiagaraSystem* TestSystem;
-	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
-	class UNiagaraComponent* Test_NiagraComponent;
+	
+	void ActivateParticleSystemFromEnum(PARTICLE_SYSTEM _newSystem);
+	void DeActivateParticleSystemFromEnum(PARTICLE_SYSTEM _newSystem);
 
 	UFUNCTION(Server, Reliable)
-	void Server_TestNiagraSystem();
-	void Server_TestNiagraSystem_Implementation();
-
+	void Server_ToggleParticleSystems(const TArray<PARTICLE_SYSTEM>& _in, const TArray<PARTICLE_SYSTEM>& _in2);
+	void Server_ToggleParticleSystems_Implementation(const TArray<PARTICLE_SYSTEM>& _in, const TArray<PARTICLE_SYSTEM>& _in2);
 	UFUNCTION(NetMulticast, Reliable)
-	void Multi_TestNiagraSystem();
-	void Multi_TestNiagraSystem_Implementation();
+	void Multi_ToggleParticleSystems(const TArray<PARTICLE_SYSTEM>& _in, const TArray<PARTICLE_SYSTEM>& _in2);
+	void Multi_ToggleParticleSystems_Implementation(const TArray<PARTICLE_SYSTEM>& _in, const TArray<PARTICLE_SYSTEM>& _in2);
+	
+	UPROPERTY(VisibleAnywhere)
+	TArray<PARTICLE_SYSTEM> ParticleSystemsToActivate;
+	UPROPERTY(VisibleAnywhere)
+	TArray<PARTICLE_SYSTEM> ParticleSystemsToDeActivate;
 	
 	UPROPERTY(EditAnywhere)
 	bool ToggleNiagraTestComponent{false};
