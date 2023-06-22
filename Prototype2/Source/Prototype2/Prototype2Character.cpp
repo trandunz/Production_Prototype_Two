@@ -649,7 +649,7 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	UpdateDecalDirection(false);
 	
 	// Knockback
-	FVector KnockAway = GetActorUpVector()/2 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
+	FVector KnockAway = GetActorUpVector()/3 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
 
 	// Set minimum attack charge for scaling knockback
 	if (AttackCharge < 1.0f)
@@ -693,10 +693,10 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		// stop it if its already playing and start it again
-		if (Attack_NiagaraComponent->IsActive())
-		{
-			DeActivateParticleSystemFromEnum(PARTICLE_SYSTEM::ATTACK);
-		}
+		//if (Attack_NiagaraComponent->IsActive())
+		//{
+		//	DeActivateParticleSystemFromEnum(PARTICLE_SYSTEM::ATTACK);
+		//}
 		ActivateParticleSystemFromEnum(PARTICLE_SYSTEM::ATTACK);
 	}
 	//Attack_NiagaraComponent->Activate();
@@ -892,7 +892,7 @@ void APrototype2Character::Multi_ToggleParticleSystems_Implementation(const TArr
 			}
 		case PARTICLE_SYSTEM::ATTACK:
 			{
-				Attack_NiagaraComponent->Activate();
+				Attack_NiagaraComponent->Activate(true);
 				break;
 			}
 		case PARTICLE_SYSTEM::TEST:
