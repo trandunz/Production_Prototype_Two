@@ -81,7 +81,8 @@ void ARaidialSpawner::SetUp()
 				if (auto newPlot = GetWorld()->SpawnActor<AGrowSpot>(PlotPrefab, RootComponent->GetComponentTransform()))
 				{
 					newPlot->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-					newPlot->SetActorRelativeLocation(ObjectSpawnPosition + FVector{((float)i - 1.5f) * 250, ((float)j - 1.5f) * 250, 100.0f});
+					int distance = 180;
+					newPlot->SetActorRelativeLocation(ObjectSpawnPosition + FVector{((float)i - 1.5f) * distance, ((float)j - 1.5f) * distance, 100.0f});
 					newPlot->Player_ID = Index;
 
 					FHitResult HitResult;
@@ -94,6 +95,7 @@ void ARaidialSpawner::SetUp()
 					if (bHit)
 					{
 						newPlot->SetActorLocation(FVector(HitResult.ImpactPoint.X, HitResult.ImpactPoint.Y, HitResult.ImpactPoint.Z));
+						//newPlot->SetActorRotation(FRotator(HitResult.ImpactNormal.Rotation().Pitch + 90, 0, HitResult.ImpactNormal.Rotation().Roll + 180));
 					}
 				}
 			}
