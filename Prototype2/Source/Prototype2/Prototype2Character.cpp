@@ -547,6 +547,11 @@ void APrototype2Character::EnableStencil(bool _on)
 			if (auto itemComponent = Cast<UItemComponent>(component))
 			{
 				itemComponent->Mesh->SetRenderCustomDepth(_on);
+
+				if (auto plant = Cast<APlant>(ClosestInteractableActor))
+				{
+					plant->LeavesMesh->SetRenderCustomDepth(_on);
+				}
 			}
 		}
 	}
@@ -859,8 +864,6 @@ void APrototype2Character::Multi_ToggleParticleSystems_Implementation(const TArr
 			break;
 		}
 	}
-	
-
 }
 
 void APrototype2Character::UpdateDecalDirection(bool _on)

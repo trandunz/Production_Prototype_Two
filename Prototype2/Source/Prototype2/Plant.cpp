@@ -37,6 +37,7 @@ void APlant::Interact(APrototype2Character* player)
 			player->PlayerHUDRef->SetHUDInteractText("");
 		}
 		ItemComponent->Mesh->SetRenderCustomDepth(false);
+		LeavesMesh->SetRenderCustomDepth(false);
 	}
 }
 
