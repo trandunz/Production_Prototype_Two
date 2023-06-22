@@ -41,6 +41,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_DetachShippingBinComponents();
 	void Multi_DetachShippingBinComponents_Implementation();
+
+	void KeepPlayersAtSpawnPositionUntilStart();
 	
 	bool HasGameFinishedLocal{};
 	bool TpHasHappened{};

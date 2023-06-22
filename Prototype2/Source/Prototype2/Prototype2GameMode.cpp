@@ -5,6 +5,7 @@
 #include "EndGamePodium.h"
 #include "Prototype2Character.h"
 #include "Prototype2PlayerController.h"
+#include "RadialPlot.h"
 #include "SellBin_Winter.h"
 #include "Blueprint/UserWidget.h"
 #include "Gamestates/Prototype2Gamestate.h"
@@ -102,33 +103,8 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 						*FString::FromInt((int)playerState->CharacterColour));
 					UE_LOG(LogTemp, Warning, TEXT("Player ID Assigned"));
 					//character->Server_SetCharacterMesh();
+
 					
-					switch(playerState->Player_ID)
-					{
-					case 0:
-						{
-							character->SetActorLocation({1680.f,-70.f,90.f});
-							break;
-						}
-					case 1:
-						{
-							character->SetActorLocation({-1910.000f,-60.000f,90.000f});
-							break;
-						}
-					case 2:
-						{
-							character->SetActorLocation({-110.f,1730.f,90.f});
-							break;
-						}
-					case 3:
-						{
-							character->SetActorLocation({-110.f,-1850.f,90.f});
-							break;
-						}
-					default:
-						character->SetActorLocation({1680.f,-70.f,90.f});
-						break;
-					}
 				}
 			}
 		}
@@ -153,6 +129,8 @@ void APrototype2GameMode::Logout(AController* Exiting)
 void APrototype2GameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	KeepPlayersAtSpawnPositionUntilStart();
 	
 	LookOutForGameEnd();
 }
@@ -384,6 +362,50 @@ void APrototype2GameMode::Multi_DetachShippingBinComponents_Implementation()
 	{
 		
 		//winterBin->IceBoundary->SetWorldLocation({-104.559325,-72.190911,-13.473242});
+	}
+}
+
+void APrototype2GameMode::KeepPlayersAtSpawnPositionUntilStart()
+{
+	if (GameStateRef)
+	{
+		if (!GameStateRef->GameHasStarted)
+		{
+			for(auto player : GameStateRef->Server_Players)
+			{
+				if (auto controller = player->GetPlayerController())
+				{
+					if (auto castedController = Cast<APrototype2PlayerController>(controller))
+					{
+						if (auto character = castedController->GetCharacter())
+						{
+							TArray<AActor*> foundRadialPlots{};
+							UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARadialPlot::StaticClass(), foundRadialPlots);
+							for(auto plot : foundRadialPlots)
+							{
+								if (auto radialPlot = Cast<ARadialPlot>(plot))
+								{
+									if (radialPlot->Player_ID == player->Player_ID)
+									{
+										auto spawnPoint = radialPlot->GetActorLocation();
+										spawnPoint.Z = 90.0f;
+										if (FVector::Distance(character->GetActorLocation(), spawnPoint) > 200)
+										{
+											character->SetActorLocation(spawnPoint);
+											character->SetActorRotation({character->GetActorRotation().Pitch, radialPlot->GetActorRotation().Yaw, character->GetActorRotation().Roll});
+										}
+										
+										break;
+									}
+								}
+							}
+						}
+						
+					}
+				}
+				
+			}
+		}
 	}
 }
 
