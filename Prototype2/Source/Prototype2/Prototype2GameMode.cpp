@@ -219,12 +219,18 @@ void APrototype2GameMode::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
 {
-	APrototype2Character* firstPlace{nullptr};
-	APrototype2Character* secondPlace{nullptr};
-	APrototype2Character* thirdPlace{nullptr};
+	APrototype2Character* player1{nullptr};
+	APrototype2Character* player2{nullptr};
+	APrototype2Character* player3{nullptr};
+	APrototype2Character* player4{nullptr};
+
+	bool bP1win{false};
+	bool bP2win{false};
+	bool bP3win{false};
+	bool bP4win{false};
+	
 	int highestCoins{};
-	int secondHighestCoins{};
-			
+
 	for(int i = 0; i < Server_PlayerStates.Num(); i++)
 	{
 		if (auto* character = Cast<APrototype2Character>(Server_Characters[i]))
@@ -232,19 +238,54 @@ void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
 			if (Server_PlayerStates[i].Get()->Coins > highestCoins)
 			{
 				highestCoins = Server_PlayerStates[i].Get()->Coins;
-				firstPlace = character;
 			}
-			else if (Server_PlayerStates[i].Get()->Coins > secondHighestCoins)
+
+			if (i == 0)
 			{
-				secondHighestCoins = Server_PlayerStates[i].Get()->Coins;
-				secondPlace = character;
+				player1 = character;
 			}
-			else
+			if (i == 1)
 			{
-				thirdPlace = character;
+				player2 = character;
+			}
+			if (i == 2)
+			{
+				player3 = character;
+			}
+			if (i == 3)
+			{
+				player4 = character;
 			}
 		}
 	}
+
+	for(int i = 0; i < Server_PlayerStates.Num(); i++)
+	{
+		if (auto* character = Cast<APrototype2Character>(Server_Characters[i]))
+		{
+			if (Server_PlayerStates[i].Get()->Coins == highestCoins)
+			{
+				if (i == 0)
+				{
+					bP1win = true;
+				}
+				if (i == 1)
+				{
+					bP2win = true;
+				}
+				if (i == 2)
+				{
+					bP3win = true;
+				}
+				if (i == 3)
+				{
+					bP4win = true;
+				}
+			}
+		}
+	}
+	
+	
 
 	if (auto gamemode = Cast<APrototype2GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
 	{
@@ -253,20 +294,53 @@ void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
 			FTransform defautTransform{};
 			defautTransform.SetScale3D({1.0f, 1.0f, 1.0f});
 			// Tp Everyone
-			if (firstPlace)
+			if (bP1win == true)
 			{
-				firstPlace->AttachToComponent(endGamePodium->P1Position,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				firstPlace->SetActorRelativeTransform(defautTransform);
+				player1->AttachToComponent(endGamePodium->P1WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			}
-			if (secondPlace)
+			else
 			{
-				secondPlace->AttachToComponent(endGamePodium->P2Position,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				secondPlace->SetActorRelativeTransform(defautTransform);
+				player1->AttachToComponent(endGamePodium->P1LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			}
-			if (thirdPlace)
+			player1->SetActorRelativeTransform(defautTransform);
+
+			if (Server_PlayerStates.Num() > 1)
 			{
-				thirdPlace->AttachToComponent(endGamePodium->P3Position,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				thirdPlace->SetActorRelativeTransform(defautTransform);
+				if (bP2win == true)
+				{
+					player2->AttachToComponent(endGamePodium->P2WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				}
+				else
+				{
+					player2->AttachToComponent(endGamePodium->P2LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				}
+				player2->SetActorRelativeTransform(defautTransform);
+			}
+
+			if (Server_PlayerStates.Num() > 2)
+			{
+				if (bP3win == true)
+				{
+					player3->AttachToComponent(endGamePodium->P3WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				}
+				else
+				{
+					player3->AttachToComponent(endGamePodium->P3LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				}
+				player3->SetActorRelativeTransform(defautTransform);
+			}
+
+			if (Server_PlayerStates.Num() > 3)
+			{
+				if (bP4win == true)
+				{
+					player4->AttachToComponent(endGamePodium->P4WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				}
+				else
+				{
+					player4->AttachToComponent(endGamePodium->P4LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				}
+				player4->SetActorRelativeTransform(defautTransform);
 			}
 		}
 	}
