@@ -81,8 +81,20 @@ void ARaidialSpawner::SetUp()
 				if (auto newPlot = GetWorld()->SpawnActor<AGrowSpot>(PlotPrefab, RootComponent->GetComponentTransform()))
 				{
 					newPlot->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-					newPlot->SetActorRelativeLocation(ObjectSpawnPosition + FVector{((float)i - 1.5f) * 150, ((float)j - 1.5f) * 150, -30.0f});
+					newPlot->SetActorRelativeLocation(ObjectSpawnPosition + FVector{((float)i - 1.5f) * 250, ((float)j - 1.5f) * 250, 100.0f});
 					newPlot->Player_ID = Index;
+
+					FHitResult HitResult;
+					FVector Start = newPlot->GetActorLocation();
+					FVector End = Start + FVector(0, 0, -1000);
+					FCollisionQueryParams Params;
+					Params.AddIgnoredActor(newPlot);
+
+					bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params);
+					if (bHit)
+					{
+						newPlot->SetActorLocation(FVector(HitResult.ImpactPoint.X, HitResult.ImpactPoint.Y, HitResult.ImpactPoint.Z));
+					}
 				}
 			}
 		}
