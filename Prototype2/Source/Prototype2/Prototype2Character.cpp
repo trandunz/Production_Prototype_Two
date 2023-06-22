@@ -35,6 +35,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "GrowableWeapon.h"
 #include "SellBin_Winter.h"
+#include "EndGameCamera.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -219,9 +220,45 @@ void APrototype2Character::BeginPlay()
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (!EndGameCam)
+	{
+		if (auto gamemode = Cast<APrototype2GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+		{
+			if (auto endGamePodium = gamemode->EndGamePodium)
+			{
+				EndGameCam = endGamePodium->EndGameCamera;
+			}
+		}
+	}
+
+
 	
 	if (PlayerStateRef)
 	{
+		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			if (EndGameCam)
+			{
+			
+				auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld()));
+				if (gamestate->HasGameFinished)
+				{
+					if (auto castedController = Cast<APrototype2PlayerController>(PlayerStateRef->GetPlayerController()))
+					{
+						castedController->SetViewTarget(EndGameCam);
+						GetCharacterMovement()->StopActiveMovement();
+						GetCharacterMovement()->StopMovementImmediately();
+						GetCharacterMovement()->Velocity = {};
+						GetCharacterMovement()->Deactivate();
+						castedController->bEnableMovement = false;
+						castedController->UnPossess();
+						UE_LOG(LogTemp, Warning, TEXT("Game is over, Change the camera now please."));
+					}
+				}
+			}
+		}
+		
 		// Set the reference to the run animation based on the skin (Cow, Pig, etc)
 		if (RunAnimations[(int32)PlayerStateRef->Character])
 		{		
@@ -271,7 +308,8 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	
 	if (PlayerHUDRef)
 	{
-		Server_CountdownTimers(DeltaSeconds);
+		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+			Server_CountdownTimers(DeltaSeconds);
 		
 		// Update sprint UI
 		PlayerHUDRef->SetPlayerSprintTimer(CanSprintTimer);
@@ -295,6 +333,7 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	
 	if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 	{
+		
 		if (GetCharacterMovement()->Velocity.Size() < 50.0f)
 		{
 			DeActivateParticleSystemFromEnum(PARTICLE_SYSTEM::WALKPOOF);
@@ -886,6 +925,21 @@ void APrototype2Character::UpdateDecalDirection(bool _on, bool _targetShippingBi
 	}
 }
 
+void APrototype2Character::TeleportToLocation(FVector DestinationLocation, FRotator DestinationRotation)
+{
+	if (GetLocalRole() == ROLE_Authority || GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		Server_TeleportToLocation(DestinationLocation, DestinationRotation);
+	}
+}
+
+void APrototype2Character::Server_TeleportToLocation_Implementation(FVector DestinationLocation, FRotator DestinationRotation)
+{
+	SetActorLocation(DestinationLocation);
+	SetActorRotation(DestinationRotation);
+	Multi_TeleportToLocation(DestinationLocation, DestinationRotation);
+}
+
 bool APrototype2Character::IsSprinting()
 {
 	return FMath::RoundToInt(GetMovementComponent()->GetMaxSpeed()) == FMath::RoundToInt(SprintSpeed);
@@ -1011,6 +1065,12 @@ UWidget_PlayerHUD* APrototype2Character::GetPlayerHUD()
 {
 	// Update UI
 	return PlayerHUDRef;
+}
+
+void APrototype2Character::Multi_TeleportToLocation_Implementation(FVector DestinationLocation, FRotator DestinationRotation)
+{
+	SetActorLocation(DestinationLocation);
+	SetActorRotation(DestinationRotation);
 }
 
 void APrototype2Character::PlayNetworkMontage(UAnimMontage* _montage)
