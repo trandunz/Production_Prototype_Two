@@ -128,8 +128,8 @@ void AGrowSpot::Tick(float DeltaTime)
 	
 	if (plant)
 	{
-		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.1f, 0.1f, 0.1f}, growTimer / growTime);
-		FVector pos = FMath::Lerp<FVector>({GetActorLocation()}, GetActorLocation() + FVector::UpVector * 20.0f, growTimer / growTime);
+		FVector scale = FMath::Lerp<FVector>({2.0f, 2.0f, 2.0f}, {0.3f, 0.3f, 0.3f}, growTimer / growTime);
+		FVector pos = FMath::Lerp<FVector>({GetActorLocation()}, GetActorLocation() + FVector::UpVector * 0.0f, growTimer / growTime);
 		plant->ItemComponent->Mesh->SetSimulatePhysics(false);
 		plant->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		plant->ItemComponent->Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
