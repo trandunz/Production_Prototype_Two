@@ -110,6 +110,8 @@ APrototype2Character::APrototype2Character()
 	AttackTrail_NiagaraComponent->SetupAttachment(Weapon->Mesh);
 	Attack_NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Attack Component"));
 	Attack_NiagaraComponent->SetupAttachment(RootComponent);
+	Test_NiagraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Test Niagra Component"));
+	Test_NiagraComponent->SetupAttachment(RootComponent);
 	
 	// Decal component
 	DecalArmSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DecalArrowArm"));
@@ -151,6 +153,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, Sweat_NiagaraComponent);
 	DOREPLIFETIME(APrototype2Character, AttackTrail_NiagaraComponent);
 	DOREPLIFETIME(APrototype2Character, Attack_NiagaraComponent);
+	DOREPLIFETIME(APrototype2Character, Test_NiagraComponent);
 }
 
 void APrototype2Character::BeginPlay()
@@ -247,6 +250,13 @@ void APrototype2Character::BeginPlay()
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	/*if (ToggleNiagraTestComponent)
+	{
+		ToggleNiagraTestComponent = !ToggleNiagraTestComponent;
+
+
+	}*/
 	
 	if (PlayerStateRef)
 	{
@@ -822,6 +832,16 @@ void APrototype2Character::UpdateAOEIndicator()
 	
 }
 
+void APrototype2Character::Server_TestNiagraSystem_Implementation()
+{
+	Multi_TestNiagraSystem();
+}
+
+void APrototype2Character::Multi_TestNiagraSystem_Implementation()
+{
+	Test_NiagraComponent->Activate(true);
+}
+
 void APrototype2Character::UpdateDecalDirection(bool _on)
 {
 	DecalComponent->SetVisibility(_on);
@@ -1162,6 +1182,9 @@ void APrototype2Character::Multi_SetPlayerColour_Implementation()
 
 void APrototype2Character::TryInteract()
 {
+	if ((HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy))
+		Server_TestNiagraSystem();
+	
 	if (ClosestInteractableItem)
 	{
 		ClosestInteractableItem->ClientInteract(this);
