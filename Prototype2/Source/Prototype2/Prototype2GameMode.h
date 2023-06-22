@@ -32,6 +32,8 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	void TeleportEveryoneToPodium();
+	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_TeleportEveryoneToPodium();
 	void Multi_TeleportEveryoneToPodium_Implementation();

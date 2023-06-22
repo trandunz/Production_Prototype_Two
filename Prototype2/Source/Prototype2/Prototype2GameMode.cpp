@@ -40,8 +40,12 @@ void APrototype2GameMode::BeginPlay()
 	}
 
 	if (EndGamePodiumPrefab)
+	{
 		EndGamePodium = GetWorld()->SpawnActor<AEndGamePodium>(EndGamePodiumPrefab, FVector{3031.58f,-1426.65f,-17.30},FRotator{0.0f,140.59f,0.0f});
-
+		EndGamePodium->SetReplicates(true);
+		EndGamePodium->SetReplicatingMovement(true);
+	}
+	
 	if (SellBinPrefab)
 	{
 		SellBinRef = GetWorld()->SpawnActor<ASellBin>(SellBinPrefab, {-104.559325,-72.190911,-30.0f},FRotator::ZeroRotator);
@@ -184,7 +188,7 @@ void APrototype2GameMode::DisableControllerInputForAll()
 		}
 	}
 }
-
+ 
 void APrototype2GameMode::EnableControllerInputForAll()
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
@@ -217,9 +221,9 @@ void APrototype2GameMode::LookOutForGameEnd()
 		if (Server_PlayerStates.Num() < GameStateRef->Server_Players.Num())
 			Server_PlayerStates = GameStateRef->Server_Players;
 		
-		if (GameStateRef->HasGameFinished && HasAuthority() && !TpHasHappened)
+		if (GameStateRef->HasGameFinished && !TpHasHappened)
 		{
-			Multi_TeleportEveryoneToPodium();
+			TeleportEveryoneToPodium();
 			TpHasHappened = true;
 		}
 	}
@@ -232,7 +236,7 @@ void APrototype2GameMode::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(APrototype2GameMode, SellBinRef);
 }
 
-void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
+void APrototype2GameMode::TeleportEveryoneToPodium()
 {
 	APrototype2Character* player1{nullptr};
 	APrototype2Character* player2{nullptr};
@@ -311,54 +315,67 @@ void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
 			// Tp Everyone
 			if (bP1win == true)
 			{
-				player1->AttachToComponent(endGamePodium->P1WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				//player1->AttachToComponent(endGamePodium->P1WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				player1->TeleportToLocation(endGamePodium->P1WinPosition->GetComponentLocation(), endGamePodium->P1WinPosition->GetComponentRotation());
 			}
 			else
 			{
-				player1->AttachToComponent(endGamePodium->P1LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				player1->TeleportToLocation(endGamePodium->P1LosePosition->GetComponentLocation(), endGamePodium->P1LosePosition->GetComponentRotation());
+				//player1->AttachToComponent(endGamePodium->P1LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			}
-			player1->SetActorRelativeTransform(defautTransform);
+			
 
 			if (Server_PlayerStates.Num() > 1)
 			{
 				if (bP2win == true)
 				{
-					player2->AttachToComponent(endGamePodium->P2WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					player2->TeleportToLocation(endGamePodium->P2WinPosition->GetComponentLocation(), endGamePodium->P2WinPosition->GetComponentRotation());
+					//player2->AttachToComponent(endGamePodium->P2WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 				}
 				else
 				{
-					player2->AttachToComponent(endGamePodium->P2LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					player2->TeleportToLocation(endGamePodium->P2LosePosition->GetComponentLocation(), endGamePodium->P2LosePosition->GetComponentRotation());
+					//player2->AttachToComponent(endGamePodium->P2LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 				}
-				player2->SetActorRelativeTransform(defautTransform);
+				
 			}
 
 			if (Server_PlayerStates.Num() > 2)
 			{
 				if (bP3win == true)
 				{
-					player3->AttachToComponent(endGamePodium->P3WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					player3->TeleportToLocation(endGamePodium->P3WinPosition->GetComponentLocation(), endGamePodium->P3WinPosition->GetComponentRotation());
+					//player3->AttachToComponent(endGamePodium->P3WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 				}
 				else
 				{
-					player3->AttachToComponent(endGamePodium->P3LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					player3->TeleportToLocation(endGamePodium->P3LosePosition->GetComponentLocation(), endGamePodium->P3LosePosition->GetComponentRotation());
+					//player3->AttachToComponent(endGamePodium->P3LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 				}
-				player3->SetActorRelativeTransform(defautTransform);
+				
 			}
 
 			if (Server_PlayerStates.Num() > 3)
 			{
 				if (bP4win == true)
 				{
-					player4->AttachToComponent(endGamePodium->P4WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					player4->TeleportToLocation(endGamePodium->P4WinPosition->GetComponentLocation(), endGamePodium->P4WinPosition->GetComponentRotation());
+					//player4->AttachToComponent(endGamePodium->P4WinPosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 				}
 				else
 				{
-					player4->AttachToComponent(endGamePodium->P4LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					player4->TeleportToLocation(endGamePodium->P4LosePosition->GetComponentLocation(), endGamePodium->P4LosePosition->GetComponentRotation());
+					//player4->AttachToComponent(endGamePodium->P4LosePosition,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 				}
-				player4->SetActorRelativeTransform(defautTransform);
+				
 			}
 		}
 	}
+}
+
+void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
+{
+	
 }
 
 void APrototype2GameMode::Multi_DetachShippingBinComponents_Implementation()
