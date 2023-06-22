@@ -84,11 +84,50 @@ void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
 					{
 						gamestate->MaxPlayersOnServer = gameInstance->MaxPlayersOnServer;
 						gamestate->FinalConnectionCount = gameInstance->FinalConnectionCount;
-						
-						if (gameInstance->FinalCharacters.Num() > 0)
-							playerState->Character = gameInstance->FinalCharacters[playerState->Player_ID];
-						if (gameInstance->FinalColours.Num() > 0)
-							playerState->CharacterColour = gameInstance->FinalColours[playerState->Player_ID];
+
+						if (gameInstance->FinalPlayerNames.Num() > 0)
+						{
+							for(int i = 0; i < gameInstance->FinalPlayerNames.Num(); i++)
+							{
+								FString newPlayerName;
+								IOnlineIdentityPtr IdentityInterface = IOnlineSubsystem::Get()->GetIdentityInterface();
+								if (IdentityInterface.IsValid())
+								{
+									newPlayerName = IdentityInterface->GetPlayerNickname(playerState->Player_ID);
+									UE_LOG(LogTemp, Warning, TEXT("Player %s Has Steam Name %s"), *FString::FromInt(playerState->Player_ID), *newPlayerName);
+								}
+								if (gameInstance->FinalPlayerNames[i] == newPlayerName)
+								{
+									if (gameInstance->FinalCharacters.Num() > i)
+										playerState->Character = gameInstance->FinalCharacters[i];
+									if (gameInstance->FinalColours.Num() > i)
+										playerState->CharacterColour = gameInstance->FinalColours[i];
+								}
+							}
+						}
+
+						bool duplicateSkin{};
+						for(int i = 0; i < gameInstance->FinalPlayerNames.Num() && duplicateSkin == false; i++)
+						{
+							for(int j = 0; j < gameInstance->FinalPlayerNames.Num() && duplicateSkin == false; j++)
+							{
+								if (j != i)
+								{
+									if (gameInstance->FinalPlayerNames[i] == gameInstance->FinalPlayerNames[j])
+									{
+										duplicateSkin = true;
+									}
+								}
+							}
+						}
+
+						if (duplicateSkin)
+						{
+							if (gameInstance->FinalCharacters.Num() > 0)
+								playerState->Character = gameInstance->FinalCharacters[playerState->Player_ID];
+							if (gameInstance->FinalColours.Num() > 0)
+								playerState->CharacterColour = gameInstance->FinalColours[playerState->Player_ID];
+						}
 					}
 
 					if (PlayerMaterials.Num() > (int)playerState->Character * 4 + (int)playerState->CharacterColour
