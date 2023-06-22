@@ -39,6 +39,7 @@ void AGrowSpot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(AGrowSpot, plant);
 	DOREPLIFETIME(AGrowSpot, weapon);
 	DOREPLIFETIME(AGrowSpot, GrowSpotState);
+	DOREPLIFETIME(AGrowSpot, Player_ID);
 	DOREPLIFETIME(AGrowSpot, PlantReadySparkle_NiagaraComponent);
 }
 
