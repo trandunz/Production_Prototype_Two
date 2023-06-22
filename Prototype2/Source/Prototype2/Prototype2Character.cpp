@@ -263,24 +263,6 @@ void APrototype2Character::Tick(float DeltaSeconds)
 		GetMesh()->SetMaterial(0, PlayerMat);
 
 	CheckForFloorSurface();
-	
-	// Stun
-	//if (bIsStunned)
-	//{
-	//	
-	//	bIsChargingAttack = false;
-	//
-	//	// Set animation to stun
-	//	
-	//	StunTimer -= DeltaSeconds;
-	//	if (StunTimer < 0.0f)
-	//	{
-	//		bIsStunned = false;
-	//		//Server_Ragdoll(false);
-	//		// Enable input
-	//		EnableInput(this->GetLocalViewingPlayerController());
-	//	}
-	//}
 
 	// Sprint
 	if (bIsHoldingGold)
@@ -353,7 +335,10 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	{
 		if (WalkPoof_NiagaraComponent)
 		{
-			Server_SetParticleActive(WalkPoof_NiagaraComponent,false);
+			if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+			{
+				Server_SetParticleActive(WalkPoof_NiagaraComponent,false);
+			}
 			//WalkPoof_NiagaraComponent->Deactivate();
 		}
 	}
@@ -406,13 +391,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	
 	FVector downVector = {inFrontOfPlayer.X, inFrontOfPlayer.Y, GetMesh()->GetComponentLocation().Z};
 	TriggerAttackVFX(downVector, AttackSphereRadius, AttackChargeAmount);	
-	
-	// For Debugging
-	// UE_LOG(LogTemp, Warning, TEXT("Sphere Radius = %s"), *FString::SanitizeFloat(AttackSphereRadius));
-	
-	// draw collision sphere
-	// DrawDebugSphere(GetWorld(), inFrontOfPlayer, colSphere.GetSphereRadius(), 50, FColor::Purple, false, 2.0f);
-	
+
 	// check if something got hit in the sweep
 	bool isHit = GetWorld()->SweepMultiByChannel(outHits, sweepStart, sweepEnd, FQuat::Identity, ECC_Pawn, colSphere);
 
@@ -427,9 +406,6 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 			{
 				if (hitPlayer != this)
 				{
-					// screen log information on what was hit
-					// UE_LOG(LogTemp, Warning, TEXT(" %s  was hit by an attack!"), *hit.GetActor()->GetName());
-
 					FVector attackerLocation = GetActorLocation();
 					hitPlayer->GetHit(AttackChargeAmount, attackerLocation);
 
@@ -449,15 +425,16 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	{
 		WeaponCurrentDurability--;
 		PlayerHUDRef->SetWeaponDurability(WeaponCurrentDurability);
+		
 		if (WeaponCurrentDurability <= 0)
 		{
 			Multi_DropWeapon();
 
 			//AttackTrail_NiagaraComponent->Deactivate();
-			Server_SetParticleActive(AttackTrail_NiagaraComponent,false);
-			
-			//// Update UI
-			//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
+			if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+			{
+				Server_SetParticleActive(AttackTrail_NiagaraComponent,false);
+			}
 		}
 	}
 	
@@ -469,8 +446,10 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 	AttackChargeAmount = 0.0f;
 
 	// audio
-	ChargeAttackAudioComponent->Stop();
+	//ChargeAttackAudioComponent->Stop();
+
 	Server_ToggleChargeSound(false);
+
 	PlaySoundAtLocation(GetActorLocation(), ExecuteCue);
 
 	// Stop the player Interacting while "executing attack"
@@ -505,10 +484,6 @@ void APrototype2Character::Interact()
 	}
 
 	EnableStencil(false);
-	
-	// Debug draw collision sphere
-	//FCollisionShape colSphere = FCollisionShape::MakeSphere(InteractRadius);
-	//DrawDebugSphere(GetWorld(), GetActorLocation(), colSphere.GetSphereRadius(), 50, FColor::Purple, false, 3.0f);
 }
 
 void APrototype2Character::Sprint()
@@ -531,7 +506,10 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 
 		// VFX
 		//SprintPoof_NiagaraComponent->Deactivate();
-		Server_SetParticleActive(SprintPoof_NiagaraComponent,false);
+		if ( HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			Server_SetParticleActive(SprintPoof_NiagaraComponent,false);
+		}
 		
 	}
 	else // If Sprinting
@@ -546,15 +524,21 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 		//WalkPoof_NiagaraComponent->Deactivate();
 		//Sweat_NiagaraComponent->Activate();
 		//SprintPoof_NiagaraComponent->Activate();
-		Server_SetParticleActive(WalkPoof_NiagaraComponent,false);
-		Server_SetParticleActive(Sweat_NiagaraComponent,true);
-		Server_SetParticleActive(SprintPoof_NiagaraComponent,true);
+		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			Server_SetParticleActive(WalkPoof_NiagaraComponent,false);
+			Server_SetParticleActive(Sweat_NiagaraComponent,true);
+			Server_SetParticleActive(SprintPoof_NiagaraComponent,true);
+		}
 	}
 	
 	if (CanSprintTimer < 0.0f)
 	{
 		//Sweat_NiagaraComponent->Deactivate();
-		Server_SetParticleActive(Sweat_NiagaraComponent,false);
+		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			Server_SetParticleActive(Sweat_NiagaraComponent,false);
+		}
 		
 	}
 }
@@ -674,7 +658,15 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	AttackVFXLocation*=50.0f;
 	AttackVFXLocation+=GetActorLocation();
 	Attack_NiagaraComponent->SetWorldLocation(AttackVFXLocation);
-	Server_SetParticleActive(Attack_NiagaraComponent,true);
+	if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		// stop it if its already playing and start it again
+		if (Attack_NiagaraComponent->IsActive())
+		{
+			Server_SetParticleActive(Attack_NiagaraComponent,false);
+		}
+		Server_SetParticleActive(Attack_NiagaraComponent,true);
+	}
 	//Attack_NiagaraComponent->Activate();
 }
 
@@ -695,7 +687,7 @@ void APrototype2Character::Multi_ToggleChargeSound_Implementation(bool _soundEna
 	}
 	else
 	{
-		ChargeAttackAudioComponent->Stop();
+		ChargeAttackAudioComponent->Stop();		
 	}	
 }
 
@@ -751,7 +743,10 @@ void APrototype2Character::Move(const FInputActionValue& Value)
 	if (!WalkPoof_NiagaraComponent->IsActive())
 	{
 		//WalkPoof_NiagaraComponent->Activate();
-		Server_SetParticleActive(WalkPoof_NiagaraComponent,true);
+		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			Server_SetParticleActive(WalkPoof_NiagaraComponent,true);
+		}
 	}
 }
 
@@ -1079,7 +1074,10 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 			
 			// VFX
 			//AttackTrail_NiagaraComponent->Activate();
-			Server_SetParticleActive(AttackTrail_NiagaraComponent,true);
+			if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+			{
+				Server_SetParticleActive(AttackTrail_NiagaraComponent,true);
+			}
 		}
 		else
 		{
@@ -1196,6 +1194,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 	}
 	else if (HeldItem && !ClosestInteractableItem)
 	{
+		UpdateDecalDirection(false); // Turn off decal as dropped any item
 		InteractTimer = InteractTimerTime;
 		Multi_DropItem();
 	}
@@ -1301,6 +1300,7 @@ void APrototype2Character::Multi_PickupItem_Implementation(UItemComponent* itemC
 void APrototype2Character::Multi_DropWeapon_Implementation()
 {
 	Weapon->Mesh->SetVisibility(false);
+	Weapon->Mesh->SetHiddenInGame(true);
 }
 
 void APrototype2Character::Server_ReceiveMaterialsArray_Implementation(
