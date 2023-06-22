@@ -29,6 +29,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_ToggleParachuteVisibility(bool _visible);
 	void Multi_ToggleParachuteVisibility_Implementation(bool _visible);
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMesh* WinterParachute;
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMesh* NormalParachute;
 	
 	UPROPERTY(EditAnywhere)
 	float BobSpeed{120.0f};

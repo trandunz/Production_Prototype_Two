@@ -4,11 +4,13 @@
 #include "Seed.h"
 
 #include "Prototype2Character.h"
+#include "Kismet/GameplayStatics.h"
 
 ASeed::ASeed()
 {
 	// make sure to rep
 	bReplicates = true;
+	
 
 	InterfaceType = EInterfaceType::Default;
 
@@ -21,11 +23,31 @@ ASeed::ASeed()
 void ASeed::BeginPlay()
 {
 	Super::BeginPlay();
+	SetReplicatingMovement(true);
+	
 	ParachuteMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	FString levelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+
 	ParachuteMesh->SetRelativeLocation(ParachuteMesh->GetRelativeLocation() + (FVector::UpVector * 100));
 	ParachuteMesh->SetRelativeScale3D({2,2,2});
 	ParachuteMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ParachuteMesh->SetIsReplicated(true);
+	//ParachuteMesh->SetIsReplicated(true);
+
+	UE_LOG(LogTemp, Warning, TEXT("Map name: %s"), *levelName);
+	if (levelName == "Level_Winter")
+	{
+		if (WinterParachute)
+		{
+			ParachuteMesh->SetStaticMesh(WinterParachute);
+		}
+	}
+	else
+	{
+		if (NormalParachute)
+		{
+			ParachuteMesh->SetStaticMesh(NormalParachute);
+		}
+	}
 
 	if (!isWeapon)
 	{
@@ -34,8 +56,8 @@ void ASeed::BeginPlay()
 		SpawnTime = GetWorld()->GetTimeSeconds();
 		ItemComponent->Mesh->SetSimulatePhysics(false);
 	}
-	SetReplicates(true);
-	SetReplicatingMovement(true);
+	
+
 }
 
 void ASeed::Tick(float DeltaSeconds)
@@ -81,7 +103,9 @@ bool ASeed::IsInteractable(APrototype2PlayerState* player)
 
 void ASeed::Multi_ToggleParachuteVisibility_Implementation(bool _visible)
 {
+
 	ItemComponent->Mesh->SetSimulatePhysics(!_visible);
+	ParachuteMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ParachuteMesh->SetVisibility(_visible);
 }
 
@@ -102,7 +126,6 @@ void ASeed::HandleParachuteMovement()
 			else
 			{
 				Multi_ToggleParachuteVisibility(false);
-				
 			}
 		}
 	}

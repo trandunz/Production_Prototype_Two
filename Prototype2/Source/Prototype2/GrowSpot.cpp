@@ -86,6 +86,40 @@ bool AGrowSpot::IsInteractable(APrototype2PlayerState* player)
 	return false;
 }
 
+void AGrowSpot::ClientInteract(APrototype2Character* player)
+{
+	IInteractInterface::ClientInteract(player);
+
+	if (player->PlayerID == Player_ID)
+	{
+		switch(GrowSpotState)
+		{
+		case EGrowSpotState::Empty:
+			{
+				if (Cast<ASeed>(player->HeldItem))
+				{
+					player->UpdateDecalDirection(false, false);
+				}
+				break;
+			}
+		case EGrowSpotState::Growing:
+			{
+				break;
+			}
+		case EGrowSpotState::Grown:
+			{
+				if (plant)
+					player->UpdateDecalDirection(true, true);
+				else
+					player->UpdateDecalDirection(false);
+			}
+		default:
+			break;
+		}
+	}
+	
+}
+
 // Called when the game starts or when spawned
 void AGrowSpot::BeginPlay()
 {
@@ -300,7 +334,8 @@ void AGrowSpot::Interact(APrototype2Character* player)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("But dropped it..."));
 					player->Server_DropItem();
-					player->UpdateDecalDirection(true, true);
+					
+					//player->UpdateDecalDirection(true, true);
 					player->HeldItem = nullptr;
 					if (player->PlayerHUDRef)
 					{
@@ -336,7 +371,7 @@ void AGrowSpot::Interact(APrototype2Character* player)
 					// Put players weapon on back
 					player->Multi_SocketItem_Implementation(player->Weapon->Mesh, FName("WeaponHolsterSocket"));
 					player->Server_PickupItem(plant->ItemComponent, plant);
-					player->UpdateDecalDirection(true, true);
+					//player->UpdateDecalDirection(true, true);
 
 					player->HeldItem = plant;
 					

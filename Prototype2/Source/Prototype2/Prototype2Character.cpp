@@ -189,12 +189,9 @@ void APrototype2Character::BeginPlay()
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 0.0f;
 
 	// Set start position - for decal arrow
-	StartPosition = GetActorLocation();
+	
 
-	if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
-	{
-		UpdateDecalDirection(false);
-	}
+	UpdateDecalDirection(false);
 
 	// Find and store sell bin
 	if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
@@ -210,16 +207,19 @@ void APrototype2Character::BeginPlay()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("No shipping bin found"));
 		}
-
-		DecalArmSceneComponent->SetIsReplicated(false);
-		DecalComponent->SetIsReplicated(false);
 	}
-	
+
+	DecalArmSceneComponent->SetIsReplicated(false);
+	DecalComponent->SetIsReplicated(false);
+	DecalComponent->SetVisibility(false);
+	DecalArmSceneComponent->SetVisibility(false);
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+
 
 	if (PlayerHUDRef)
 	{
@@ -237,17 +237,19 @@ void APrototype2Character::Tick(float DeltaSeconds)
 			}
 		}
 	}
-
-
 	
 	if (PlayerStateRef)
 	{
+		auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld()));
+		if (!gamestate->GameHasStarted)
+		{
+			StartPosition = GetActorLocation();
+		}
 		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 		{
 			if (EndGameCam)
 			{
-			
-				auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld()));
+				
 				if (gamestate->HasGameFinished)
 				{
 					if (auto castedController = Cast<APrototype2PlayerController>(PlayerStateRef->GetPlayerController()))
@@ -330,15 +332,18 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	//		GetController()->SetIgnoreMoveInput(true);
 	//	}
 	//}
-
-	// Update decal rotation
-	if (bDecalOn && GetLocalRole() == ROLE_AutonomousProxy)
-	{
-		UpdateDecalAngle();
-	}
-	
+	//if (IsLocallyControlled())
+	//{
+	//	if (HeldItem != nullptr)
+	//	{
+	//		UpdateDecalDirection(false);
+	//	}
+	//		
+	//}
 	if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 	{
+		UpdateDecalAngle();
+		
 		
 		if (GetCharacterMovement()->Velocity.Size() < 50.0f)
 		{
@@ -369,6 +374,7 @@ void APrototype2Character::Server_CountdownTimers_Implementation(float DeltaSeco
 
 void APrototype2Character::ChargeAttack()
 {
+	UpdateDecalDirection(false);
 	Server_StartAttack();
 }
 
@@ -465,7 +471,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 
 	bCanAttack = true;
 
-	UpdateDecalDirection(false); // Turn off decal as dropped any item
+	//UpdateDecalDirection(false); // Turn off decal as dropped any item
 
 	Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
 }
@@ -475,7 +481,7 @@ void APrototype2Character::Interact()
 	if(!HeldItem)
 	{
 		PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
-		UpdateDecalDirection(false);
+		//UpdateDecalDirection(false);
 	}
 	if (!Weapon)
 	{
@@ -632,8 +638,18 @@ void APrototype2Character::EnableStencil(bool _on)
 
 void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
+	// Disable input
+	//DisableInput(this->GetLocalViewingPlayerController());
+
+	// Fire dizzy particle
+	//Server_FireParticleSystem(Dizzy_NiagaraSystem, Dizzy_NiagaraComponent->GetComponentLocation());
+	
+	//Server_Ragdoll(true);
+
+	UpdateDecalDirection(false);
+	
 	// Knockback
-	FVector KnockAway = GetActorUpVector()/3 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
+	FVector KnockAway = GetActorUpVector()/2 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
 
 	// Set minimum attack charge for scaling knockback
 	if (AttackCharge < 1.0f)
@@ -642,11 +658,13 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	}
 	
 	KnockAway *= AttackCharge * KnockBackAmount;
-
+	
+	UKismetSystemLibrary::PrintString(GetWorld(), "Pre limit: " + FString::SanitizeFloat(KnockAway.Size()));
 	// Limit the knockback to MaxKnockBackVelocity
 	if (KnockAway.Size() > MaxKnockBackVelocity)
 	{
 		KnockAway = KnockAway.GetSafeNormal() * MaxKnockBackVelocity;
+		UKismetSystemLibrary::PrintString(GetWorld(), "Post limit: " + FString::SanitizeFloat(KnockAway.Size()));
 	}
 
 	// Knock this player away
@@ -657,15 +675,31 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	{
 		Server_DropItem();
 	}
+
+	// debug attack
+	//UE_LOG(LogTemp, Warning, TEXT("AttackCharge: %s"), *FString::SanitizeFloat(AttackCharge));
 	
+	//bIsStunned = true;
+	//StunTimer = 2.0f;
+
 	PlaySoundAtLocation(GetActorLocation(), GetHitCue);
 
 	// VFX
-
+	FVector AttackVFXLocation = AttackerLocation - GetActorLocation();
+	AttackVFXLocation = AttackVFXLocation.GetSafeNormal();
+	AttackVFXLocation*=50.0f;
+	AttackVFXLocation+=GetActorLocation();
+	Attack_NiagaraComponent->SetWorldLocation(AttackVFXLocation);
 	if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 	{
+		// stop it if its already playing and start it again
+		if (Attack_NiagaraComponent->IsActive())
+		{
+			DeActivateParticleSystemFromEnum(PARTICLE_SYSTEM::ATTACK);
+		}
 		ActivateParticleSystemFromEnum(PARTICLE_SYSTEM::ATTACK);
 	}
+	//Attack_NiagaraComponent->Activate();
 }
 
 void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
@@ -858,7 +892,7 @@ void APrototype2Character::Multi_ToggleParticleSystems_Implementation(const TArr
 			}
 		case PARTICLE_SYSTEM::ATTACK:
 			{
-				Attack_NiagaraComponent->Activate(true);
+				Attack_NiagaraComponent->Activate();
 				break;
 			}
 		case PARTICLE_SYSTEM::TEST:
@@ -913,21 +947,27 @@ void APrototype2Character::Multi_ToggleParticleSystems_Implementation(const TArr
 
 void APrototype2Character::UpdateDecalDirection(bool _on)
 {
-	DecalComponent->SetVisibility(_on);
+	if (IsLocallyControlled())
+	{
+		DecalComponent->SetVisibility(_on);
+	}
 }
 
 void APrototype2Character::UpdateDecalDirection(bool _on, bool _targetShippingBin)
 {
-	DecalComponent->SetVisibility(_on);
+	if (IsLocallyControlled())
+	{
+		DecalComponent->SetVisibility(_on);
 
-	if (_on)
-	{
-		bDecalOn = true;
-		bDecalTargetShippingBin = _targetShippingBin;
-	}
-	else
-	{
-		bDecalOn = false;
+		if (_on)
+		{
+			bDecalOn = true;
+			bDecalTargetShippingBin = _targetShippingBin;
+		}
+		else
+		{
+			bDecalOn = false;
+		}
 	}
 }
 
@@ -953,6 +993,8 @@ bool APrototype2Character::IsSprinting()
 
 void APrototype2Character::CheckForFloorSurface()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Ground Check"));
+	
 	FVector StartLocation = GetActorLocation() + FVector{0,0,100}; // The start location of the line trace
 	FVector EndLocation = GetActorLocation() + FVector{0,0,-100}; // The end location of the line trace
 
@@ -976,12 +1018,15 @@ void APrototype2Character::CheckForFloorSurface()
 			UPhysicalMaterial* PhysMaterial = result.PhysMaterial.Get();
 			if (PhysMaterial)
 			{
+				//UE_LOG(LogTemp, Warning, TEXT("Ground Check Hit Physcs Material"));
+				//UKismetSystemLibrary::DrawDebugLine(GetWorld(), StartLocation, result.Location, FColor::Red, 0.1f, 5.0f);
 				float Friction = PhysMaterial->Friction;
 				if (Friction <= 0.5f)
 				{
 					GetCharacterMovement()->BrakingFriction = 0.0f;
 					GetCharacterMovement()->MaxAcceleration = 2048.0f * 0.5f;
 					GetCharacterMovement()->GroundFriction = 0.0f;
+					//UE_LOG(LogTemp, Error, TEXT("Ground Check Hit Slippery"));
 					break;
 				}
 			}
@@ -1103,6 +1148,10 @@ void APrototype2Character::Server_Sprint_Implementation()
 		SprintTimer = SprintTime;
 		CanSprintTimer = CanSprintTime;
 	}
+	else
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Time until you can sprint again: %f"), CanSprintTimer);
+	}
 }
 
 void APrototype2Character::SocketWeapon(FName Socket)
@@ -1119,6 +1168,8 @@ void APrototype2Character::Multi_Client_AddHUD_Implementation()
 {
 	if (PlayerHudPrefab && !PlayerHUDRef)
     	{
+    		//UE_LOG(LogTemp, Warning, TEXT("Player HUD Created"));
+    
     		PlayerHUDRef = CreateWidget<UWidget_PlayerHUD>(UGameplayStatics::GetPlayerController(GetWorld(), PlayerID), PlayerHudPrefab);
     
     		if (PlayerHUDRef)
@@ -1139,8 +1190,12 @@ void APrototype2Character::Server_StartAttack_Implementation()
 
 		if (Weapon)
 		{
+			//Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
+					
 			Server_SocketItem(Weapon->Mesh, FName("WeaponAttackingSocket"));
 		}
+
+		//Server_ToggleChargeSound(true);
 	}
 }
 
@@ -1151,7 +1206,8 @@ void APrototype2Character::Multi_StartAttack_Implementation()
 
 void APrototype2Character::Server_ReleaseAttack_Implementation()
 {
-	// Create a sphere collider, check if player hit, call player hit	
+	// Create a sphere collider, check if player hit, call player hit
+	
 	if (bIsChargingAttack && bCanAttack)
 	{
 		bCanAttack = false;
@@ -1200,6 +1256,9 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 
 		}
 	}
+
+	// empty
+	//Multi_ReleaseAttack();
 }
 
 void APrototype2Character::Multi_ReleaseAttack_Implementation()
@@ -1250,12 +1309,14 @@ void APrototype2Character::Multi_SetPlayerColour_Implementation()
 
 void APrototype2Character::TryInteract()
 {
-	//if ((HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy))
-	//	ActivateParticleSystemFromEnum(PARTICLE_SYSTEM::TEST);
-	
 	if (ClosestInteractableItem)
 	{
 		ClosestInteractableItem->ClientInteract(this);
+	}
+	
+	if (ClosestInteractableItem == nullptr)
+	{
+		UpdateDecalDirection(false);
 	}
 }
 
@@ -1287,7 +1348,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 	}
 	else if (HeldItem && !ClosestInteractableItem)
 	{
-		UpdateDecalDirection(false); // Turn off decal as dropped any item
+		//UpdateDecalDirection(false); // Turn off decal as dropped any item
 		InteractTimer = InteractTimerTime;
 		Multi_DropItem();
 	}
