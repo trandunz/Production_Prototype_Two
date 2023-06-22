@@ -24,6 +24,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool IsInteractable(APrototype2PlayerState* player) override;
+	virtual void ClientInteract(APrototype2Character* player) override;
 	UPROPERTY(Replicated, EditAnywhere)
 	int Player_ID = 0;
 

@@ -189,12 +189,9 @@ void APrototype2Character::BeginPlay()
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 0.0f;
 
 	// Set start position - for decal arrow
-	StartPosition = GetActorLocation();
+	
 
-	if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
-	{
-		UpdateDecalDirection(false);
-	}
+	UpdateDecalDirection(false);
 
 	// Find and store sell bin
 	if (GetLocalRole() == ROLE_AutonomousProxy || GetLocalRole() == ROLE_Authority)
@@ -210,16 +207,19 @@ void APrototype2Character::BeginPlay()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("No shipping bin found"));
 		}
-
-		DecalArmSceneComponent->SetIsReplicated(false);
-		DecalComponent->SetIsReplicated(false);
 	}
-	
+
+	DecalArmSceneComponent->SetIsReplicated(false);
+	DecalComponent->SetIsReplicated(false);
+	DecalComponent->SetVisibility(false);
+	DecalArmSceneComponent->SetVisibility(false);
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+
 
 	if (PlayerHUDRef)
 	{
@@ -237,17 +237,19 @@ void APrototype2Character::Tick(float DeltaSeconds)
 			}
 		}
 	}
-
-
 	
 	if (PlayerStateRef)
 	{
+		auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld()));
+		if (!gamestate->GameHasStarted)
+		{
+			StartPosition = GetActorLocation();
+		}
 		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 		{
 			if (EndGameCam)
 			{
-			
-				auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld()));
+				
 				if (gamestate->HasGameFinished)
 				{
 					if (auto castedController = Cast<APrototype2PlayerController>(PlayerStateRef->GetPlayerController()))
@@ -330,15 +332,18 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	//		GetController()->SetIgnoreMoveInput(true);
 	//	}
 	//}
-
-	// Update decal rotation
-	if (bDecalOn && GetLocalRole() == ROLE_AutonomousProxy)
-	{
-		UpdateDecalAngle();
-	}
-	
+	//if (IsLocallyControlled())
+	//{
+	//	if (HeldItem != nullptr)
+	//	{
+	//		UpdateDecalDirection(false);
+	//	}
+	//		
+	//}
 	if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 	{
+		UpdateDecalAngle();
+		
 		
 		if (GetCharacterMovement()->Velocity.Size() < 50.0f)
 		{
@@ -369,6 +374,7 @@ void APrototype2Character::Server_CountdownTimers_Implementation(float DeltaSeco
 
 void APrototype2Character::ChargeAttack()
 {
+	UpdateDecalDirection(false);
 	Server_StartAttack();
 }
 
@@ -465,7 +471,7 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 
 	bCanAttack = true;
 
-	UpdateDecalDirection(false); // Turn off decal as dropped any item
+	//UpdateDecalDirection(false); // Turn off decal as dropped any item
 
 	Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
 }
@@ -475,7 +481,7 @@ void APrototype2Character::Interact()
 	if(!HeldItem)
 	{
 		PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
-		UpdateDecalDirection(false);
+		//UpdateDecalDirection(false);
 	}
 	if (!Weapon)
 	{
@@ -639,6 +645,8 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	//Server_FireParticleSystem(Dizzy_NiagaraSystem, Dizzy_NiagaraComponent->GetComponentLocation());
 	
 	//Server_Ragdoll(true);
+
+	UpdateDecalDirection(false);
 	
 	// Knockback
 	FVector KnockAway = GetActorUpVector()/2 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
@@ -939,21 +947,27 @@ void APrototype2Character::Multi_ToggleParticleSystems_Implementation(const TArr
 
 void APrototype2Character::UpdateDecalDirection(bool _on)
 {
-	DecalComponent->SetVisibility(_on);
+	if (IsLocallyControlled())
+	{
+		DecalComponent->SetVisibility(_on);
+	}
 }
 
 void APrototype2Character::UpdateDecalDirection(bool _on, bool _targetShippingBin)
 {
-	DecalComponent->SetVisibility(_on);
+	if (IsLocallyControlled())
+	{
+		DecalComponent->SetVisibility(_on);
 
-	if (_on)
-	{
-		bDecalOn = true;
-		bDecalTargetShippingBin = _targetShippingBin;
-	}
-	else
-	{
-		bDecalOn = false;
+		if (_on)
+		{
+			bDecalOn = true;
+			bDecalTargetShippingBin = _targetShippingBin;
+		}
+		else
+		{
+			bDecalOn = false;
+		}
 	}
 }
 
@@ -1295,12 +1309,14 @@ void APrototype2Character::Multi_SetPlayerColour_Implementation()
 
 void APrototype2Character::TryInteract()
 {
-	//if ((HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy))
-	//	ActivateParticleSystemFromEnum(PARTICLE_SYSTEM::TEST);
-	
 	if (ClosestInteractableItem)
 	{
 		ClosestInteractableItem->ClientInteract(this);
+	}
+	
+	if (ClosestInteractableItem == nullptr)
+	{
+		UpdateDecalDirection(false);
 	}
 }
 
@@ -1332,7 +1348,7 @@ void APrototype2Character::Server_TryInteract_Implementation()
 	}
 	else if (HeldItem && !ClosestInteractableItem)
 	{
-		UpdateDecalDirection(false); // Turn off decal as dropped any item
+		//UpdateDecalDirection(false); // Turn off decal as dropped any item
 		InteractTimer = InteractTimerTime;
 		Multi_DropItem();
 	}

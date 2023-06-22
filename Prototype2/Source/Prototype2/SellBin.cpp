@@ -147,10 +147,11 @@ void ASellBin::ClientInteract(APrototype2Character* player)
 {
 	if (player->HeldItem)
 	{
-		if (auto* plant = Cast<APlant>(player->HeldItem))
+		if (auto plant = Cast<APlant>(player->HeldItem))
 		{
 			bWidgetVisible = true;
 			FireSellFX(plant, player);
+			player->UpdateDecalDirection(false);
 		}
 	}
 }
