@@ -39,6 +39,9 @@ private:
 	int MatchLengthSeconds{};
 	int CurrentMatchLengthSeconds{};
 
+	UPROPERTY(EditAnywhere)
+	int SpawnHeight{1200};
+
 private:
 	float SpawnTimer{};
 	UPROPERTY(EditAnywhere, Category = Spawning, meta = (AllowPrivateAccess))

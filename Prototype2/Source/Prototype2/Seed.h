@@ -18,11 +18,40 @@ class PROTOTYPE2_API ASeed : public APickUpItem, public IInteractInterface
 
 public:
 	ASeed();
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void Interact(APrototype2Character* player) override;
 	virtual void ClientInteract(APrototype2Character* player) override;
 	virtual void OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class APrototype2Character* owner, int _playerID) override;
 	virtual bool IsInteractable(APrototype2PlayerState* player) override;
 public:
+
+	UPROPERTY(EditAnywhere)
+	float BobSpeed{120.0f};
+
+	UPROPERTY(EditAnywhere)
+	float BobAmplitude{8.0f};
+	
+	UPROPERTY(EditAnywhere)
+	float DropDistance{400};
+
+	UPROPERTY(EditAnywhere)
+	float FallTime{3.0f};
+
+	UPROPERTY(VisibleAnywhere)
+	float SpawnTime;
+
+	UFUNCTION()
+	void HandleParachuteMovement();
+
+	UPROPERTY(VisibleAnywhere)
+	FVector SpawnPos;
+	UPROPERTY(VisibleAnywhere)
+	FRotator SpawnRotation;
+	
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* ParachuteMesh;
+	
 	UPROPERTY(EditAnywhere)
 	float growtime;
 
