@@ -632,16 +632,8 @@ void APrototype2Character::EnableStencil(bool _on)
 
 void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 {
-	// Disable input
-	//DisableInput(this->GetLocalViewingPlayerController());
-
-	// Fire dizzy particle
-	//Server_FireParticleSystem(Dizzy_NiagaraSystem, Dizzy_NiagaraComponent->GetComponentLocation());
-	
-	//Server_Ragdoll(true);
-	
 	// Knockback
-	FVector KnockAway = GetActorUpVector()/2 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
+	FVector KnockAway = GetActorUpVector()/3 + (GetActorLocation() - AttackerLocation).GetSafeNormal();
 
 	// Set minimum attack charge for scaling knockback
 	if (AttackCharge < 1.0f)
@@ -650,13 +642,11 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	}
 	
 	KnockAway *= AttackCharge * KnockBackAmount;
-	
-	UKismetSystemLibrary::PrintString(GetWorld(), "Pre limit: " + FString::SanitizeFloat(KnockAway.Size()));
+
 	// Limit the knockback to MaxKnockBackVelocity
 	if (KnockAway.Size() > MaxKnockBackVelocity)
 	{
 		KnockAway = KnockAway.GetSafeNormal() * MaxKnockBackVelocity;
-		UKismetSystemLibrary::PrintString(GetWorld(), "Post limit: " + FString::SanitizeFloat(KnockAway.Size()));
 	}
 
 	// Knock this player away
@@ -667,31 +657,15 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	{
 		Server_DropItem();
 	}
-
-	// debug attack
-	//UE_LOG(LogTemp, Warning, TEXT("AttackCharge: %s"), *FString::SanitizeFloat(AttackCharge));
 	
-	//bIsStunned = true;
-	//StunTimer = 2.0f;
-
 	PlaySoundAtLocation(GetActorLocation(), GetHitCue);
 
 	// VFX
-	FVector AttackVFXLocation = AttackerLocation - GetActorLocation();
-	AttackVFXLocation = AttackVFXLocation.GetSafeNormal();
-	AttackVFXLocation*=50.0f;
-	AttackVFXLocation+=GetActorLocation();
-	Attack_NiagaraComponent->SetWorldLocation(AttackVFXLocation);
+
 	if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		// stop it if its already playing and start it again
-		if (Attack_NiagaraComponent->IsActive())
-		{
-			DeActivateParticleSystemFromEnum(PARTICLE_SYSTEM::ATTACK);
-		}
 		ActivateParticleSystemFromEnum(PARTICLE_SYSTEM::ATTACK);
 	}
-	//Attack_NiagaraComponent->Activate();
 }
 
 void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
@@ -884,7 +858,7 @@ void APrototype2Character::Multi_ToggleParticleSystems_Implementation(const TArr
 			}
 		case PARTICLE_SYSTEM::ATTACK:
 			{
-				Attack_NiagaraComponent->Activate();
+				Attack_NiagaraComponent->Activate(true);
 				break;
 			}
 		case PARTICLE_SYSTEM::TEST:
@@ -979,8 +953,6 @@ bool APrototype2Character::IsSprinting()
 
 void APrototype2Character::CheckForFloorSurface()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Ground Check"));
-	
 	FVector StartLocation = GetActorLocation() + FVector{0,0,100}; // The start location of the line trace
 	FVector EndLocation = GetActorLocation() + FVector{0,0,-100}; // The end location of the line trace
 
@@ -1004,15 +976,12 @@ void APrototype2Character::CheckForFloorSurface()
 			UPhysicalMaterial* PhysMaterial = result.PhysMaterial.Get();
 			if (PhysMaterial)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("Ground Check Hit Physcs Material"));
-				//UKismetSystemLibrary::DrawDebugLine(GetWorld(), StartLocation, result.Location, FColor::Red, 0.1f, 5.0f);
 				float Friction = PhysMaterial->Friction;
 				if (Friction <= 0.5f)
 				{
 					GetCharacterMovement()->BrakingFriction = 0.0f;
 					GetCharacterMovement()->MaxAcceleration = 2048.0f * 0.5f;
 					GetCharacterMovement()->GroundFriction = 0.0f;
-					//UE_LOG(LogTemp, Error, TEXT("Ground Check Hit Slippery"));
 					break;
 				}
 			}
@@ -1134,10 +1103,6 @@ void APrototype2Character::Server_Sprint_Implementation()
 		SprintTimer = SprintTime;
 		CanSprintTimer = CanSprintTime;
 	}
-	else
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("Time until you can sprint again: %f"), CanSprintTimer);
-	}
 }
 
 void APrototype2Character::SocketWeapon(FName Socket)
@@ -1154,8 +1119,6 @@ void APrototype2Character::Multi_Client_AddHUD_Implementation()
 {
 	if (PlayerHudPrefab && !PlayerHUDRef)
     	{
-    		//UE_LOG(LogTemp, Warning, TEXT("Player HUD Created"));
-    
     		PlayerHUDRef = CreateWidget<UWidget_PlayerHUD>(UGameplayStatics::GetPlayerController(GetWorld(), PlayerID), PlayerHudPrefab);
     
     		if (PlayerHUDRef)
@@ -1176,12 +1139,8 @@ void APrototype2Character::Server_StartAttack_Implementation()
 
 		if (Weapon)
 		{
-			//Server_SocketItem(Weapon->Mesh, FName("WeaponHeldSocket"));
-					
 			Server_SocketItem(Weapon->Mesh, FName("WeaponAttackingSocket"));
 		}
-
-		//Server_ToggleChargeSound(true);
 	}
 }
 
@@ -1192,8 +1151,7 @@ void APrototype2Character::Multi_StartAttack_Implementation()
 
 void APrototype2Character::Server_ReleaseAttack_Implementation()
 {
-	// Create a sphere collider, check if player hit, call player hit
-	
+	// Create a sphere collider, check if player hit, call player hit	
 	if (bIsChargingAttack && bCanAttack)
 	{
 		bCanAttack = false;
@@ -1242,9 +1200,6 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 
 		}
 	}
-
-	// empty
-	//Multi_ReleaseAttack();
 }
 
 void APrototype2Character::Multi_ReleaseAttack_Implementation()
