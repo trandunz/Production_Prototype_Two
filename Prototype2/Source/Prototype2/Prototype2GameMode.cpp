@@ -5,6 +5,7 @@
 #include "EndGamePodium.h"
 #include "Prototype2Character.h"
 #include "Prototype2PlayerController.h"
+#include "SellBin_Winter.h"
 #include "Blueprint/UserWidget.h"
 #include "Gamestates/Prototype2Gamestate.h"
 #include "Kismet/GameplayStatics.h"
@@ -40,6 +41,19 @@ void APrototype2GameMode::BeginPlay()
 
 	if (EndGamePodiumPrefab)
 		EndGamePodium = GetWorld()->SpawnActor<AEndGamePodium>(EndGamePodiumPrefab, FVector{3031.58f,-1426.65f,-17.30},FRotator{0.0f,140.59f,0.0f});
+
+	if (SellBinPrefab)
+	{
+		SellBinRef = GetWorld()->SpawnActor<ASellBin>(SellBinPrefab, {-104.559325,-72.190911,-30.0f},FRotator::ZeroRotator);
+		SellBinRef->SetReplicates(true);
+		SellBinRef->SetReplicatingMovement(true);
+		if (auto winterSellBin = Cast<ASellBin_Winter>(SellBinRef))
+		{
+			winterSellBin->SetActorLocation({-104.559325,-72.190911,-13.473242});
+		}
+		Multi_DetachShippingBinComponents();
+	}
+		
 }
 
 void APrototype2GameMode::PostLogin(APlayerController* NewPlayer)
@@ -215,6 +229,7 @@ void APrototype2GameMode::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APrototype2GameMode, EndGamePodium);
+	DOREPLIFETIME(APrototype2GameMode, SellBinRef);
 }
 
 void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
@@ -269,6 +284,15 @@ void APrototype2GameMode::Multi_TeleportEveryoneToPodium_Implementation()
 				thirdPlace->SetActorRelativeTransform(defautTransform);
 			}
 		}
+	}
+}
+
+void APrototype2GameMode::Multi_DetachShippingBinComponents_Implementation()
+{
+	if (auto winterBin = Cast<ASellBin_Winter>(SellBinRef))
+	{
+		
+		//winterBin->IceBoundary->SetWorldLocation({-104.559325,-72.190911,-13.473242});
 	}
 }
 
