@@ -5,6 +5,7 @@
 #include "Seed.h"
 #include "WeaponSeed.h"
 #include "AI/NavigationSystemBase.h"
+#include "Gamestates/Prototype2Gamestate.h"
 #include "Kismet/GameplayStatics.h"
 
 class UNavigationSystemV1;
@@ -23,13 +24,34 @@ void ASeedSpawner::BeginPlay()
 		currentSpawnPos.emplace(currentSpawnPos.end(), FVector(0, 0, 0));
 		distances.emplace(distances.end(), 0);
 	}
+
+	if (auto gameState = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		MatchLengthSeconds = (gameState->MatchLengthMinutes * 60) + gameState->MatchLengthSeconds;
+		
+	}
 }
 
 void ASeedSpawner::SpawnSeedsOnTick(float DeltaTime)
 {
+	float ratioFromCurve{};
+	float maxSeedsToSpawn = (float)MaxSeedPackets;
+	if (FloatCurve)
+	{
+		if (auto gameState = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld())))
+		{
+			if (gameState->MatchLengthSeconds > 0)
+			{
+				int currentMatchLengthSeconds = (gameState->MatchLengthMinutes * 60) + gameState->MatchLengthSeconds;
+				ratioFromCurve =  FloatCurve->GetFloatValue(FMath::Lerp(1, 0, (float)currentMatchLengthSeconds / (float)MatchLengthSeconds));
+			}
+		}
+		maxSeedsToSpawn *= ratioFromCurve;
+	}
+	
 	TArray<AActor*> SpawnedSeeds;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlantSeed::StaticClass(), SpawnedSeeds);
-	if (SeedPrefabs.Num() > 0 && SpawnedSeeds.Num() < MaxSeedPackets)
+	if (SeedPrefabs.Num() > 0 && SpawnedSeeds.Num() < FMath::RoundToInt(maxSeedsToSpawn))
 	{
 		if (SpawnTimer > 0)
 			SpawnTimer -= DeltaTime;
