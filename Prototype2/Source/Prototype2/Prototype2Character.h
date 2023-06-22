@@ -396,6 +396,22 @@ public: /* Public variables */
 	class UNiagaraSystem* ParticleSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* InteractSystem;
+
+	UPROPERTY(EditAnywhere, Category = VFX)
+	class UNiagaraSystem* TestSystem;
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
+	class UNiagaraComponent* Test_NiagraComponent;
+
+	UFUNCTION(Server, Reliable)
+	void Server_TestNiagraSystem();
+	void Server_TestNiagraSystem_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_TestNiagraSystem();
+	void Multi_TestNiagraSystem_Implementation();
+	
+	UPROPERTY(EditAnywhere)
+	bool ToggleNiagraTestComponent{false};
 	
 protected:
 	/** Camera boom positioning the camera behind the character */
