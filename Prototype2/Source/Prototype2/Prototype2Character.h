@@ -181,7 +181,15 @@ protected: /* Protected Networking functions */
 	UFUNCTION(NetMulticast, Reliable)
 	void Multi_FireParticleSystem(UNiagaraSystem* _NiagaraSystem, FVector _Position);
 	void Multi_FireParticleSystem_Implementation(UNiagaraSystem* _NiagaraSystem, FVector _Position);
-
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetParticleActive(UNiagaraComponent* _NiagaraComponent, bool _bIsActive);
+	void Server_SetParticleActive_Implementation(UNiagaraComponent* _NiagaraComponent, bool _bIsActive);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_SetParticleActive(UNiagaraComponent* _NiagaraComponent, bool _bIsActive);
+	void Multi_SetParticleActive_Implementation(UNiagaraComponent* _NiagaraComponent, bool _bIsActive);
+	
 	UFUNCTION(Server, Reliable)
 	void Server_ToggleChargeSound(bool _soundEnabled);
 	void Server_ToggleChargeSound_Implementation(bool _soundEnabled);
@@ -352,33 +360,33 @@ public: /* Public variables */
 	UStaticMeshComponent* AttackAreaIndicatorMesh;
 
 	// Walk VFX
-	UPROPERTY(EditAnywhere, Category = VFX)
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraSystem* WalkPoof_NiagaraSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* WalkPoof_NiagaraComponent;
 	
 	// Sprint VFX
-	UPROPERTY(EditAnywhere, Category = VFX)
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraSystem* SprintPoof_NiagaraSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* SprintPoof_NiagaraComponent;
-	UPROPERTY(EditAnywhere, Category = VFX)
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraSystem* Sweat_NiagaraSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* Sweat_NiagaraComponent;
 
 	// Attack
-	UPROPERTY(EditAnywhere, Category = VFX)
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraSystem* AttackTrail_NiagaraSystem;
 	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* AttackTrail_NiagaraComponent;
-	UPROPERTY(EditAnywhere, Category = VFX)
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraSystem* Attack_NiagaraSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* Attack_NiagaraComponent;
 
 	// Dizzy
-	UPROPERTY(EditAnywhere, Category = VFX)
+	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraSystem* Dizzy_NiagaraSystem;
 	UPROPERTY(Replicated, EditAnywhere, Category = VFX)
 	class UNiagaraComponent* Dizzy_NiagaraComponent;

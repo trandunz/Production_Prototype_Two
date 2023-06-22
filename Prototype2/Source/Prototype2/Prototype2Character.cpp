@@ -143,6 +143,7 @@ void APrototype2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(APrototype2Character, bIsHoldingGold);
 	DOREPLIFETIME(APrototype2Character, AttackTimer);
 	DOREPLIFETIME(APrototype2Character, InteractTimer);
+	
 	// Niagara Components
 	DOREPLIFETIME(APrototype2Character, Dizzy_NiagaraComponent);
 	DOREPLIFETIME(APrototype2Character, WalkPoof_NiagaraComponent);
@@ -352,7 +353,8 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	{
 		if (WalkPoof_NiagaraComponent)
 		{
-			WalkPoof_NiagaraComponent->Deactivate();
+			Server_SetParticleActive(WalkPoof_NiagaraComponent,false);
+			//WalkPoof_NiagaraComponent->Deactivate();
 		}
 	}
 }
@@ -451,7 +453,9 @@ void APrototype2Character::ExecuteAttack(float AttackSphereRadius)
 		{
 			Multi_DropWeapon();
 
-			AttackTrail_NiagaraComponent->Deactivate();
+			//AttackTrail_NiagaraComponent->Deactivate();
+			Server_SetParticleActive(AttackTrail_NiagaraComponent,false);
+			
 			//// Update UI
 			//PlayerHUDRef->UpdateWeaponUI(EPickup::NoWeapon);
 		}
@@ -526,7 +530,9 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 		}
 
 		// VFX
-		SprintPoof_NiagaraComponent->Deactivate();
+		//SprintPoof_NiagaraComponent->Deactivate();
+		Server_SetParticleActive(SprintPoof_NiagaraComponent,false);
+		
 	}
 	else // If Sprinting
 	{
@@ -537,14 +543,19 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 		}
 
 		// VFX
-		WalkPoof_NiagaraComponent->Deactivate();
-		Sweat_NiagaraComponent->Activate();
-		SprintPoof_NiagaraComponent->Activate();
+		//WalkPoof_NiagaraComponent->Deactivate();
+		//Sweat_NiagaraComponent->Activate();
+		//SprintPoof_NiagaraComponent->Activate();
+		Server_SetParticleActive(WalkPoof_NiagaraComponent,false);
+		Server_SetParticleActive(Sweat_NiagaraComponent,true);
+		Server_SetParticleActive(SprintPoof_NiagaraComponent,true);
 	}
 	
 	if (CanSprintTimer < 0.0f)
 	{
-		Sweat_NiagaraComponent->Deactivate();
+		//Sweat_NiagaraComponent->Deactivate();
+		Server_SetParticleActive(Sweat_NiagaraComponent,false);
+		
 	}
 }
 
@@ -663,7 +674,8 @@ void APrototype2Character::GetHit(float AttackCharge, FVector AttackerLocation)
 	AttackVFXLocation*=50.0f;
 	AttackVFXLocation+=GetActorLocation();
 	Attack_NiagaraComponent->SetWorldLocation(AttackVFXLocation);
-	Attack_NiagaraComponent->Activate();
+	Server_SetParticleActive(Attack_NiagaraComponent,true);
+	//Attack_NiagaraComponent->Activate();
 }
 
 void APrototype2Character::Multi_SocketItem_Implementation(UStaticMeshComponent* _object, FName _socket)
@@ -738,7 +750,8 @@ void APrototype2Character::Move(const FInputActionValue& Value)
 
 	if (!WalkPoof_NiagaraComponent->IsActive())
 	{
-		WalkPoof_NiagaraComponent->Activate();
+		//WalkPoof_NiagaraComponent->Activate();
+		Server_SetParticleActive(WalkPoof_NiagaraComponent,true);
 	}
 }
 
@@ -1065,7 +1078,8 @@ void APrototype2Character::Server_ReleaseAttack_Implementation()
 			attackSphereRadius = BaseAttackRadius + AttackChargeAmount * WeaponAttackRadiusScalar;
 			
 			// VFX
-			AttackTrail_NiagaraComponent->Activate();
+			//AttackTrail_NiagaraComponent->Activate();
+			Server_SetParticleActive(AttackTrail_NiagaraComponent,true);
 		}
 		else
 		{
@@ -1325,6 +1339,26 @@ void APrototype2Character::Multi_FireParticleSystem_Implementation(UNiagaraSyste
 	//DizzyComponent->SetAsset(DizzySystem);
     //DizzyComponent->Activate();
     //DizzyComponent->SetAutoDestroy(false);
+}
+
+void APrototype2Character::Server_SetParticleActive_Implementation(UNiagaraComponent* _NiagaraComponent, bool _bIsActive)
+{
+	Multi_SetParticleActive_Implementation(_NiagaraComponent, _bIsActive);
+}
+
+void APrototype2Character::Multi_SetParticleActive_Implementation(UNiagaraComponent* _NiagaraComponent, bool _bIsActive)
+{
+	if (_NiagaraComponent)
+	{
+		if (_bIsActive)
+		{
+			_NiagaraComponent->Activate();
+		}
+		else
+		{
+			_NiagaraComponent->Deactivate();
+		}
+	}
 }
 
 void APrototype2Character::Server_ToggleChargeSound_Implementation(bool _soundEnabled)
