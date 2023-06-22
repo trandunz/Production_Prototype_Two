@@ -189,7 +189,7 @@ void APrototype2Character::BeginPlay()
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 0.0f;
 
 	// Set start position - for decal arrow
-	
+	StartPosition = GetActorLocation();
 
 	UpdateDecalDirection(false);
 
@@ -213,6 +213,8 @@ void APrototype2Character::BeginPlay()
 	DecalComponent->SetIsReplicated(false);
 	DecalComponent->SetVisibility(false);
 	DecalArmSceneComponent->SetVisibility(false);
+
+	
 }
 
 void APrototype2Character::Tick(float DeltaSeconds)
@@ -237,14 +239,14 @@ void APrototype2Character::Tick(float DeltaSeconds)
 			}
 		}
 	}
-	
+
+	auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld()));
+	if (!gamestate->GameHasStarted && IsLocallyControlled())
+	{
+		StartPosition = GetActorLocation();
+	}
 	if (PlayerStateRef)
 	{
-		auto gamestate = Cast<APrototype2Gamestate>(UGameplayStatics::GetGameState(GetWorld()));
-		if (!gamestate->GameHasStarted)
-		{
-			StartPosition = GetActorLocation();
-		}
 		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 		{
 			if (EndGameCam)
@@ -959,15 +961,7 @@ void APrototype2Character::UpdateDecalDirection(bool _on, bool _targetShippingBi
 	{
 		DecalComponent->SetVisibility(_on);
 
-		if (_on)
-		{
-			bDecalOn = true;
-			bDecalTargetShippingBin = _targetShippingBin;
-		}
-		else
-		{
-			bDecalOn = false;
-		}
+		bDecalTargetShippingBin = _targetShippingBin;
 	}
 }
 
@@ -1350,12 +1344,14 @@ void APrototype2Character::Server_TryInteract_Implementation()
 	{
 		//UpdateDecalDirection(false); // Turn off decal as dropped any item
 		InteractTimer = InteractTimerTime;
-		Multi_DropItem();
+		Server_DropItem();
 	}
 }
 
 void APrototype2Character::Server_DropItem_Implementation()
 {
+	HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
+	
 	Multi_DropItem();
 }
 
@@ -1372,7 +1368,7 @@ void APrototype2Character::Multi_DropItem_Implementation()
 		
 		HeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		//HeldItem->SetActorLocation({HeldItem->GetActorLocation().X,HeldItem->GetActorLocation().Y,0 });
-		HeldItem->ItemComponent->Mesh->SetSimulatePhysics(true);
+
 		HeldItem->ItemComponent->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 		// So that CheckForInteractables() can see it again
@@ -1399,7 +1395,7 @@ void APrototype2Character::Server_PickupItem_Implementation(UItemComponent* item
 {
 	if (HeldItem)
 	{
-		Multi_DropItem();
+		Server_DropItem();
 	}
 
 	Multi_PickupItem(itemComponent, _item);

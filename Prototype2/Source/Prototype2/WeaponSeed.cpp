@@ -15,15 +15,9 @@ AWeaponSeed::AWeaponSeed()
 void AWeaponSeed::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetReplicates(true);
-	SetReplicatingMovement(true);
 }
 
 void AWeaponSeed::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	
-	//HandleParachuteMovement();
 }

@@ -152,6 +152,8 @@ void ASellBin::ClientInteract(APrototype2Character* player)
 			bWidgetVisible = true;
 			FireSellFX(plant, player);
 			player->UpdateDecalDirection(false);
+			if (player->PlayerHUDRef)
+				player->PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
 		}
 	}
 }

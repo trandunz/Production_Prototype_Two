@@ -98,6 +98,8 @@ void AGrowSpot::ClientInteract(APrototype2Character* player)
 			{
 				if (Cast<ASeed>(player->HeldItem))
 				{
+					if (player->PlayerHUDRef)
+						player->PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
 					player->UpdateDecalDirection(false, false);
 				}
 				break;
@@ -191,8 +193,16 @@ void AGrowSpot::GrowPlantOnTick(float _deltaTime)
 		if (growTimer <= 0)
 		{
 			GrowSpotState = EGrowSpotState::Grown;
-		}
 
+			if (plant)
+			{
+				plant->isGrown = true;
+			}
+			if (weapon)
+			{
+				weapon->isGrown = true;
+			}
+		}
 	}
 }
 

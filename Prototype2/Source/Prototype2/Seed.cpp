@@ -31,6 +31,7 @@ void ASeed::BeginPlay()
 	ParachuteMesh->SetRelativeLocation(ParachuteMesh->GetRelativeLocation() + (FVector::UpVector * 100));
 	ParachuteMesh->SetRelativeScale3D({2,2,2});
 	ParachuteMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ParachuteMesh->SetSimulatePhysics(false);
 	//ParachuteMesh->SetIsReplicated(true);
 
 	UE_LOG(LogTemp, Warning, TEXT("Map name: %s"), *levelName);
@@ -104,7 +105,9 @@ bool ASeed::IsInteractable(APrototype2PlayerState* player)
 void ASeed::Multi_ToggleParachuteVisibility_Implementation(bool _visible)
 {
 
-	ItemComponent->Mesh->SetSimulatePhysics(!_visible);
+	if (HasAuthority())
+		ItemComponent->Mesh->SetSimulatePhysics(!_visible);
+	
 	ParachuteMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ParachuteMesh->SetVisibility(_visible);
 }

@@ -36,14 +36,10 @@ void UItemComponent::BeginPlay()
 	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	Mesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
-	
-	if (Mesh->Mobility.GetValue() == EComponentMobility::Movable)
+
+	if(GetOwner()->HasAuthority())
 	{
 		Mesh->SetSimulatePhysics(true);
-		//Mesh->BodyInstance.bLockXRotation = true;
-		//Mesh->BodyInstance.bLockYRotation = true;
-		Mesh->BodyInstance.bLockXTranslation = true;
-		Mesh->BodyInstance.bLockYTranslation = true;
 	}
 
 	Mesh->SetRenderCustomDepth(false);
