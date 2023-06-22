@@ -42,6 +42,49 @@ void AGrowSpot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(AGrowSpot, PlantReadySparkle_NiagaraComponent);
 }
 
+bool AGrowSpot::IsInteractable(APrototype2PlayerState* player)
+{
+	if (!player)
+		return false;
+	
+	if (auto controller = player->GetPlayerController())
+	{
+		if (auto character = controller->GetCharacter())
+		{
+			if (auto casted = Cast<APrototype2Character>(character))
+			{
+				if (player->Player_ID == Player_ID)
+				{
+					switch(GrowSpotState)
+					{
+					case EGrowSpotState::Empty:
+						{
+							if (Cast<ASeed>(casted->HeldItem))
+							{
+								return true;
+							}
+							break;
+						}
+					case EGrowSpotState::Growing:
+						{
+							break;
+						}
+					case EGrowSpotState::Grown:
+						{
+							return true;
+						}
+					default:
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+
+	return false;
+}
+
 // Called when the game starts or when spawned
 void AGrowSpot::BeginPlay()
 {
@@ -162,6 +205,8 @@ void AGrowSpot::Tick(float DeltaTime)
 	{
 		Multi_SetPlantReadySparkle_Implementation(false);
 	}
+
+	
 }
 
 void AGrowSpot::Multi_GrowOnTick_Implementation(float _deltaTime)
@@ -354,6 +399,10 @@ void AGrowSpot::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, c
 
 						owner->EnableStencil(true);
 					}
+					else
+					{
+						owner->EnableStencil(false);
+					}
 					break;
 				}
 			case EGrowSpotState::Growing:
@@ -370,11 +419,16 @@ void AGrowSpot::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, c
 						_invokingWiget->SetHUDInteractText("Pick Up");
 						owner->EnableStencil(true);
 					}
+					else
+					{
+						owner->EnableStencil(false);
+					}
 					
 					break;
 				}
 			default:
 				{
+					owner->EnableStencil(false);
 					break;
 				}
 			}						

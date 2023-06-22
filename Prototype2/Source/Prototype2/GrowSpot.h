@@ -23,7 +23,7 @@ public:
 	AGrowSpot();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	virtual bool IsInteractable(APrototype2PlayerState* player) override;
 	UPROPERTY(EditAnywhere)
 	int Player_ID = 0;
 

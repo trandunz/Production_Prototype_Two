@@ -27,6 +27,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual bool IsInteractable(APrototype2PlayerState* player) override;
 	
 	UFUNCTION(Server, Reliable)
     void Server_FireParticleSystem();

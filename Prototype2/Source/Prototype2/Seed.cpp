@@ -40,6 +40,11 @@ void ASeed::OnDisplayInteractText(class UWidget_PlayerHUD* _invokingWiget, class
 	}
 }
 
+bool ASeed::IsInteractable(APrototype2PlayerState* player)
+{
+	return true;
+}
+
 void ASeed::Grow()
 {
 }

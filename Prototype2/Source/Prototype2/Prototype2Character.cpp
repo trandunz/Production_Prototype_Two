@@ -221,6 +221,12 @@ void APrototype2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (PlayerHUDRef)
+	{
+		//PlayerHUDRef->UpdatePickupUI(EPickup::None, false);
+		PlayerHUDRef->SetHUDInteractText("");
+	}
+	
 	if (!EndGameCam)
 	{
 		if (auto gamemode = Cast<APrototype2GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
@@ -532,6 +538,7 @@ void APrototype2Character::UpdateCharacterSpeed(float _WalkSpeed, float _SprintS
 
 void APrototype2Character::CheckForInteractables()
 {
+	
 	TArray<FHitResult> outHits;
 	FVector sweepStart = GetActorLocation();
 	FVector sweepEnd = GetActorLocation();
@@ -544,15 +551,39 @@ void APrototype2Character::CheckForInteractables()
 		TArray<AActor*> interactableActors;
 		for (auto& hit : outHits)
 		{
-			if (Cast<IInteractInterface>(hit.GetActor()))
+			if (auto interface = Cast<IInteractInterface>(hit.GetActor()))
 			{
-				interactableActors.Add(hit.GetActor());
+				if (GetPlayerState<APrototype2PlayerState>())
+				{
+					if (interface->IsInteractable(GetPlayerState<APrototype2PlayerState>()))
+						interactableActors.Add(hit.GetActor());
+				}
 			}
+		}
+
+		bool emptyArray{};
+		AActor* sellBin;
+		for(auto actors : interactableActors)
+		{
+			float dist = FVector::Distance(actors->GetActorLocation(), GetActorLocation());
+			if (dist <= InteractRadius)
+			{
+				if (Cast<ASellBin>(actors))
+				{
+					emptyArray = true;
+					sellBin = actors;
+					break;
+				}
+			}
+		}
+		if (emptyArray)
+		{
+			interactableActors.Empty();
+			interactableActors.Add(sellBin);
 		}
 
 		float distanceToClosest;
 		auto nearestActor = UGameplayStatics::FindNearestActor(GetActorLocation(), interactableActors, distanceToClosest);
-		
 		if (distanceToClosest <= InteractRadius && nearestActor)
 		{
 			if (ClosestInteractableActor && ClosestInteractableActor != nearestActor)
@@ -572,6 +603,7 @@ void APrototype2Character::CheckForInteractables()
 	else
 	{
 		// null both references
+		EnableStencil(false);
 		ClosestInteractableItem = nullptr;
 		ClosestInteractableActor = nullptr;
 	}
@@ -1280,6 +1312,8 @@ void APrototype2Character::Server_TryInteract_Implementation()
 
 		UE_LOG(LogTemp, Warning, TEXT("Attempted to Interact!"));
 		ClosestInteractableItem->Interact(this);
+
+		EnableStencil(false);
 		
 		if (HeldItem)
 		{
