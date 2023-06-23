@@ -14,6 +14,8 @@ class PROTOTYPE2_API ARadialPlot : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ARadialPlot();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<class AGrowSpot*> growSpots;

@@ -3,6 +3,7 @@
 
 #include "RadialPlot.h"
 #include "GrowSpot.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ARadialPlot::ARadialPlot()
@@ -15,6 +16,12 @@ ARadialPlot::ARadialPlot()
 	PlotSignMesh->SetRelativeLocation({-400, -100, 0});
 	PlotSignMesh->SetRelativeRotation({0, 180, 0});
 	PlotSignMesh->SetIsReplicated(true);
+}
+
+void ARadialPlot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ARadialPlot, PlotSignMesh);
 }
 
 void ARadialPlot::Multi_SetPlotMaterial_Implementation(int _id)
