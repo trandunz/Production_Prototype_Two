@@ -24,10 +24,10 @@ ASellBin::ASellBin()
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 
 	// Sell UI
-	SellAmountWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SellAmountWidgetComponent"));
-	SellAmountWidgetComponent->SetupAttachment(RootComponent);
-	SellAmountWidgetComponent->SetIsReplicated(false);
-	SellAmountWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//SellAmountWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SellAmountWidgetComponent"));
+	//SellAmountWidgetComponent->SetupAttachment(RootComponent);
+	//SellAmountWidgetComponent->SetIsReplicated(false);
+	//SellAmountWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	
 	InterfaceType = EInterfaceType::SellBin;
@@ -96,21 +96,24 @@ void ASellBin::Server_FireParticleSystem_Implementation()
 
 void ASellBin::FireSellFX(APlant* _plant, APrototype2Character* player)
 {
-	if (player->IsLocallyControlled() && _plant)
+	if (SellAmountWidgetComponent)
 	{
-		// Selling UI - Show in-game UI when selling
-		if (SellAmountWidgetComponent->GetWidget())
+		if (player->IsLocallyControlled() && _plant)
 		{
-			SellAmountWidgetComponent->SetRelativeLocation(FVector(startPosition)); // Reset text to start position
-				
-			if (auto sellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
+			// Selling UI - Show in-game UI when selling
+			if (SellAmountWidgetComponent->GetWidget())
 			{
-				sellCropUI->SetCropValue(_plant->ItemComponent->CropValue);
-				if (sellCropUI->SellText)
+				SellAmountWidgetComponent->SetRelativeLocation(FVector(startPosition)); // Reset text to start position
+				
+				if (auto sellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
 				{
-					sellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
+					sellCropUI->SetCropValue(_plant->ItemComponent->CropValue);
+					if (sellCropUI->SellText)
+					{
+						sellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
+					}
+					isMoving = true;
 				}
-				isMoving = true;
 			}
 		}
 	}
@@ -136,14 +139,17 @@ void ASellBin::Multi_FireParticleSystem_Implementation()
 
 void ASellBin::HideParticleSystem()
 {
-	bWidgetVisible = false;
-	if (SellAmountWidgetComponent->GetWidget())
+	if (SellAmountWidgetComponent)
 	{
-		if (auto sellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
+		bWidgetVisible = false;
+		if (SellAmountWidgetComponent->GetWidget())
 		{
-			if (sellCropUI->SellText)
+			if (auto sellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
 			{
-				sellCropUI->SellText->SetVisibility(ESlateVisibility::Hidden);
+				if (sellCropUI->SellText)
+				{
+					sellCropUI->SellText->SetVisibility(ESlateVisibility::Hidden);
+				}
 			}
 		}
 	}
@@ -171,16 +177,19 @@ void ASellBin::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 
 void ASellBin::MoveUIComponent(float _dt)
 {
-	if (movingTimer > 0)
+	if (SellAmountWidgetComponent)
 	{
-		movingTimer -= _dt; // Decrease timer
-		SellAmountWidgetComponent->AddLocalOffset(FVector(0, 0, moveSpeed * _dt)); // Move component
-	}
-	else
-	{
-		movingTimer = movingTime;
-		isMoving = false;
-		HideParticleSystem();
+		if (movingTimer > 0)
+		{
+			movingTimer -= _dt; // Decrease timer
+			SellAmountWidgetComponent->AddLocalOffset(FVector(0, 0, moveSpeed * _dt)); // Move component
+		}
+		else
+		{
+			movingTimer = movingTime;
+			isMoving = false;
+			HideParticleSystem();
+		}
 	}
 }
 
@@ -226,7 +235,6 @@ void ASellBin::Interact(APrototype2Character* player)
 
 void ASellBin::OnDisplayInteractText(UWidget_PlayerHUD* _invokingWiget,APrototype2Character* owner, int _playerID)
 {
-	
 	if(auto heldItem = owner->HeldItem)
 	{
 		if (heldItem->ItemComponent->PickupType == EPickup::Cabbage ||
