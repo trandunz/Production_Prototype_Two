@@ -222,7 +222,7 @@ void APrototype2GameMode::LookOutForGameEnd()
 {
 	if (GameStateRef)
 	{
-		if (Server_Characters.Num() <= GameStateRef->Server_Players.Num())
+		if (Server_Characters.Num() < GameStateRef->Server_Players.Num())
 		{
 			Server_Characters.Empty();
 			Server_Characters = {};

@@ -247,7 +247,7 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	}
 	if (PlayerStateRef)
 	{
-		if (IsLocallyControlled())
+		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
 		{
 			if (EndGameCam)
 			{
