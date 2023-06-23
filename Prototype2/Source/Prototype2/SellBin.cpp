@@ -96,17 +96,20 @@ void ASellBin::Server_FireParticleSystem_Implementation()
 
 void ASellBin::FireSellFX(APlant* _plant, APrototype2Character* player)
 {
-	if (player->IsLocallyControlled())
+	if (player->IsLocallyControlled() && _plant)
 	{
 		// Selling UI - Show in-game UI when selling
 		if (SellAmountWidgetComponent->GetWidget())
 		{
 			SellAmountWidgetComponent->SetRelativeLocation(FVector(startPosition)); // Reset text to start position
 				
-			if (auto* SellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
+			if (auto sellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
 			{
-				SellCropUI->SetCropValue(_plant->ItemComponent->CropValue);
-				SellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
+				sellCropUI->SetCropValue(_plant->ItemComponent->CropValue);
+				if (sellCropUI->SellText)
+				{
+					sellCropUI->SellText->SetVisibility(ESlateVisibility::Visible);
+				}
 				isMoving = true;
 			}
 		}
@@ -136,9 +139,12 @@ void ASellBin::HideParticleSystem()
 	bWidgetVisible = false;
 	if (SellAmountWidgetComponent->GetWidget())
 	{
-		if (auto* SellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
+		if (auto sellCropUI = Cast<UWidget_SellCropUI>(SellAmountWidgetComponent->GetWidget()))
 		{
-			SellCropUI->SellText->SetVisibility(ESlateVisibility::Hidden);
+			if (sellCropUI->SellText)
+			{
+				sellCropUI->SellText->SetVisibility(ESlateVisibility::Hidden);
+			}
 		}
 	}
 }
