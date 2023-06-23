@@ -20,7 +20,7 @@ void APlant::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Server_ToggleGold();
+	//Server_ToggleGold();
 
 	SetReplicatingMovement(true);
 
