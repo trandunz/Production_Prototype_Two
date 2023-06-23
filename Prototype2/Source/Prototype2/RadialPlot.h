@@ -14,7 +14,7 @@ class PROTOTYPE2_API ARadialPlot : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ARadialPlot();
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<class AGrowSpot*> growSpots;
 	UPROPERTY(EditAnywhere)
@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<UMaterialInstance*> PlotSignMaterials;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	class UStaticMeshComponent* PlotSignMesh;
 
 	UPROPERTY(EditAnywhere)
@@ -45,5 +45,4 @@ protected:
 
 public:	
 	void SetPlayerID(int _id);
-
 };

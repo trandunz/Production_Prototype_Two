@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IndexTypes.h"
 #include "GameFramework/Actor.h"
 #include "RaidialSpawner.generated.h"
 
@@ -33,4 +34,10 @@ public:
 	int playercount = 12;
 
 	void SetUp();
+
+	UPROPERTY()
+	TMap<int32, ARadialPlot*> Plots;
+	
+	UFUNCTION(BlueprintCallable)
+	void SetupDelayed();
 };

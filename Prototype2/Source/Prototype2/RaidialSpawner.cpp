@@ -27,6 +27,7 @@ void ARaidialSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
 	if (HasAuthority())
 	{
 		if (PlotPrefab)
@@ -89,7 +90,9 @@ void ARaidialSpawner::SetUp()
 		FRotator desiredRotation = FRotationMatrix::MakeFromX(direction).Rotator();
 		float rotationAngle = desiredRotation.Yaw;
 		plot->SetActorRelativeRotation({plot->GetActorRotation().Pitch, rotationAngle, plot->GetActorRotation().Roll});
-		plot->SetPlayerID(Index);
+
+		Plots.Add(Index, plot);
+		//plot->SetPlayerID(Index);
 		
 		/*auto centerPlot = GetWorld()->SpawnActor<AGrowSpot>(PlotPrefab);
 		int distance = 400;
@@ -125,6 +128,14 @@ void ARaidialSpawner::SetUp()
 				}
 			}
 		}*/
+	}
+}
+
+void ARaidialSpawner::SetupDelayed()
+{
+	for (const TPair<int32, ARadialPlot*>& pair : Plots)
+	{
+		pair.Value->SetPlayerID(pair.Key);		
 	}
 }
 
