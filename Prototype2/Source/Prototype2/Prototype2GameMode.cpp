@@ -222,7 +222,7 @@ void APrototype2GameMode::LookOutForGameEnd()
 {
 	if (GameStateRef)
 	{
-		if (Server_Characters.Num() < GameStateRef->Server_Players.Num())
+		if (Server_Characters.Num() <= GameStateRef->Server_Players.Num())
 		{
 			Server_Characters.Empty();
 			Server_Characters = {};
@@ -235,8 +235,7 @@ void APrototype2GameMode::LookOutForGameEnd()
 			}
 		}
 
-		if (Server_PlayerStates.Num() < GameStateRef->Server_Players.Num())
-			Server_PlayerStates = GameStateRef->Server_Players;
+		Server_PlayerStates = GameStateRef->Server_Players;
 		
 		if (GameStateRef->HasGameFinished && !TpHasHappened)
 		{
@@ -433,7 +432,6 @@ void APrototype2GameMode::KeepPlayersAtSpawnPositionUntilStart()
 											character->SetActorLocation(spawnPoint);
 											character->SetActorRotation({character->GetActorRotation().Pitch, radialPlot->GetActorRotation().Yaw, character->GetActorRotation().Roll});
 										}
-										
 										break;
 									}
 								}

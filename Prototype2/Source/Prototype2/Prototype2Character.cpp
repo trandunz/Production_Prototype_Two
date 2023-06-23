@@ -247,11 +247,10 @@ void APrototype2Character::Tick(float DeltaSeconds)
 	}
 	if (PlayerStateRef)
 	{
-		if (HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy)
+		if (IsLocallyControlled())
 		{
 			if (EndGameCam)
 			{
-				
 				if (gamestate->HasGameFinished)
 				{
 					if (auto castedController = Cast<APrototype2PlayerController>(PlayerStateRef->GetPlayerController()))
@@ -801,23 +800,26 @@ void APrototype2Character::OpenIngameMenu()
 
 void APrototype2Character::UpdateDecalAngle()
 {
-	FVector playerPos = FVector(GetActorLocation().X, GetActorLocation().Y, 0);
-	FRotator newRotation{};
+	if (SellBin && IsLocallyControlled())
+	{
+		FVector playerPos = FVector(GetActorLocation().X, GetActorLocation().Y, 0);
+		FRotator newRotation{};
 	
-	if (bDecalTargetShippingBin)
-	{
-		FVector sellPos = FVector(SellBin->GetActorLocation().X, SellBin->GetActorLocation().Y, 0);
+		if (bDecalTargetShippingBin)
+		{
+			FVector sellPos = FVector(SellBin->GetActorLocation().X, SellBin->GetActorLocation().Y, 0);
 		
-		newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, sellPos);
-	}
-	else
-	{
-		FVector plotPos = FVector(StartPosition.X, StartPosition.Y, 0);
+			newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, sellPos);
+		}
+		else
+		{
+			FVector plotPos = FVector(StartPosition.X, StartPosition.Y, 0);
 		
-		newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, plotPos);
-	}
+			newRotation = UKismetMathLibrary::FindLookAtRotation(playerPos, plotPos);
+		}
 
-	DecalArmSceneComponent->SetWorldRotation(newRotation);
+		DecalArmSceneComponent->SetWorldRotation(newRotation);
+	}
 }
 
 void APrototype2Character::UpdateAOEIndicator()
